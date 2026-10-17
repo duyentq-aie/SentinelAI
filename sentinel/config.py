@@ -36,7 +36,7 @@ class OverloadRule:
 
 @dataclass
 class WrongWayRule:
-    enabled: bool = True
+    enabled: bool = False
     history_len: int = 30
     min_history: int = 15
     dy_threshold: float = -30
@@ -57,7 +57,7 @@ class RulesCfg:
 
 @dataclass
 class PlateCfg:
-    max_attempts: int = 30          # plate-detector runs per violating track; 0 = unlimited
+    max_attempts: int = 90          # plate-detector runs per violating track; 0 = unlimited
     stop_when_found: bool = True    # False = keep detecting on every violating frame (v0 behaviour, used as the A/B reference)
     every: int = 1                  # try on every k-th frame of a violating track
 
@@ -74,12 +74,26 @@ class EvidenceCfg:
 
 
 @dataclass
+class WebCfg:
+    """Demo server. Defaults are deliberately restrictive: loopback only, no RTSP, no camera index, uploads limited in type and size."""
+    host: str = "127.0.0.1"
+    port: int = 8000
+    upload_dir: str = "static/uploads"
+    max_upload_mb: int = 500
+    allowed_extensions: List[str] = field(default_factory=lambda: [".mp4", ".avi", ".mov", ".mkv", ".m4v", ".webm"])
+    allowed_source_dirs: List[str] = field(default_factory=lambda: ["static/uploads", "."])   # "." = repo root (test_video.mp4)
+    allow_rtsp: bool = False
+    allow_camera_index: bool = False
+
+
+@dataclass
 class PipelineConfig:
     device: Optional[str] = None
     frame_size: List[int] = field(default_factory=lambda: [1280, 720])
     models: ModelsCfg = field(default_factory=ModelsCfg)
     rules: RulesCfg = field(default_factory=RulesCfg)
     evidence: EvidenceCfg = field(default_factory=EvidenceCfg)
+    web: WebCfg = field(default_factory=WebCfg)
     root: Path = REPO                  # base for relative weights/tracker paths (not read from yaml)
 
     def validate(self):
@@ -105,6 +119,11 @@ class PipelineConfig:
             raise ValueError("evidence: max_dir_mb >= 0, 1 <= jpeg_quality <= 100, close_after >= 1")
         if ev.plate.max_attempts < 0 or ev.plate.every < 1:
             raise ValueError("evidence.plate: max_attempts >= 0 and every >= 1")
+        w = self.web
+        if not 1 <= w.port <= 65535 or w.max_upload_mb < 1 or not w.allowed_extensions or not w.allowed_source_dirs:
+            raise ValueError("web: port in 1..65535, max_upload_mb >= 1, allowed_extensions and allowed_source_dirs non-empty")
+        if any(not e.startswith(".") for e in w.allowed_extensions):
+            raise ValueError("web.allowed_extensions entries must start with '.'")
         return self
 
     def path(self, p):

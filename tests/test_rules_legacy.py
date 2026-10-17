@@ -6,8 +6,10 @@ from sentinel.rules.legacy import LegacyRules, vehicle_label, violation_labels
 CAM = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
 
 
-def rules():
-    return LegacyRules(load_pipeline_config().rules, CAM)
+def rules(wrong_way=False):
+    cfg = load_pipeline_config().rules
+    cfg.wrong_way.enabled = wrong_way                # default config has the legacy wrong-way rule off
+    return LegacyRules(cfg, CAM)
 
 
 def moto(tid, box=(100, 100, 200, 300)):
@@ -66,8 +68,15 @@ def car_at(y):
     return Perception(coco=[Track(7, "car", (400, y, 500, y + 60), 0.9)])
 
 
-def test_wrong_way_car_moving_up_the_image():
+def test_wrong_way_is_off_by_default():
     r = rules()
+    for i in range(30):
+        res = r.step(car_at(600 - 5 * i))
+    assert not vehicles(res)["C_7"].violator
+
+
+def test_wrong_way_car_moving_up_the_image():
+    r = rules(True)
     res = None
     for i in range(16):                                           # 16 positions, moving up 5 px/frame -> dy = -75 after 16
         res = r.step(car_at(600 - 5 * i))
@@ -82,7 +91,7 @@ def test_car_moving_down_is_fine():
 
 
 def test_wrong_way_needs_15_positions():
-    r = rules()
+    r = rules(True)
     for i in range(14):
         res = r.step(car_at(600 - 20 * i))
     assert not vehicles(res)["C_7"].violator

@@ -14,7 +14,9 @@ def test_default_config_matches_original_constants():
     assert c.rules.helmet.violation_frames == 5
     assert c.rules.overload.max_passengers == 2
     ww = c.rules.wrong_way
-    assert (ww.history_len, ww.min_history, ww.dy_threshold, ww.enabled) == (30, 15, -30, True)
+    assert (ww.history_len, ww.min_history, ww.dy_threshold) == (30, 15, -30)
+    assert ww.enabled is False                       # off by default since baseline v2 (out of the reported scope)
+    assert c.evidence.plate.max_attempts == 90
     assert c.evidence.dir == "static/violations" and c.evidence.plate_margin == 10 and c.evidence.max_records == 12
 
 
@@ -68,3 +70,14 @@ def test_device_override_and_relative_paths():
     c = load_pipeline_config(device="cpu", root=Path("/somewhere"))
     assert c.device == "cpu" and c.path("yolo11s.pt") == Path("/somewhere/yolo11s.pt")
     assert load_pipeline_config().device is None
+
+
+def test_web_defaults_are_restrictive():
+    w = load_pipeline_config().web
+    assert w.host == "127.0.0.1" and w.allow_rtsp is False and w.allow_camera_index is False
+    assert w.max_upload_mb <= 1000 and ".exe" not in w.allowed_extensions and ".py" not in w.allowed_extensions
+
+
+def test_entrypoint_does_not_expose_the_server_or_autoreload():
+    src = (REPO / "app.py").read_text(encoding="utf-8")
+    assert "0.0.0.0" not in src and "reload=True" not in src

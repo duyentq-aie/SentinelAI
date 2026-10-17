@@ -58,8 +58,10 @@ def test_fixture_matches_local_assets_when_present(any_tracks, name):
         assert hashlib.sha256(f.read_bytes()).hexdigest() == sha, f"{fname} differs from the one the fixture was recorded with"
 
 
-def _replay(perceptions):
+def _replay(perceptions, wrong_way=True):
+    """wrong_way=True reproduces baselines v0/v1 (they were recorded with the legacy wrong-way rule on)."""
     cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
+    cfg.rules.wrong_way.enabled = wrong_way
     t0 = time.perf_counter()
     got = run_rules(perceptions, LegacyRules(cfg.rules, cam), violation_labels)
     assert time.perf_counter() - t0 < 30                                   # offline rule replay budget

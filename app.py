@@ -1,13 +1,12 @@
 """Entrypoint kept for compatibility: `python app.py` / `uvicorn app:app`.
 
-The code now lives in sentinel/ (pipeline) and apps/web/ (FastAPI demo).
-The original single-file version is tagged `v0-baseline`.
+The code lives in sentinel/ (pipeline) and apps/web/ (FastAPI demo). The original single-file version is tagged `v0-baseline`.
+Binds to 127.0.0.1 by default (web.host in configs/pipeline/default.yaml); there is no auto-reload.
 """
 import uvicorn
 
-from apps.web.server import app  # noqa: F401  (re-exported for uvicorn)
+from apps.web.server import app, cfg  # noqa: F401  (app is re-exported for `uvicorn app:app`)
 
 if __name__ == "__main__":
-    print("[*] Starting SentinelAI FastApi Server...")
-    # http://127.0.0.1:8000/
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    print(f"[*] Starting SentinelAI FastApi Server on http://{cfg.web.host}:{cfg.web.port}/")
+    uvicorn.run(app, host=cfg.web.host, port=cfg.web.port, reload=False)
