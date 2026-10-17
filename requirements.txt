@@ -1,0 +1,34 @@
+# Runtime + test dependencies actually used by this repo (versions = the ones the experiments were run with).
+# requirements-lock.txt is the full `pip freeze` of the venv (it also contains unused heavy packages: modelscope, paddlex extras, ...).
+# Python 3.11, Windows 11, NVIDIA driver with CUDA 11.8 runtime from the torch wheel.
+
+# --- deep learning (GPU build; use the cu118 index: pip install torch==2.7.1+cu118 torchvision==0.22.1+cu118 --index-url https://download.pytorch.org/whl/cu118)
+torch==2.7.1+cu118
+torchvision==0.22.1+cu118
+ultralytics==8.4.26          # AGPL-3.0
+lap==0.5.13                  # tracker
+
+# --- vision / numerics
+numpy==2.4.3
+opencv-python==4.13.0.92     # NOTE: the dev venv has BOTH this and opencv-contrib-python 4.10.0.84; the cv2 that actually loads is 4.10.0
+                             # (env.json of every experiment). In a fresh environment install only ONE of the two; nothing here needs contrib modules.
+PyYAML==6.0.2
+
+# --- demo server
+fastapi==0.135.2
+uvicorn==0.42.0
+Jinja2==3.1.6
+python-multipart==0.0.22
+
+# --- ONNX (CPU runtime; the GPU build needs CUDA 12 which this machine does not have)
+onnx==1.23.2
+onnxslim==0.1.98
+onnxruntime==1.31.0
+
+# --- optional: plate OCR (configs/pipeline/ocr.yaml)
+paddleocr==3.4.0
+paddlepaddle==3.3.0
+
+# --- tests
+pytest==9.1.1
+httpx==0.28.1

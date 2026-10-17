@@ -22,6 +22,9 @@ from pathlib import Path
 
 import cv2
 
+from sentinel.ocr import quality
+from sentinel.ocr.engine import OcrUnavailable
+
 SCHEMA = "sentinel.event/1"
 GT_FIELDS = ("id", "type", "frame_start", "frame_end", "key_frame", "key_box", "plate_text", "difficulty", "notes")
 PREDICTION_FIELDS = ("schema", "status", "frame_size", "track_id", "trigger_frame", "confidence", "plate_pred", "boxes", "plate", "evidence",
@@ -58,6 +61,7 @@ class _Event:
     closed: bool = False
     written: bool = False
     frame_size: list = None
+    plate_pred: dict = None
 
 
 @dataclass
@@ -90,9 +94,11 @@ def enforce_dir_limit(root, max_bytes, protect=("events.jsonl",)):
 
 
 class EvidenceRecorder:
-    def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time):
-        """cfg: EvidenceCfg. plate_boxes(crop_bgr) -> [(x1, y1, x2, y2, conf)] relative to the crop, best first."""
-        self.cfg, self.plate_boxes = cfg, plate_boxes
+    def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time, ocr=None):
+        """cfg: EvidenceCfg. plate_boxes(crop_bgr) -> [(x1, y1, x2, y2, conf)] relative to the crop, best first.
+        ocr: PlateOCR or None (None = plates are only cropped, never read)."""
+        self.cfg, self.plate_boxes, self.ocr = cfg, plate_boxes, ocr
+        self.ocr_latencies_ms = []
         self.video_id, self.camera_id = video_id, camera_id
         self.root = Path(cfg.dir)
         self.on_plate_saved, self.on_evicted, self.clock = on_plate_saved, on_evicted, clock
@@ -102,6 +108,9 @@ class EvidenceRecorder:
         self._plates = {}          # track_id -> plate dict (found)
         self._attempts = {}        # track_id -> detector runs
         self._violating_since = {} # track_id -> first frame of the current violating stretch
+        self._cands = {}           # track_id -> plate crop candidates for OCR [{img, frame, box, conf, attempts}]
+        self._last_cand = {}       # track_id -> frame of the last collected candidate
+        self._pred = {}            # track_id -> plate_pred (OCR result, or an error record)
         self.root.mkdir(parents=True, exist_ok=True)
 
     # ---- lifecycle
@@ -109,6 +118,7 @@ class EvidenceRecorder:
         """Source changed / video looped: ids restart, so close everything and forget id-keyed state."""
         self.flush()
         self._plates.clear(); self._attempts.clear(); self._violating_since.clear(); self._done.clear()
+        self._cands.clear(); self._last_cand.clear(); self._pred.clear()
         self.run += 1
 
     def flush(self):
@@ -144,10 +154,14 @@ class EvidenceRecorder:
         return res
 
     # ---- plates
+    def _collecting(self, tid):
+        """OCR wants more crops of this track before reading."""
+        return self.ocr is not None and tid not in self._pred and len(self._cands.get(tid, [])) < self.cfg.ocr.candidates
+
     def _maybe_detect_plate(self, frame_idx, raw, v, res):
         cfg = self.cfg.plate
         found = v.id in self._plates
-        if found and cfg.stop_when_found:
+        if found and cfg.stop_when_found and not self._collecting(v.id):
             return
         attempts = self._attempts.get(v.id, 0)
         if cfg.max_attempts and attempts >= cfg.max_attempts:
@@ -166,7 +180,7 @@ class EvidenceRecorder:
         boxes = self.plate_boxes(crop)
         for (px1, py1, px2, py2, _c) in boxes:
             res.plate_boxes.append((vx1 + px1, vy1 + py1, vx1 + px2, vy1 + py2))
-        if boxes and not found:
+        if boxes:
             px1, py1, px2, py2, conf = boxes[0]
             rx1, ry1, rx2, ry2 = vx1 + px1, vy1 + py1, vx1 + px2, vy1 + py2
             m = self.cfg.plate_margin
@@ -174,29 +188,70 @@ class EvidenceRecorder:
             x1, x2 = max(0, rx1 - m), min(raw.shape[1], rx2 + m)
             img = raw[y1:y2, x1:x2]
             if img.size:
-                self._plates[v.id] = {"found": True, "frame": frame_idx, "box": [rx1, ry1, rx2, ry2], "conf": round(float(conf), 4),
-                                      "crop_size": [int(img.shape[1]), int(img.shape[0])], "attempts": self._attempts[v.id], "_img": img}
-                res.plates_found.append(v.id)
-                for ev in self._open.values():
-                    if ev.track_id == v.id:
-                        self._attach_plate(ev)
-        elif not boxes and cfg.max_attempts and self._attempts[v.id] >= cfg.max_attempts:
+                om = self.cfg.ocr.margin
+                tight = raw[max(0, ry1 - om):min(raw.shape[0], ry2 + om), max(0, rx1 - om):min(raw.shape[1], rx2 + om)]
+                info = {"found": True, "frame": frame_idx, "box": [rx1, ry1, rx2, ry2], "conf": round(float(conf), 4),
+                        "crop_size": [int(img.shape[1]), int(img.shape[0])], "attempts": self._attempts[v.id], "_img": img, "_tight": tight}
+                if not found:
+                    self._plates[v.id] = info
+                    res.plates_found.append(v.id)
+                    for ev in self._open.values():
+                        if ev.track_id == v.id:
+                            self._attach_plate(ev)
+                if self.ocr is not None and v.id not in self._pred:
+                    self._collect(v.id, info)
+        if (not boxes or v.id in self._plates) and cfg.max_attempts and self._attempts[v.id] >= cfg.max_attempts:
             self._finish_plate_search(v.id)
+
+    def _collect(self, tid, info):
+        o = self.cfg.ocr
+        if info["frame"] - self._last_cand.get(tid, -10**9) < o.min_gap:
+            return
+        self._last_cand[tid] = info["frame"]
+        self._cands.setdefault(tid, []).append(info)
+        if len(self._cands[tid]) >= o.candidates:
+            self._run_ocr(tid)
+
+    def _run_ocr(self, tid):
+        """Pick the best crop (size x sharpness) of the track as THE plate crop, read the best few and vote. Never raises."""
+        cands = self._cands.get(tid)
+        if not cands or tid in self._pred or self.ocr is None:
+            return
+        best = cands[quality.best([c["_tight"] for c in cands], 1)[0]]
+        self._plates[tid] = dict(best)
+        for ev in self._open.values():
+            if ev.track_id == tid:
+                self._attach_plate(ev, notify=False)                 # rewrite plate.jpg with the best crop
+        try:
+            pred = self.ocr.read_track([c["_tight"] for c in cands])
+            self.ocr_latencies_ms.append(pred["latency_ms"])
+        except OcrUnavailable as e:
+            pred = {"text": None, "format_ok": False, "error": str(e)}
+            self.ocr = None                                          # do not retry (and do not stall) on every violating track
+        except Exception as e:                                       # a bad crop must not stop the pipeline
+            pred = {"text": None, "format_ok": False, "error": f"{type(e).__name__}: {e}"}
+        self._pred[tid] = pred
+        for ev in self._open.values():
+            if ev.track_id == tid:
+                ev.plate_pred = pred
+                if ev.written:
+                    self._write(ev, "open")
 
     def _finish_plate_search(self, track_id):
         for ev in self._open.values():
             if ev.track_id == track_id and ev.plate is None:
                 ev.plate = {"found": False, "attempts": self._attempts.get(track_id, 0)}
+        self._run_ocr(track_id)                                      # whatever crops were collected are read now
 
-    def _attach_plate(self, ev):
+    def _attach_plate(self, ev, notify=True):
         info = self._plates[ev.track_id]
         d = self.root / ev.id
         d.mkdir(parents=True, exist_ok=True)
         path = d / "plate.jpg"
         cv2.imwrite(str(path), info["_img"], [cv2.IMWRITE_JPEG_QUALITY, self.cfg.jpeg_quality])
-        ev.plate = {k: v for k, v in info.items() if k != "_img"}
+        ev.plate = {k: v for k, v in info.items() if not k.startswith("_")}
         ev.plate["file"] = self._rel(path)
-        if self.on_plate_saved:
+        if self.on_plate_saved and notify:
             self.on_plate_saved(ev, path)
         if ev.written:
             self._write(ev, "open")           # last record wins: makes the plate visible even if the process dies before close
@@ -221,6 +276,7 @@ class EvidenceRecorder:
         self._open[(v.id, etype)] = ev
         if v.id in self._plates:
             self._attach_plate(ev)
+        ev.plate_pred = self._pred.get(v.id)
         self._write(ev, "open")
         self._limit()
         return ev
@@ -228,6 +284,10 @@ class EvidenceRecorder:
     def _close(self, ev):
         if ev.closed:
             return
+        if not any(e.track_id == ev.track_id for e in self._open.values() if e is not ev):
+            self._run_ocr(ev.track_id)                               # last open event of this vehicle: read what was collected
+        if ev.plate_pred is None:
+            ev.plate_pred = self._pred.get(ev.track_id)
         if ev.plate is None:
             ev.plate = {"found": False, "attempts": self._attempts.get(ev.track_id, 0)}
         ev.closed = True
@@ -246,7 +306,7 @@ class EvidenceRecorder:
             "id": ev.id, "type": ev.type, "frame_start": ev.frame_start, "frame_end": ev.frame_end, "key_frame": ev.frame_start,
             "key_box": ev.key_box, "plate_text": None, "difficulty": None, "notes": "",
             "schema": SCHEMA, "status": status, "frame_size": ev.frame_size, "track_id": ev.track_id, "trigger_frame": ev.frame_start, "confidence": None,
-            "plate_pred": None, "boxes": ev.boxes if status != "open" else {str(ev.frame_start): ev.key_box},
+            "plate_pred": ev.plate_pred, "boxes": ev.boxes if status != "open" else {str(ev.frame_start): ev.key_box},
             "plate": ev.plate if ev.plate is not None else {"found": False, "attempts": self._attempts.get(ev.track_id, 0), "searching": True},
             "evidence": {k: (self._rel(p) if p.exists() else None) for k, p in files.items()},
             "vehicle": {"cls": ev.vehicle_cls, "box_size": [ev.key_box[2] - ev.key_box[0], ev.key_box[3] - ev.key_box[1]]},

@@ -26,6 +26,18 @@ from sentinel.rules.windowed import make_rules
 from sentinel.viz import draw_sleek_box as _draw_box
 
 
+def build_ocr(cfg):
+    """PaddleOCR-based PlateOCR from the config, or None (with a printed reason) if PaddleOCR cannot be loaded: evidence still works."""
+    from sentinel.ocr.engine import OcrUnavailable, PaddleRecognizer, PlateOCR
+    rec = PaddleRecognizer(cfg.evidence.ocr.model)
+    try:
+        rec._load()                                       # fail now, not in the middle of the first violation
+    except OcrUnavailable as e:
+        print(f"[!] OCR disabled: {e}")
+        return None
+    return PlateOCR(rec, reads=cfg.evidence.ocr.reads, model_name=cfg.evidence.ocr.model)
+
+
 class Detectors:
     """The three YOLO models, built from PipelineConfig."""
 
@@ -79,7 +91,7 @@ class FrameResult:
 
 
 class Pipeline:
-    def __init__(self, detectors, state, cfg: PipelineConfig, camera: CameraConfig):
+    def __init__(self, detectors, state, cfg: PipelineConfig, camera: CameraConfig, ocr=None):
         self.d = detectors
         self.s = state
         self.cfg = cfg
@@ -87,8 +99,10 @@ class Pipeline:
         self.rules = make_rules(cfg.rules, camera)
         self._box = functools.partial(_draw_box, blend=cfg.render.blend)
         self.frame_idx = 0
+        if ocr is None and cfg.evidence.ocr.enabled:
+            ocr = build_ocr(cfg)
         self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
-                                         camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune)
+                                         camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune, ocr=ocr)
         self.prev_frame_time = 0
         self.violation_zone = CameraConfig.polygon(camera.violation_zone)
         self.bike_lane_zone = CameraConfig.polygon(camera.wrong_lane_zone)
@@ -161,8 +175,9 @@ class Pipeline:
             self._box(display, x1, y1, x2, y2, "PLATE", (0, 255, 0), thickness=2)
         self.frame_idx += 1
 
-        new_frame_time = time.time()
-        fps = 1 / (new_frame_time - self.prev_frame_time) if self.prev_frame_time > 0 else 0
+        new_frame_time = time.perf_counter()                # time.time() has ~15 ms resolution on Windows: two fast frames could share a tick (division by zero)
+        dt = new_frame_time - self.prev_frame_time
+        fps = 1 / dt if self.prev_frame_time > 0 and dt > 0 else 0
         self.prev_frame_time = new_frame_time
         cv2.putText(display, f"FPS: {int(fps)}", (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 3)
 

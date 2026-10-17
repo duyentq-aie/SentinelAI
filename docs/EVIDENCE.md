@@ -32,7 +32,8 @@ Fields share the **ground-truth schema of PLAN section 3.1**, so `tools/eval_eve
 | `schema`, `status` | | yes | `sentinel.event/1`; `open` \| `closed` |
 | `frame_size` | | yes | `[w, h]` of the frame the pipeline worked on (1280x720 by default): `key_box`, `boxes`, `plate.box` are in these pixels. Ground-truth labels use the video's native pixels (`width`/`height` of the labels file); the evaluator rescales |
 | `track_id`, `trigger_frame` | | yes | tracker id (`M_77` motorcycle from the helmet model, `C_221` car/truck/bus from COCO) and the frame that triggered the event (= `frame_start`) |
-| `confidence`, `plate_pred` | | `null` for now | reserved for rule confidence / OCR result |
+| `confidence` | | `null` for now | reserved for rule confidence |
+| `plate_pred` | | `null` unless OCR is enabled | `{"text" (normalised plate, or null), "format_ok", "score", "raw" (what the recogniser returned per read), "reads", "valid_reads", "unanimous", "latency_ms", "model"}` or `{"text": null, "error": ...}` when PaddleOCR is unavailable. `text` is **not verified**; `format_ok` only says the string has the shape of a Vietnamese plate |
 | `boxes` | | yes | vehicle box sampled every 5 frames while the event is active (`{"frame": box}`, max 60) |
 | `plate` | | yes | `{"found": true, "frame", "box" (raw px), "conf", "crop_size": [w,h], "attempts", "file"}` or `{"found": false, "attempts": n}` |
 | `evidence` | | yes | paths of `frame` / `vehicle` / `plate`, **relative to the evidence folder** (`null` if absent) |
@@ -46,6 +47,6 @@ and stop at the first plate (`stop_when_found`). A plate found for a track is re
 used as the A/B reference in `experiments/EXP-003-evidence/`.
 
 ## Known limits
-- Plate text is not read yet (P3); crops average ~54x43 px at 1280x720, which may be too small for OCR.
+- Plate OCR exists (`evidence.ocr`, off by default) but on the 720p test clip it read **0 of 14** plates: the plate itself is only ~25x23 px (the saved crops average ~46x44 px including a 10 px margin). See experiments/EXP-008-ocr.
 - The `PLATE` overlay is only drawn on frames where the detector ran (it no longer runs on every frame).
 - Track ids are device-specific; events from a GPU run and a CPU run of the same video are not byte-identical.

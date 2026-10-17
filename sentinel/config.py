@@ -70,6 +70,16 @@ class PlateCfg:
 
 
 @dataclass
+class OcrCfg:
+    enabled: bool = False             # off by default: needs PaddleOCR (heavy import, ~model download on first use)
+    candidates: int = 5               # plate crops collected per track before reading (the detector keeps running until then)
+    min_gap: int = 3                  # frames between two collected crops (different views of the same plate)
+    reads: int = 3                    # best crops (by size x sharpness) actually read; the readings are voted
+    margin: int = 2                   # px of background kept around the plate box in the crops that are READ (plate.jpg keeps evidence.plate_margin)
+    model: str = "PP-OCRv5_mobile_rec"
+
+
+@dataclass
 class EvidenceCfg:
     dir: str = "static/violations"
     plate_margin: int = 10
@@ -79,6 +89,7 @@ class EvidenceCfg:
     close_after: int = 30           # frames without the violation before an event is closed
     one_event_per_track: bool = True  # at most one event per (track, type) per run, even if the verdict flickers
     plate: PlateCfg = field(default_factory=PlateCfg)
+    ocr: OcrCfg = field(default_factory=OcrCfg)
 
 
 @dataclass
@@ -139,6 +150,9 @@ class PipelineConfig:
             raise ValueError("evidence.max_records must be >= 1 and plate_margin >= 0")
         if ev.max_dir_mb < 0 or not 1 <= ev.jpeg_quality <= 100 or ev.close_after < 1:
             raise ValueError("evidence: max_dir_mb >= 0, 1 <= jpeg_quality <= 100, close_after >= 1")
+        o = ev.ocr
+        if o.margin < 0 or o.candidates < 1 or o.reads < 1 or o.min_gap < 1 or o.reads > o.candidates:
+            raise ValueError("evidence.ocr: candidates >= 1, min_gap >= 1 and 1 <= reads <= candidates")
         if ev.plate.max_attempts < 0 or ev.plate.every < 1:
             raise ValueError("evidence.plate: max_attempts >= 0 and every >= 1")
         w = self.web
