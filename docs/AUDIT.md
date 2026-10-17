@@ -114,20 +114,50 @@ Metrics duy nhất tồn tại (từ `train_metrics` cuối, **trên tập val**
 
 ## 3. Bảng đối chiếu với JD
 
-> **`docs/JD.md` không tồn tại** (thư mục `docs/` chưa có). Vì vậy bảng dưới **không thể đối chiếu từng dòng JD**. Tôi dùng các yêu cầu thường gặp của vị trí AI Engineer Computer Vision và các tiêu chí bạn nêu (OpenCV, mô hình mạnh/chính xác, Edge, báo cáo tái lập). **Hãy gửi JD để tôi cập nhật bảng.**
+Nguồn: `docs/JD.md` (AI Engineer Computer Vision, Fresher/Junior). Trạng thái tính tại 2026-10-17, **trước P1–P6**; cột "Sau kế hoạch" là mục tiêu của `PLAN.md`, chưa phải kết quả.
+Phần "Quyền lợi" của JD thiên ERP/BA nên không đối chiếu.
 
-| Yêu cầu (giả định) | Mức | Bằng chứng |
+### 3.1 Trách nhiệm chính
+| Yêu cầu JD | Hiện trạng | Bằng chứng | Sau kế hoạch (mục tiêu) |
+|---|---|---|---|
+| Nghiên cứu/thử nghiệm mô hình AI cho ảnh & video | **Một phần** | Hai model YOLO11 fine-tune + pipeline video; không có so sánh/thí nghiệm nào được ghi lại (mục 2.C) | Thí nghiệm có ID, so sánh trước/sau (P0, P4, P5) |
+| Phát hiện & phân loại đối tượng (Object Detection) | **Đáp ứng một phần** | helmet 3 class, plate 1 class; mAP50 ≈ 0.99 nhưng chỉ trên val, chưa kiểm tra leakage (mục 2.D, 4) | Đánh giá theo class trên test sạch + field set (P1) |
+| Face Recognition, Image Classification | **Ngoài phạm vi** | JD note: không thuộc dự án | Chỉ nhắc ở hướng phát triển |
+| Chuẩn bị dữ liệu, gán nhãn, tiền xử lý, tăng cường | **Một phần** | Chỉ augmentation mặc định Ultralytics; dữ liệu/nhãn không có trong repo | Data card, kiểm leakage, bộ dữ liệu tự quay + gán nhãn (P1) |
+| Huấn luyện, đánh giá, tối ưu mô hình | **Một phần** | Train trên Kaggle (150/50 epoch); đánh giá chỉ mAP trên val; chưa tối ưu tốc độ (baseline 7.0 FPS, EXP-001) | Đánh giá mức sự kiện, tối ưu ONNX/TensorRT/INT8 (P2–P4) |
+| Tích hợp vào ứng dụng thực tế, server hoặc **Edge** | **Một phần / chưa** | Có FastAPI + MJPEG demo; chưa export, chưa đo Edge | Proxy GPU/CPU + benchmark (P4), Docker (P6) |
+| Nghiên cứu công nghệ/thuật toán CV mới | **Một phần** | Dùng YOLO11, BoT-SORT có sẵn; chưa có so sánh nghiên cứu | Ablation tracker/luật/OCR (P2–P3, P5) |
+| **Ghi lại thí nghiệm, phiên bản mô hình & dữ liệu để tái lập** | **Chưa có → đang bắt đầu** | Trước P0: không git, không log. Hiện có git + `experiments/EXP-000/001` + env lock | Registry model, manifest dữ liệu sha256, README tái lập (P0–P6) |
+
+### 3.2 Yêu cầu bắt buộc
+| Yêu cầu JD | Mức | Bằng chứng |
 |---|---|---|
-| Phát hiện đối tượng bằng deep learning (YOLO) | Đã đáp ứng | 2 model fine-tune, mAP50≈0.99 trên val (mức tin cậy: xem mục 4). |
-| Fine-tune/train model trên dữ liệu tự thu thập/tổng hợp | Một phần | Có train 2 model trên Kaggle, nhưng không có code/dữ liệu/log trong repo. |
-| Thành thạo OpenCV | Một phần | Có HSV, ROI, polygon test, I/O; chưa có xử lý ảnh nâng cao (calibration, homography, cải thiện ảnh đêm/mưa). |
-| Object tracking | Một phần | BoT-SORT qua Ultralytics, chưa tự cấu hình/đánh giá (MOTA/IDF1). |
-| Đánh giá, báo cáo kết quả (metrics, phân tích lỗi) | Chưa có | Không có confusion matrix, per-class, event-level, báo cáo. |
-| Tối ưu & triển khai Edge (ONNX/TensorRT/INT8) | Chưa có | Không có artifact export, không đo FPS/latency. |
-| Đóng gói/triển khai (Docker, API) | Một phần | Có FastAPI + web UI; không Docker/requirements. |
-| Xử lý dữ liệu, annotation, augmentation | Một phần | Chỉ augmentation mặc định; không có pipeline dữ liệu/kiểm chất lượng. |
-| MLOps/tracking, tái lập, code sạch, test | Chưa có | Không git, không test, không tracking, một file monolithic. |
-| OCR biển số | Chưa có | Có thư viện paddleocr trong venv nhưng không dùng. |
+| Python; PyTorch hoặc TensorFlow | **Đáp ứng** | `app.py` Python; model PyTorch/Ultralytics (torch 2.7.1+cu118) |
+| Kiến thức xử lý ảnh, **OpenCV** | **Đáp ứng một phần** | HSV nhận màu đèn, ROI `pointPolygonTest`, vẽ, I/O (`app.py:60-73`); chưa có tiền xử lý OCR, nắn phối cảnh, cải thiện ảnh đêm |
+| **Chỉ số đánh giá mô hình** | **Một phần** | Chỉ P/R/mAP gộp class trên val; không per-class, confusion matrix, F1, đánh giá sự kiện |
+| Kiến thức cơ bản ML/DL/CV | **Đáp ứng (suy ra)** | Fine-tune, hyperparameters hợp lý; chưa có tài liệu phân tích |
+
+### 3.3 Ưu tiên
+| Yêu cầu JD | Mức | Bằng chứng |
+|---|---|---|
+| Đồ án/dự án cá nhân CV | **Đáp ứng** | Chính repo này |
+| OCR | **Chưa có** | `paddleocr` có trong venv, không được dùng (mục 2.E) → P3 |
+| Nhận diện/đếm đối tượng trên camera | **Một phần** | Tracking (BoT-SORT) và nhận diện trên video/RTSP; **không có đếm** |
+| LLM, RAG, chatbot | **Chưa có** | Không có trong repo; không thuộc 6 ưu tiên của dự án (JD note) |
+| Git | **Mới có** | `git init` ở P0 (tag `v0-baseline`) |
+| REST API | **Một phần** | FastAPI có endpoint, nhưng trộn với giao diện và trạng thái global; chưa tách API sạch (P2) |
+| Docker | **Chưa có** | Không có Dockerfile → P6 |
+| Đọc tài liệu AI/ML tiếng Anh | **Không đánh giá được từ repo** | — |
+
+### 3.4 Đối chiếu theo 6 ưu tiên của dự án (từ ghi chú trong JD)
+| # | Ưu tiên | Mức hiện tại |
+|---|---|---|
+| 1 | Detection + đánh giá bằng chỉ số trên dữ liệu chưa thấy | **Yếu**: có model, **chưa** có đánh giá trên dữ liệu chưa thấy |
+| 2 | Chuẩn bị/gán nhãn/tiền xử lý/tăng cường, kiểm leakage, data card | **Chưa có** |
+| 3 | OpenCV (xử lý ảnh, ROI, trạng thái đèn, tiền xử lý OCR) | **Một phần**: ROI + HSV thô, chưa có tiền xử lý OCR |
+| 4 | Tối ưu & triển khai Edge, benchmark | **Mới có baseline** 7.0 FPS, chưa export |
+| 5 | Ghi lại thí nghiệm, version model/data | **Mới bắt đầu** (P0) |
+| 6 | OCR, tracking/đếm, Git, REST API, Docker | OCR ✗, tracking ✓, đếm ✗, Git ✓ (mới), REST ~, Docker ✗ |
 
 ---
 
