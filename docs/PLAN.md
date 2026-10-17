@@ -141,8 +141,8 @@ Rủi ro:
 
 Việc, theo thứ tự (mỗi bước một commit và demo vẫn chạy):
 1. **Refactor không đổi hành vi:** tách code sang `sentinel/`, `app.py` gọi lại pipeline. Kiểm bằng **characterization test**: sự kiện sinh ra trên `test_video.mp4` phải trùng snapshot của P0 (cùng loại, cùng frame ± 0; track id có thể khác nhưng số lượng và thời điểm phải khớp).
-2. **Config:** chuyển mọi ngưỡng, polygon và đường dẫn sang `configs/pipeline/default.yaml` và `configs/cameras/test_video.yaml`.
-3. **Sửa lỗi đã thấy trong audit:**
+2. **Config** *(xong 2026-10-17)*: ngưỡng, polygon, đường dẫn model và **tham số tracker** (`configs/trackers/{botsort,bytetrack}.yaml`, mỗi model một đường dẫn tracker) nằm trong `configs/pipeline/default.yaml` và `configs/cameras/test_video.yaml`; bộ nạp `sentinel/config.py` từ chối key lạ và giá trị sai. Nhờ vậy P4 chỉ cần đổi config để thử `gmc_method: none` hoặc ByteTrack.
+3. **Sửa lỗi đã thấy trong audit** *(trạng thái/vòng lặp/worker xong 2026-10-17; vá bảo mật còn lại)*:
    - reset trạng thái per-track và tracker khi đổi nguồn hoặc khi video lặp;
    - dùng cả detection chưa có track id cho việc vẽ;
    - bỏ busy-loop;
@@ -164,7 +164,7 @@ Việc, theo thứ tự (mỗi bước một commit và demo vẫn chạy):
 File: `sentinel/**`, `apps/web/**`, `app.py` (thành wrapper mỏng), `configs/**`, `tests/**`, `.github/workflows/test.yml`.
 
 Hoàn thành khi:
-- Characterization test pass ở bước 1.
+- Characterization test pass ở bước 1 (cùng CPU: giống hệt bản gốc kể cả ID; CPU vs GPU: ±3 frame, bỏ qua ID).
 - ≥ 20 unit test cho luật và matcher đều pass.
 - Demo chạy trên `test_video.mp4` và webcam.
 - Có bảng P/R/F1 sự kiện **trên dev** cho luật cũ và luật mới.
@@ -196,32 +196,44 @@ Hoàn thành khi:
 Rủi ro:
 - Crop biển ở 720p chỉ khoảng 50 px (đã thấy trong audit), có thể quá nhỏ để đọc. Giảm bằng chọn frame tốt nhất và quay video 1080p. Nếu vẫn kém thì báo cáo đúng giới hạn độ phân giải và không fine-tune OCR (xem mục 5).
 
-### P4 – Tối ưu Edge + benchmark (8–12 h)
+### P4 – Tối ưu Edge + benchmark (10–16 h)
 **Mục tiêu:** pipeline đầy đủ ≥ 15 FPS ở 720p trên proxy GPU, có bảng đánh đổi độ chính xác/tốc độ trên proxy CPU.
+Cập nhật 2026-10-17 theo profiling `EXP-001/baseline-v2`.
 
-Việc:
-1. `tools/export.py`: export từng model sang
-   - ONNX (opset cố định, imgsz 640, static shape, simplify);
-   - TensorRT FP16 (`.engine`) trên RTX 3050;
-   - OpenVINO FP32 và **INT8** (PTQ bằng NNCF, ảnh hiệu chuẩn lấy từ **train split**, không bao giờ từ test).
-   - Tùy chọn: TensorRT INT8.
-2. **Độ chính xác sau export:** mAP trên test/field set cho từng backend và precision, cùng P/R sự kiện trên test videos cho cấu hình được chọn.
-3. **Tối ưu ở mức pipeline** (đo từng thay đổi riêng):
-   - plate/OCR chỉ chạy theo sự kiện (đã làm ở P2/P3);
-   - giảm imgsz (640 → 512/480) cho COCO;
-   - lọc class COCO ngay trong predictor (`classes=[2,5,7,9]`);
-   - tách đọc frame và suy luận thành 2 luồng;
-   - tùy chọn: chạy detector cách frame, tracker nối giữa các frame (đo ảnh hưởng tới recall sự kiện trước khi chấp nhận).
-4. Benchmark theo **giao thức cố định** (mục 3.5) cho mọi tổ hợp {backend} × {precision}. Mỗi tổ hợp là một experiment.
+**Căn cứ đo được (baseline-v2, 135.6 ms/frame, 7.4 FPS, High performance):**
+GPU inference chỉ ≈ 46 ms (34%) và GPU rảnh ≈ 83% thời gian. Phần CPU ≈ 54%: tracker BoT-SORT ≈ 40 ms (COCO 21.0 + helmet 19.0, **lớn hơn tổng inference của hai model đó**),
+vẽ ≈ 15 ms, JPEG encode ≈ 14.6 ms, đọc + resize ≈ 3 ms; plate ≈ 28.8 ms/frame (chạy lại trên mọi xe vi phạm ở mọi frame).
+**Chỉ tăng tốc model (TensorRT/INT8) giảm tối đa ≈ 46 ms → còn ≈ 90 ms/frame ≈ 11 FPS, không đạt mục tiêu 15 FPS.** Vì vậy thứ tự tối ưu là CPU trước, model sau:
 
-Hoàn thành khi:
-- Có bảng: backend/precision → kích thước file, latency p50/p95 từng model, FPS pipeline (có/không vẽ + encode), Δ mAP, Δ F1 sự kiện.
-- TensorRT FP16 đạt **≥ 15 FPS pipeline đầy đủ ở 720p** với Δ F1 sự kiện ≤ 2 điểm so với PyTorch FP32. Nếu không đạt thì ghi rõ khoảng thiếu và nguyên nhân (stage nào chiếm thời gian).
+| Thứ tự | Thay đổi | Kỳ vọng (từ số đo) | Làm ở |
+|---|---|---|---|
+| 1 | **Plate chạy theo sự kiện, 1 lần/track** (không chạy lại mỗi frame) | ≤ −28 ms/frame | P2 |
+| 2 | **Tracker**: đo BoT-SORT với `gmc_method: none` (camera cố định) và ByteTrack | ≤ −(một phần của ~40 ms) | P4 (chỉ đổi `configs/trackers/*.yaml`, tham số đã có trong config từ P2 bước 2) |
+| 3 | **Vẽ**: tránh `copy` + `addWeighted` toàn khung hình mỗi box (vẽ trực tiếp, blend chỉ trên vùng nhãn) | ≤ −15 ms | P4 |
+| 4 | **Encode JPEG chỉ khi có client**; luôn báo **FPS headless** và **FPS có stream** riêng | ≤ −14.6 ms headless | P2 (worker) + P4 (đo) |
+| 5 | **ONNX Runtime GPU / TensorRT FP16** (TensorRT time-box 2 h, rồi ORT-GPU) | ≤ −(một phần của ~46 ms) | P4 |
+
+**Quy tắc cho từng thay đổi:**
+- Mỗi thay đổi là **một experiment riêng** (`EXP-0xx-<slug>`), có số **trước/sau** trên cùng giao thức benchmark (3.5), cùng `--detail`.
+- **Thay đổi tracker không được chấp nhận chỉ vì FPS.** Đổi tracker/GMC làm thay đổi gán ID (ID switch), mà luật vi phạm dựa vào track ID (vote helmet, cắt vạch, chống trùng sự kiện).
+  Phải kiểm bằng **P/R/F1 sự kiện trên dev videos** (khi có, P1) và so với cấu hình tracker cũ; trong lúc chưa có dev video chỉ được ghi "tạm thời, chưa chấp nhận" và dùng snapshot sự kiện làm kiểm tra phụ (đếm sự kiện, ±3 frame, bỏ qua ID).
+- Mọi bước tối ưu có thể đổi kết quả (tracker, giảm imgsz, bỏ frame, INT8) phải báo Δ F1 sự kiện trên **dev** (không dùng test videos để chọn cấu hình).
+
+**Việc còn lại của P4:**
+1. `tools/export.py`: export từng model sang ONNX (opset cố định, imgsz 640, static shape, simplify), TensorRT FP16 (`.engine`), OpenVINO FP32 và **INT8** (PTQ bằng NNCF, ảnh hiệu chuẩn từ **train split**, không bao giờ từ test); tùy chọn TensorRT INT8.
+2. **Độ chính xác sau export:** mAP trên test/field set cho từng backend/precision, cùng P/R sự kiện trên dev videos.
+3. Các tối ưu pipeline khác (đo riêng từng cái): giảm imgsz COCO (640 → 512/480), lọc class COCO ngay trong predictor (`classes=[2,5,7,9]`), tách luồng đọc frame và suy luận, tùy chọn chạy detector cách frame (đo ảnh hưởng tới recall sự kiện trước khi chấp nhận).
+4. Benchmark theo giao thức cố định (3.5) cho mọi tổ hợp {backend} × {precision}; mỗi tổ hợp là một experiment.
+
+**Hoàn thành khi:**
+- Có bảng: bước tối ưu / backend / precision → kích thước file, latency p50/p95 từng stage, **FPS headless** và **FPS có stream**, Δ mAP, Δ F1 sự kiện (dev).
+- Đạt **≥ 15 FPS headless ở 720p** trên proxy GPU (TensorRT FP16, hoặc ORT-GPU nếu quá time-box) với Δ F1 sự kiện ≤ 2 điểm so với PyTorch FP32 gốc. Nếu không đạt thì ghi rõ khoảng thiếu và stage còn chiếm thời gian.
 - Có cấu hình CPU khuyến nghị kèm FPS đo được.
 
 Rủi ro:
-- Cài TensorRT trên Windows cần đúng tổ hợp CUDA/cuDNN với torch cu118. **Time-box 2 h (D4)**; quá thời gian thì dùng ONNX Runtime GPU (CUDA EP, FP16) làm proxy GPU, và tiêu chí ≥ 15 FPS áp cho backend đó.
-- Báo cáo **phải ghi rõ** đây là proxy: RTX 3050 không phải Jetson. Chỉ đưa FLOPs/params kèm số đo proxy, **không quy đổi** ra FPS Jetson.
+- Cài TensorRT trên Windows cần đúng tổ hợp CUDA/cuDNN với torch cu118. **Time-box 2 h (D4)**; quá thời gian thì dùng ONNX Runtime GPU (CUDA EP, FP16).
+- Giả thuyết "phần lớn chi phí tracker là GMC/optical flow" **chưa kiểm chứng**; nếu `gmc_method: none` không giảm đáng kể thì nguyên nhân khác (ví dụ chuyển tensor GPU→CPU, `.cpu().numpy()`, `Results` re-index) và cần profiling sâu hơn.
+- Báo cáo **phải ghi rõ** đây là proxy: RTX 3050 không phải Jetson; **không quy đổi** FPS sang Jetson.
 
 ### P5 – Cải thiện model dựa trên phân tích lỗi (tùy chọn, 8–15 h + thời gian train)
 Chỉ làm nếu P0–P4 và phần lõi P6 đã xong. Hướng cụ thể sẽ do **phân tích lỗi** ở P1–P4 quyết định; dưới đây là các ứng viên có khả năng cao nhất:

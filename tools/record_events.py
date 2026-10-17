@@ -58,11 +58,14 @@ def run_original(video, tag="v0-baseline"):
 
 def run_refactored(video, device):
     from sentinel.characterize import collect_events, read_frames
+    from sentinel.config import load_camera_config, load_pipeline_config
     from sentinel.pipeline import Detectors, Pipeline, SharedState
     work = Path(tempfile.mkdtemp(prefix="sentinel_ref_"))
     (work / "ev").mkdir()
-    pipe = Pipeline(Detectors(weights_dir=REPO, device=device), SharedState(), evidence_dir=str(work / "ev"))
-    events = collect_events(pipe, read_frames(video))
+    cfg = load_pipeline_config(root=REPO, device=device)
+    cfg.evidence.dir = str(work / "ev")
+    camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
+    events = collect_events(Pipeline(Detectors(cfg), SharedState(), cfg, camera), read_frames(video))
     shutil.rmtree(work, ignore_errors=True)
     return events
 

@@ -1,22 +1,27 @@
 """FastAPI demo server (MJPEG stream + violation gallery).
 
-Behaviour-preserving port of the web part of the old app.py. Known issues in this
-layer (unsanitised upload name, arbitrary camera source, shared capture, ...) are
-deliberately kept for now and fixed in a later P2 step.
+One InferenceWorker serves every client. Security hardening of the upload/camera endpoints is a
+later P2 step; they are unchanged here.
 """
 import os
 import shutil
-import threading
 
-import cv2
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from sentinel.pipeline import EVIDENCE_DIR, Detectors, Pipeline, SharedState
+from apps.web.worker import InferenceWorker
+from sentinel.config import REPO, load_camera_config, load_pipeline_config
+from sentinel.pipeline import Detectors, Pipeline, SharedState
 
-os.makedirs("static/violations", exist_ok=True)
+PIPELINE_CONFIG = os.environ.get("SENTINEL_CONFIG", str(REPO / "configs" / "pipeline" / "default.yaml"))
+CAMERA_CONFIG = os.environ.get("SENTINEL_CAMERA", str(REPO / "configs" / "cameras" / "test_video.yaml"))
+
+cfg = load_pipeline_config(PIPELINE_CONFIG)
+camera = load_camera_config(CAMERA_CONFIG)
+
+os.makedirs(cfg.evidence.dir, exist_ok=True)
 os.makedirs("static/uploads", exist_ok=True)
 
 app = FastAPI()
@@ -24,30 +29,19 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 print("[*] Loading AI Models (Anti-Spam Tracking Edition)...")
-detectors = Detectors()
 state = SharedState()
-
-current_source = "test_video.mp4"
-cap = cv2.VideoCapture(current_source)
-lock = threading.Lock()
+pipeline = Pipeline(Detectors(cfg), state, cfg, camera)
+worker = InferenceWorker(pipeline, camera.source)
 
 
 def generate_frames():
-    global cap, current_source
-    pipeline = Pipeline(detectors, state, evidence_dir=EVIDENCE_DIR)
-
+    last_id = 0
     while True:
-        with lock:
-            if cap is None or not cap.isOpened(): continue
-            success, frame = cap.read()
-            if not success:
-                if isinstance(current_source, str) and not current_source.startswith("http"):
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                continue
-
-        result = pipeline.process(frame)
-        ret, buffer = cv2.imencode('.jpg', result.frame)
-        yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+        item = worker.next_jpeg(last_id)
+        if item is None:                      # no new frame yet (source starting / reconnecting)
+            continue
+        last_id, jpeg = item
+        yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + jpeg + b'\r\n'
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -62,34 +56,24 @@ async def video_feed():
 
 @app.post("/update_camera")
 async def update_camera(new_source: str = Form(...)):
-    global cap, current_source
-    with lock:
-        if cap is not None: cap.release()
-        if new_source.strip().isdigit():
-            current_source = int(new_source.strip())
-        else:
-            current_source = new_source.strip()
-        cap = cv2.VideoCapture(current_source)
-        state.captured_violator_ids.clear()
-    return {"status": "success", "source": str(current_source)}
+    source = new_source.strip()
+    return {"status": "success", "source": worker.set_source(int(source) if source.isdigit() else source)}
 
 
 @app.post("/upload_video")
 async def upload_video(file: UploadFile = File(...)):
-    global cap, current_source
     file_location = f"static/uploads/{file.filename}"
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-
-    with lock:
-        if cap is not None: cap.release()
-        current_source = file_location
-        cap = cv2.VideoCapture(current_source)
-        state.captured_violator_ids.clear()
-
+    worker.set_source(file_location)
     return {"status": "success", "filename": file.filename}
 
 
 @app.get("/api/violations")
 async def get_violations():
     return {"images": state.violation_records}
+
+
+@app.get("/api/status")
+async def get_status():
+    return worker.status()

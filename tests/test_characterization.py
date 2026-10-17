@@ -46,10 +46,13 @@ def test_compare_events_ignore_ids():
 
 @pytest.fixture(scope="module")
 def refactored_cpu_events():
+    from sentinel.config import load_camera_config, load_pipeline_config
     from sentinel.pipeline import Detectors, Pipeline, SharedState
+    cfg = load_pipeline_config(root=REPO, device="cpu")
+    camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     with tempfile.TemporaryDirectory() as ev_dir:
-        pipe = Pipeline(Detectors(weights_dir=REPO, device="cpu"), SharedState(), evidence_dir=ev_dir)
-        return collect_events(pipe, read_frames(VIDEO))
+        cfg.evidence.dir = ev_dir
+        return collect_events(Pipeline(Detectors(cfg), SharedState(), cfg, camera), read_frames(VIDEO))
 
 
 @pytest.mark.slow

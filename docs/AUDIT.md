@@ -200,7 +200,7 @@ Sắp theo tỷ lệ tác động/công sức (cao → thấp).
 
 ## 6. Câu hỏi cho bạn
 
-1. **`docs/JD.md` không có trong repo** – bạn có thể gửi JD (hoặc dán nội dung) để tôi đối chiếu chính xác?
+1. ~~`docs/JD.md` không có trong repo~~ – **Đã giải quyết (2026-10-17):** JD đã được thêm và mục 3 đã đối chiếu theo JD thật.
 2. **Code/notebook train** (Kaggle notebook?) và **dữ liệu gốc** còn giữ không? Cần: ảnh + nhãn, `data.yaml`, nguồn/license từng tập, số ảnh/nhãn. Dataset Kaggle `tranquangduyenk17ct/helmet-detection-1` và `vietnam-license-plate-v1` có còn truy cập được không?
 3. "Huấn luyện trên nhiều tập dữ liệu" – ngoài 2 tập trên còn tập nào? Có bước gộp class nào đã làm ở nơi khác không?
 4. Có **kết quả/ảnh/log** từ Kaggle (results.csv, confusion matrix, PR curve, per-class metrics) không?
