@@ -1,0 +1,367 @@
+{
+  "summary": {
+    "config": "configs/pipeline/pt_cpu.yaml",
+    "n_runs": 3,
+    "fps_headless_runs": [
+      4.55,
+      4.65,
+      4.66
+    ],
+    "fps_headless_median": 4.65,
+    "fps_headless_range": [
+      4.55,
+      4.66
+    ],
+    "fps_headless_spread_pct": 2.37,
+    "fps_stream_runs": [
+      4.25,
+      4.34,
+      4.35
+    ],
+    "fps_stream_median": 4.34,
+    "fps_stream_range": [
+      4.25,
+      4.35
+    ],
+    "fps_stream_spread_pct": 2.3,
+    "plate_calls_per_frame_median": 0.018,
+    "stages_median_of_runs": {
+      "read": {
+        "mean_ms": 2.23,
+        "p50_ms": 2.23,
+        "p95_ms": 2.58
+      },
+      "helmet": {
+        "mean_ms": 102.31,
+        "p50_ms": 101.66,
+        "p95_ms": 111.76
+      },
+      "encode": {
+        "mean_ms": 15.52,
+        "p50_ms": 14.89,
+        "p95_ms": 19.62
+      },
+      "process": {
+        "mean_ms": 212.89,
+        "p50_ms": 209.75,
+        "p95_ms": 230.5
+      },
+      "rules": {
+        "mean_ms": 0.06,
+        "p50_ms": 0.06,
+        "p95_ms": 0.09
+      },
+      "evidence_io_and_bookkeeping": {
+        "mean_ms": 0.52,
+        "p50_ms": 0.01,
+        "p95_ms": 0.02
+      },
+      "coco": {
+        "mean_ms": 106.22,
+        "p50_ms": 105.36,
+        "p95_ms": 116.89
+      },
+      "plate_detector": {
+        "mean_ms": 1.1,
+        "p50_ms": 0.0,
+        "p95_ms": 0.0
+      },
+      "draw": {
+        "mean_ms": 0.51,
+        "p50_ms": 0.49,
+        "p95_ms": 0.78
+      }
+    },
+    "evidence_first_run": {
+      "events": 14,
+      "events_by_type": {
+        "no_helmet": 13,
+        "overload": 1
+      },
+      "tracks_with_event": 14,
+      "tracks_with_plate": 14,
+      "plates_found_first_time": 14,
+      "events_opened_counter": 14,
+      "mean_vehicle_crop_wh": [
+        204.4,
+        245.4
+      ],
+      "mean_plate_crop_wh": [
+        46.3,
+        40.4
+      ],
+      "mean_plate_attempts_until_found": 1,
+      "evidence_dir_mb": 4.06
+    },
+    "gpu_mean_util_pct_per_run": [
+      0.5,
+      0.0,
+      0.0
+    ],
+    "gpu_peak_temp_c_per_run": [
+      61.0,
+      60.0,
+      60.0
+    ]
+  },
+  "runs": [
+    {
+      "n_frames": 767,
+      "fps_headless": 4.55,
+      "fps_stream": 4.25,
+      "stages": {
+        "read": {
+          "n": 767,
+          "mean_ms": 2.3,
+          "p50_ms": 2.3,
+          "p95_ms": 2.65
+        },
+        "helmet": {
+          "n": 767,
+          "mean_ms": 104.32,
+          "p50_ms": 103.12,
+          "p95_ms": 114.27
+        },
+        "encode": {
+          "n": 767,
+          "mean_ms": 15.89,
+          "p50_ms": 15.48,
+          "p95_ms": 19.79
+        },
+        "process": {
+          "n": 767,
+          "mean_ms": 217.32,
+          "p50_ms": 213.65,
+          "p95_ms": 242.48
+        },
+        "rules": {
+          "n": 767,
+          "mean_ms": 0.06,
+          "p50_ms": 0.06,
+          "p95_ms": 0.09
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 767,
+          "mean_ms": 0.52,
+          "p50_ms": 0.01,
+          "p95_ms": 0.02
+        },
+        "coco": {
+          "n": 767,
+          "mean_ms": 108.56,
+          "p50_ms": 107.3,
+          "p95_ms": 119.73
+        },
+        "plate_detector": {
+          "n": 767,
+          "mean_ms": 1.1,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        },
+        "draw": {
+          "n": 767,
+          "mean_ms": 0.51,
+          "p50_ms": 0.5,
+          "p95_ms": 0.8
+        }
+      },
+      "plate_calls": 14,
+      "plate_calls_per_frame": 0.018,
+      "evidence": {
+        "events": 14,
+        "events_by_type": {
+          "no_helmet": 13,
+          "overload": 1
+        },
+        "tracks_with_event": 14,
+        "tracks_with_plate": 14,
+        "plates_found_first_time": 14,
+        "events_opened_counter": 14,
+        "mean_vehicle_crop_wh": [
+          204.4,
+          245.4
+        ],
+        "mean_plate_crop_wh": [
+          46.3,
+          40.4
+        ],
+        "mean_plate_attempts_until_found": 1,
+        "evidence_dir_mb": 4.06
+      },
+      "gpu_mean_util_pct": 0.5,
+      "gpu_peak_temp_c": 61.0
+    },
+    {
+      "n_frames": 767,
+      "fps_headless": 4.65,
+      "fps_stream": 4.34,
+      "stages": {
+        "process": {
+          "n": 767,
+          "mean_ms": 212.89,
+          "p50_ms": 209.75,
+          "p95_ms": 230.5
+        },
+        "encode": {
+          "n": 767,
+          "mean_ms": 15.52,
+          "p50_ms": 14.89,
+          "p95_ms": 19.61
+        },
+        "rules": {
+          "n": 767,
+          "mean_ms": 0.06,
+          "p50_ms": 0.06,
+          "p95_ms": 0.09
+        },
+        "read": {
+          "n": 767,
+          "mean_ms": 2.21,
+          "p50_ms": 2.23,
+          "p95_ms": 2.58
+        },
+        "draw": {
+          "n": 767,
+          "mean_ms": 0.51,
+          "p50_ms": 0.49,
+          "p95_ms": 0.78
+        },
+        "helmet": {
+          "n": 767,
+          "mean_ms": 102.31,
+          "p50_ms": 101.66,
+          "p95_ms": 111.17
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 767,
+          "mean_ms": 0.52,
+          "p50_ms": 0.01,
+          "p95_ms": 0.02
+        },
+        "coco": {
+          "n": 767,
+          "mean_ms": 106.22,
+          "p50_ms": 105.11,
+          "p95_ms": 116.89
+        },
+        "plate_detector": {
+          "n": 767,
+          "mean_ms": 1.11,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        }
+      },
+      "plate_calls": 14,
+      "plate_calls_per_frame": 0.018,
+      "evidence": {
+        "events": 14,
+        "events_by_type": {
+          "no_helmet": 13,
+          "overload": 1
+        },
+        "tracks_with_event": 14,
+        "tracks_with_plate": 14,
+        "plates_found_first_time": 14,
+        "events_opened_counter": 14,
+        "mean_vehicle_crop_wh": [
+          204.4,
+          245.4
+        ],
+        "mean_plate_crop_wh": [
+          46.3,
+          40.4
+        ],
+        "mean_plate_attempts_until_found": 1,
+        "evidence_dir_mb": 4.06
+      },
+      "gpu_mean_util_pct": 0.0,
+      "gpu_peak_temp_c": 60.0
+    },
+    {
+      "n_frames": 767,
+      "fps_headless": 4.66,
+      "fps_stream": 4.35,
+      "stages": {
+        "process": {
+          "n": 767,
+          "mean_ms": 212.29,
+          "p50_ms": 209.66,
+          "p95_ms": 227.67
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 767,
+          "mean_ms": 0.52,
+          "p50_ms": 0.01,
+          "p95_ms": 0.03
+        },
+        "helmet": {
+          "n": 767,
+          "mean_ms": 101.79,
+          "p50_ms": 101.09,
+          "p95_ms": 111.76
+        },
+        "read": {
+          "n": 767,
+          "mean_ms": 2.23,
+          "p50_ms": 2.23,
+          "p95_ms": 2.56
+        },
+        "encode": {
+          "n": 767,
+          "mean_ms": 15.45,
+          "p50_ms": 14.87,
+          "p95_ms": 19.62
+        },
+        "coco": {
+          "n": 767,
+          "mean_ms": 106.18,
+          "p50_ms": 105.36,
+          "p95_ms": 115.42
+        },
+        "rules": {
+          "n": 767,
+          "mean_ms": 0.06,
+          "p50_ms": 0.06,
+          "p95_ms": 0.09
+        },
+        "draw": {
+          "n": 767,
+          "mean_ms": 0.5,
+          "p50_ms": 0.48,
+          "p95_ms": 0.78
+        },
+        "plate_detector": {
+          "n": 767,
+          "mean_ms": 1.06,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        }
+      },
+      "plate_calls": 14,
+      "plate_calls_per_frame": 0.018,
+      "evidence": {
+        "events": 14,
+        "events_by_type": {
+          "no_helmet": 13,
+          "overload": 1
+        },
+        "tracks_with_event": 14,
+        "tracks_with_plate": 14,
+        "plates_found_first_time": 14,
+        "events_opened_counter": 14,
+        "mean_vehicle_crop_wh": [
+          204.4,
+          245.4
+        ],
+        "mean_plate_crop_wh": [
+          46.3,
+          40.4
+        ],
+        "mean_plate_attempts_until_found": 1,
+        "evidence_dir_mb": 4.06
+      },
+      "gpu_mean_util_pct": 0.0,
+      "gpu_peak_temp_c": 60.0
+    }
+  ]
+}

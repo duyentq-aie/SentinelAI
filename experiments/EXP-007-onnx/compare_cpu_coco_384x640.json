@@ -1,0 +1,36 @@
+{
+  "model": "coco",
+  "onnx": "models/onnx/coco_384x640.onnx",
+  "device": "cpu",
+  "frames": 99,
+  "conf": 0.35,
+  "detections": {
+    "pytorch": 2740,
+    "onnx": 2740
+  },
+  "matched": 2740,
+  "match_rate_vs_pytorch": 1.0,
+  "unmatched": {
+    "pytorch_only": 0,
+    "onnx_only": 0
+  },
+  "mean_iou_of_matches": 1.0,
+  "conf_abs_diff": {
+    "mean": 0.0,
+    "max": 0.0
+  },
+  "latency_per_image": {
+    "pytorch": {
+      "mean_ms": 76.19,
+      "p50_ms": 75.92,
+      "p95_ms": 81.69
+    },
+    "onnx": {
+      "mean_ms": 62.48,
+      "p50_ms": 61.62,
+      "p95_ms": 66.43
+    }
+  },
+  "note": "agreement between backends on test_video frames (every 8-th), NOT accuracy: no ground truth",
+  "data_raw_available": true
+}

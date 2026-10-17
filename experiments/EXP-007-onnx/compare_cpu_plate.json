@@ -1,0 +1,36 @@
+{
+  "model": "plate",
+  "onnx": "models/onnx/plate_640.onnx",
+  "device": "cpu",
+  "frames": 99,
+  "conf": 0.25,
+  "detections": {
+    "pytorch": 146,
+    "onnx": 262
+  },
+  "matched": 143,
+  "match_rate_vs_pytorch": 0.9795,
+  "unmatched": {
+    "pytorch_only": 3,
+    "onnx_only": 119
+  },
+  "mean_iou_of_matches": 0.9089,
+  "conf_abs_diff": {
+    "mean": 0.0693,
+    "max": 0.23117
+  },
+  "latency_per_image": {
+    "pytorch": {
+      "mean_ms": 38.92,
+      "p50_ms": 38.91,
+      "p95_ms": 42.35
+    },
+    "onnx": {
+      "mean_ms": 43.49,
+      "p50_ms": 43.27,
+      "p95_ms": 45.87
+    }
+  },
+  "note": "agreement between backends on test_video frames (every 8-th), NOT accuracy: no ground truth",
+  "data_raw_available": true
+}

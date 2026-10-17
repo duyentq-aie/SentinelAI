@@ -1,0 +1,36 @@
+{
+  "model": "helmet",
+  "onnx": "models/onnx/helmet_640.onnx",
+  "device": "cpu",
+  "frames": 99,
+  "conf": 0.55,
+  "detections": {
+    "pytorch": 697,
+    "onnx": 726
+  },
+  "matched": 687,
+  "match_rate_vs_pytorch": 0.9857,
+  "unmatched": {
+    "pytorch_only": 10,
+    "onnx_only": 39
+  },
+  "mean_iou_of_matches": 0.9708,
+  "conf_abs_diff": {
+    "mean": 0.01517,
+    "max": 0.10289
+  },
+  "latency_per_image": {
+    "pytorch": {
+      "mean_ms": 77.9,
+      "p50_ms": 77.15,
+      "p95_ms": 83.29
+    },
+    "onnx": {
+      "mean_ms": 108.32,
+      "p50_ms": 107.94,
+      "p95_ms": 112.03
+    }
+  },
+  "note": "agreement between backends on test_video frames (every 8-th), NOT accuracy: no ground truth",
+  "data_raw_available": true
+}

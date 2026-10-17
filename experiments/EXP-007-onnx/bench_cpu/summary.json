@@ -1,0 +1,36 @@
+{
+  "pt_cpu": {
+    "headless_fps_median": 4.65,
+    "headless_range": [
+      4.55,
+      4.66
+    ],
+    "stream_fps_median": 4.34,
+    "stream_range": [
+      4.25,
+      4.35
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  },
+  "onnx_cpu": {
+    "headless_fps_median": 4.97,
+    "headless_range": [
+      4.91,
+      4.98
+    ],
+    "stream_fps_median": 4.52,
+    "stream_range": [
+      4.47,
+      4.53
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  }
+}
