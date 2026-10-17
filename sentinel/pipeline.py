@@ -4,8 +4,9 @@ Stages: perceive (detect + track + traffic-light colour) -> rules (pure function
 P2 step 1 ported the old ``generate_frames()`` unchanged; step 2 moved settings to configs/; step 3.0 split perception from rules
 so the rules can be replayed offline from a recorded tracks file (see sentinel/offline.py).
 
-Legacy quirk kept on purpose (perception must stay identical until it is deliberately changed): traffic-light boxes are drawn on the
-frame *before* the helmet model runs, and violation overlays are drawn before the plate model sees the crop.
+Two frames per step (since 3.0b): `raw` (resized camera frame, never drawn on) feeds every model and the evidence crops;
+`display` (a copy) is what gets overlays and is streamed. Before 3.0b the helmet model saw traffic-light boxes and the plate model
+saw violation overlays, because everything was drawn on one frame (fixture tracks_test_video_v0_overlay.jsonl keeps that behaviour).
 """
 import time
 from dataclasses import dataclass, field
@@ -62,11 +63,12 @@ class SharedState:
 
 @dataclass
 class FrameResult:
-    frame: np.ndarray
+    frame: np.ndarray            # display frame (overlays) for streaming
     labels: list      # violation-looking labels drawn on this frame (characterization tests)
     captures: list    # track ids whose plate evidence was saved on this frame
     perception: Perception = None
     rules: RuleResult = None
+    raw: np.ndarray = None       # clean resized frame (what the models saw; source of evidence crops)
 
 
 class Pipeline:
@@ -88,18 +90,18 @@ class Pipeline:
         self.d.reset_trackers()
 
     # ---- stage 1: perception
-    def _perceive(self, frame):
+    def _perceive(self, raw, display):
         p = Perception()
-        p.coco = self.d.track_coco(frame)
+        p.coco = self.d.track_coco(raw)
         for t in p.coco:
             if t.cls == 'traffic light':
                 x1, y1, x2, y2 = t.box
-                crop = frame[y1:y2, x1:x2]
+                crop = raw[y1:y2, x1:x2]
                 if crop.size > 0:
                     t.state = p.light = detect_traffic_light_color(crop)
                     color = (0, 0, 255) if t.state == "RED" else (0, 255, 0)
-                    draw_sleek_box(frame, x1, y1, x2, y2, f"LIGHT: {t.state}", color, 2)   # legacy: drawn before the helmet model runs
-        p.helmet = self.d.track_helmet(frame)
+                    draw_sleek_box(display, x1, y1, x2, y2, f"LIGHT: {t.state}", color, 2)
+        p.helmet = self.d.track_helmet(raw)
         return p
 
     # ---- stage 3: drawing (same order as the original code)
@@ -120,15 +122,15 @@ class Pipeline:
                 draw_sleek_box(frame, x1, y1, x2, y2, vehicle_label(v), (0, 165, 255) if v.type == "motorcycle" else (255, 255, 0))
 
     # ---- stage 4: plates + evidence (still run for every violator on every frame, as in the original)
-    def _plates(self, frame, vehicles):
+    def _plates(self, raw, display, vehicles):
         s, ev, captures = self.s, self.cfg.evidence, []
         for v in vehicles:
             if not v.violator:
                 continue
             vx1, vy1, vx2, vy2 = v.coords
             vx1, vy1 = max(0, vx1), max(0, vy1)
-            vx2, vy2 = min(frame.shape[1], vx2), min(frame.shape[0], vy2)
-            vehicle_crop = frame[vy1:vy2, vx1:vx2]
+            vx2, vy2 = min(raw.shape[1], vx2), min(raw.shape[0], vy2)
+            vehicle_crop = raw[vy1:vy2, vx1:vx2]
             if vehicle_crop.size == 0:
                 continue
             plate_results = self.d.detect_plate(vehicle_crop)
@@ -138,13 +140,13 @@ class Pipeline:
                 rx1, ry1 = vx1 + px1, vy1 + py1
                 rx2, ry2 = vx1 + px2, vy1 + py2
 
-                draw_sleek_box(frame, rx1, ry1, rx2, ry2, "PLATE", (0, 255, 0), thickness=2)
+                draw_sleek_box(display, rx1, ry1, rx2, ry2, "PLATE", (0, 255, 0), thickness=2)
 
                 if v.id not in s.captured_violator_ids:
                     margin = ev.plate_margin
-                    crop_y1, crop_y2 = max(0, ry1 - margin), min(frame.shape[0], ry2 + margin)
-                    crop_x1, crop_x2 = max(0, rx1 - margin), min(frame.shape[1], rx2 + margin)
-                    plate_img = frame[crop_y1:crop_y2, crop_x1:crop_x2]
+                    crop_y1, crop_y2 = max(0, ry1 - margin), min(raw.shape[0], ry2 + margin)
+                    crop_x1, crop_x2 = max(0, rx1 - margin), min(raw.shape[1], rx2 + margin)
+                    plate_img = raw[crop_y1:crop_y2, crop_x1:crop_x2]
 
                     if plate_img.size > 0:
                         filename = f"v_{int(time.time())}_{v.id}.jpg"
@@ -160,20 +162,21 @@ class Pipeline:
         return captures
 
     def process(self, frame):
-        frame = cv2.resize(frame, tuple(self.cfg.frame_size))
+        raw = cv2.resize(frame, tuple(self.cfg.frame_size))      # models + evidence only ever see this
+        display = raw.copy()                                     # overlays go here
 
         if self.bike_lane_zone is not None:
-            cv2.polylines(frame, [self.bike_lane_zone], isClosed=True, color=(0, 165, 255), thickness=2)
-            cv2.putText(frame, "FAKE BIKE LANE", (750, 440), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+            cv2.polylines(display, [self.bike_lane_zone], isClosed=True, color=(0, 165, 255), thickness=2)
+            cv2.putText(display, "FAKE BIKE LANE", (750, 440), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
 
-        p = self._perceive(frame)
+        p = self._perceive(raw, display)
         result = self.rules.step(p)
-        self._draw(frame, p, result)
-        captures = self._plates(frame, result.vehicles)
+        self._draw(display, p, result)
+        captures = self._plates(raw, display, result.vehicles)
 
         new_frame_time = time.time()
         fps = 1 / (new_frame_time - self.prev_frame_time) if self.prev_frame_time > 0 else 0
         self.prev_frame_time = new_frame_time
-        cv2.putText(frame, f"FPS: {int(fps)}", (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 3)
+        cv2.putText(display, f"FPS: {int(fps)}", (50, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 3)
 
-        return FrameResult(frame=frame, labels=violation_labels(result), captures=captures, perception=p, rules=result)
+        return FrameResult(frame=display, labels=violation_labels(result), captures=captures, perception=p, rules=result, raw=raw)

@@ -1,0 +1,80 @@
+{
+  "frames_a": 787,
+  "frames_b": 787,
+  "frames_compared": 787,
+  "models": {
+    "coco": {
+      "detections_a": 21005,
+      "detections_b": 21005,
+      "matched": 21005,
+      "lost": 0,
+      "new": 0,
+      "id_changed": 0,
+      "frames_with_change": 0,
+      "by_class": {},
+      "grid_changed": {},
+      "near_light_changed": 0,
+      "changed_total": 0,
+      "near_light_all_detections": 14,
+      "all_detections": 42010,
+      "box_shift_px_mean": 0.0,
+      "box_shift_px_max": 0,
+      "first_change_frame": null
+    },
+    "helmet": {
+      "detections_a": 5164,
+      "detections_b": 5164,
+      "matched": 5164,
+      "lost": 0,
+      "new": 0,
+      "id_changed": 0,
+      "frames_with_change": 0,
+      "by_class": {},
+      "grid_changed": {},
+      "near_light_changed": 0,
+      "changed_total": 0,
+      "near_light_all_detections": 0,
+      "all_detections": 10328,
+      "box_shift_px_mean": 0.0,
+      "box_shift_px_max": 1,
+      "first_change_frame": null
+    }
+  },
+  "light": {
+    "frames_state_differs": 0,
+    "states_a": {
+      "UNKNOWN": 783,
+      "GREEN": 4
+    },
+    "states_b": {
+      "UNKNOWN": 783,
+      "GREEN": 4
+    }
+  },
+  "light_boxes": [
+    [
+      1122,
+      150,
+      1140,
+      184
+    ],
+    [
+      1122,
+      148,
+      1142,
+      187
+    ],
+    [
+      1122,
+      149,
+      1141,
+      190
+    ],
+    [
+      1121,
+      146,
+      1142,
+      190
+    ]
+  ]
+}

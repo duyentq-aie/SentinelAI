@@ -11,6 +11,7 @@ import hashlib
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 from datetime import datetime, timezone
@@ -28,10 +29,20 @@ def sha256(path):
     return h.hexdigest()
 
 
+def git_state():
+    try:
+        rev = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, text=True).strip()
+        dirty = bool(subprocess.check_output(["git", "status", "--porcelain", "--", "sentinel", "configs"], cwd=REPO, text=True).strip())
+        return rev + ("+uncommitted" if dirty else "")
+    except Exception:
+        return None
+
+
 def fixture_meta(cfg, video, device):
     import torch
     import ultralytics
     return {
+        "git": git_state(),
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "video": {"file": Path(video).name, "sha256": sha256(video)},
         "models": {n: {"file": getattr(cfg.models, n).weights, "sha256": sha256(cfg.path(getattr(cfg.models, n).weights))}
@@ -41,7 +52,7 @@ def fixture_meta(cfg, video, device):
         "conf": {n: getattr(cfg.models, n).conf for n in ("coco", "helmet", "plate")},
         "frame_size": cfg.frame_size, "device": device or "default",
         "ultralytics": ultralytics.__version__, "torch": torch.__version__,
-        "note": "recorded from the P2 step 3.0 pipeline (perception identical to v0-baseline); ids are device-specific, this file was recorded on CPU",
+        "note": "models see the clean resized frame (no overlays) since P2 3.0b; track ids are device-specific, this file was recorded on CPU",
     }
 
 
