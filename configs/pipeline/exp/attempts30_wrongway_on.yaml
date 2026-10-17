@@ -1,0 +1,36 @@
+# Default pipeline config. Values reproduce the behaviour of the original app.py (tag v0-baseline);
+# characterization tests rely on that. Paths are relative to the repo root.
+device: null            # null = Ultralytics default (GPU if available); "cpu" to force CPU
+frame_size: [1280, 720] # every frame is resized to this before inference
+
+models:
+  coco:   {weights: yolo11s.pt,     conf: 0.35, tracker: configs/trackers/botsort.yaml}
+  helmet: {weights: helmet_best.pt, conf: 0.55, tracker: configs/trackers/botsort.yaml}
+  plate:  {weights: plate_best.pt,  conf: 0.35}
+  # P4: to benchmark another tracker only change `tracker` (e.g. configs/trackers/bytetrack.yaml) or
+  # gmc_method inside configs/trackers/botsort.yaml.
+
+rules:
+  helmet:
+    violation_frames: 5       # net "no-helmet" frames (+1 seen, -1 not seen) needed to flag NO-HELMET
+  overload:
+    max_passengers: 2         # heads on one motorcycle above this -> OVERLOAD
+  wrong_way:                  # legacy rule, out of the reported scope; kept on to match the baseline
+    enabled: true
+    history_len: 30           # positions kept per track
+    min_history: 15           # positions needed before judging
+    dy_threshold: -30         # px; moved "up" the image by more than this -> WRONG-WAY
+  red_light:
+    enabled: true             # zone comes from the camera config
+
+evidence:
+  dir: static/violations      # events.jsonl + one folder per event (frame.jpg, vehicle.jpg, plate.jpg)
+  plate_margin: 10            # px around the plate box in the saved crop
+  max_records: 12             # gallery length kept in memory
+  max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
+  jpeg_quality: 90
+  close_after: 30             # frames without the violation before an event is closed
+  plate:                      # plate detector runs only for tracks that are currently violating
+    max_attempts: 30
+    stop_when_found: true     # false + max_attempts 0 reproduces the v0 behaviour (run on every violating frame)
+    every: 1                  # try on every k-th violating frame

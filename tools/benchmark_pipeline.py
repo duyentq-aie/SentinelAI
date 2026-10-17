@@ -131,44 +131,63 @@ def run_once(config, warmup, out_json):
     Path(out_json).write_text(json.dumps(res, indent=2), encoding="utf-8")
 
 
+def summarize_runs(config, runs):
+    med = lambda f: st.median(f(r) for r in runs)
+    rng = lambda key: [min(r[key] for r in runs), max(r[key] for r in runs)]
+    spread = lambda key: round((max(r[key] for r in runs) - min(r[key] for r in runs)) / st.median(r[key] for r in runs) * 100, 2)
+    return {
+        "config": config or "configs/pipeline/default.yaml", "n_runs": len(runs),
+        "fps_headless_runs": [r["fps_headless"] for r in runs], "fps_headless_median": med(lambda r: r["fps_headless"]),
+        "fps_headless_range": rng("fps_headless"), "fps_headless_spread_pct": spread("fps_headless"),
+        "fps_stream_runs": [r["fps_stream"] for r in runs], "fps_stream_median": med(lambda r: r["fps_stream"]),
+        "fps_stream_range": rng("fps_stream"), "fps_stream_spread_pct": spread("fps_stream"),
+        "plate_calls_per_frame_median": med(lambda r: r["plate_calls_per_frame"]),
+        "stages_median_of_runs": {k: {m: round(st.median(r["stages"][k][m] for r in runs), 2) for m in ("mean_ms", "p50_ms", "p95_ms")}
+                                  for k in runs[0]["stages"]},
+        "evidence_first_run": runs[0]["evidence"], "gpu_mean_util_pct_per_run": [r["gpu_mean_util_pct"] for r in runs],
+        "gpu_peak_temp_c_per_run": [r["gpu_peak_temp_c"] for r in runs],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--warmup", type=int, default=30)
-    ap.add_argument("--config", default=None)
+    ap.add_argument("--configs", "--config", nargs="*", default=None,
+                    help="one or more pipeline configs; with several, runs are INTERLEAVED (round 1: every config, round 2: ...) so thermal drift hits all equally")
     ap.add_argument("--out")
     ap.add_argument("--child", help=argparse.SUPPRESS)
     a = ap.parse_args()
     if a.child:
-        run_once(a.config, a.warmup, a.child); return
-
+        run_once(a.configs[0] if a.configs else None, a.warmup, a.child); return
     if not a.out:
         ap.error("--out is required")
+    configs = a.configs or [None]
     out = REPO / a.out
     out.mkdir(parents=True, exist_ok=True)
-    runs = []
+    stems = [Path(c).stem if c else "default" for c in configs]
+    runs = {c: [] for c in stems}
     for r in range(a.repeats):
-        tmp = out / f"_run{r + 1}.json"
-        print(f"[bench] run {r + 1}/{a.repeats}", flush=True)
-        subprocess.check_call([sys.executable, __file__, "--child", str(tmp), "--warmup", str(a.warmup)] + (["--config", a.config] if a.config else []))
-        runs.append(json.loads(tmp.read_text(encoding="utf-8")))
-        time.sleep(5)
-    med = lambda f: st.median(f(r) for r in runs)
-    spread = lambda key: round((max(r[key] for r in runs) - min(r[key] for r in runs)) / st.median(r[key] for r in runs) * 100, 2)
-    summary = {
-        "config": a.config or "configs/pipeline/default.yaml",
-        "fps_headless_runs": [r["fps_headless"] for r in runs], "fps_headless_median": med(lambda r: r["fps_headless"]), "fps_headless_spread_pct": spread("fps_headless"),
-        "fps_stream_runs": [r["fps_stream"] for r in runs], "fps_stream_median": med(lambda r: r["fps_stream"]), "fps_stream_spread_pct": spread("fps_stream"),
-        "plate_calls_per_frame_median": med(lambda r: r["plate_calls_per_frame"]),
-        "stages_median_of_runs": {k: {m: round(st.median(r["stages"][k][m] for r in runs), 2) for m in ("mean_ms", "p50_ms", "p95_ms")} for k in runs[0]["stages"]},
-        "evidence_first_run": runs[0]["evidence"], "gpu_mean_util_pct_per_run": [r["gpu_mean_util_pct"] for r in runs],
-        "gpu_peak_temp_c_per_run": [r["gpu_peak_temp_c"] for r in runs],
-    }
-    (out / "metrics.json").write_text(json.dumps({"summary": summary, "runs": runs}, indent=2), encoding="utf-8")
+        for cfg, stem in zip(configs, stems):
+            tmp = out / f"_run_{stem}_{r + 1}.json"
+            print(f"[bench] round {r + 1}/{a.repeats}: {stem}", flush=True)
+            subprocess.check_call([sys.executable, __file__, "--child", str(tmp), "--warmup", str(a.warmup)] + (["--configs", cfg] if cfg else []))
+            runs[stem].append(json.loads(tmp.read_text(encoding="utf-8")))
+            tmp.unlink()
+            time.sleep(5)
+    summaries = {stem: summarize_runs(cfg, runs[stem]) for cfg, stem in zip(configs, stems)}
+    for stem in stems:
+        d = out / stem if len(stems) > 1 else out
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "metrics.json").write_text(json.dumps({"summary": summaries[stem], "runs": runs[stem]}, indent=2), encoding="utf-8")
     (out / "env.json").write_text(json.dumps(env_info(), indent=2), encoding="utf-8")
-    for r in range(a.repeats):
-        (out / f"_run{r + 1}.json").unlink(missing_ok=True)
-    print(json.dumps(summary, indent=2))
+    table = {s_: {"headless_fps_median": v["fps_headless_median"], "headless_range": v["fps_headless_range"],
+                  "stream_fps_median": v["fps_stream_median"], "stream_range": v["fps_stream_range"],
+                  "plate_calls_per_frame": v["plate_calls_per_frame_median"],
+                  "tracks_with_event/with_plate": [v["evidence_first_run"]["tracks_with_event"], v["evidence_first_run"]["tracks_with_plate"]]}
+             for s_, v in summaries.items()}
+    (out / "summary.json").write_text(json.dumps(table, indent=2), encoding="utf-8")
+    print(json.dumps(table, indent=2))
 
 
 if __name__ == "__main__":

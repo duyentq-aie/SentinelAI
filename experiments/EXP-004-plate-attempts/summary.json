@@ -1,0 +1,36 @@
+{
+  "attempts30_wrongway_on": {
+    "headless_fps_median": 10.58,
+    "headless_range": [
+      10.08,
+      11.5
+    ],
+    "stream_fps_median": 9.14,
+    "stream_range": [
+      8.72,
+      9.87
+    ],
+    "plate_calls_per_frame": 0.128,
+    "tracks_with_event/with_plate": [
+      21,
+      20
+    ]
+  },
+  "attempts90_wrongway_on": {
+    "headless_fps_median": 10.26,
+    "headless_range": [
+      9.6,
+      11.29
+    ],
+    "stream_fps_median": 8.87,
+    "stream_range": [
+      8.3,
+      9.71
+    ],
+    "plate_calls_per_frame": 0.151,
+    "tracks_with_event/with_plate": [
+      21,
+      21
+    ]
+  }
+}
