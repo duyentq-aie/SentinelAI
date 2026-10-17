@@ -159,3 +159,15 @@ def test_nothing_is_encoded_without_a_client_and_the_default_encoder_uses_the_co
     w.stop()
     assert n_encoded_after_one_client_request == 1          # frames are encoded lazily, only when a client asks for one
     assert seen[0] == [cv2.IMWRITE_JPEG_QUALITY, 63]
+
+
+def test_status_reports_rolling_fps_latency_and_backend():
+    w, pipe = make(delay=0.01, backend={"runtime": "pytorch", "device": "cpu"})
+    assert w.status()["fps"] is None and w.status()["latency_ms"] is None
+    last = 0
+    for _ in range(12):
+        last = w.next_jpeg(last, timeout=2)[0]
+    st = w.status()
+    w.stop()
+    assert st["backend"] == {"runtime": "pytorch", "device": "cpu"} and st["jpeg_quality"] == 80
+    assert 5 < st["fps"] < 120 and 8 <= st["latency_ms"] < 100              # ~10 ms of fake processing per frame

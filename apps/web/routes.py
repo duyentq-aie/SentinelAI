@@ -21,6 +21,30 @@ class Context:
     root: Path             # repo root (templates/, static/, allowed source folders are relative to it)
     evidence_dir: Path     # where events.jsonl lives
     on_shutdown: Any = None
+    evidence_url: Any = None   # URL prefix under which evidence_dir is served (e.g. "/static/violations"), None = thumbnails unavailable
+
+
+def backend_info(cfg):
+    """What the UI shows in the corner: runtime ('pytorch' / 'onnxruntime' / 'mixed') and device."""
+    weights = [cfg.models.coco.weights, cfg.models.helmet.weights, cfg.models.plate.weights]
+    kinds = {"onnxruntime" if str(w).lower().endswith(".onnx") else "pytorch" for w in weights}
+    device = cfg.device
+    if device is None:
+        try:
+            import torch
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+        except Exception:
+            device = "cpu"
+    return {"runtime": kinds.pop() if len(kinds) == 1 else "mixed", "device": str(device), "models": [Path(w).name for w in weights],
+            "rules": cfg.rules.engine, "tracker": [Path(t).name for t in (cfg.models.coco.tracker, cfg.models.helmet.tracker) if t]}
+
+
+def with_urls(events, prefix):
+    """Add event["urls"] = {frame, vehicle, plate} (None when missing) for the browser."""
+    for e in events:
+        ev = e.get("evidence") or {}
+        e["urls"] = {k: (f"{prefix.rstrip('/')}/{v}" if prefix and v else None) for k, v in ev.items()}
+    return events
 
 
 def read_events(evidence_dir, limit=30):
@@ -101,6 +125,6 @@ def create_app(ctx: Context) -> FastAPI:
 
     @app.get("/api/events")
     async def get_events(limit: int = 30):
-        return {"events": read_events(ctx.evidence_dir, max(1, min(limit, 200)))}
+        return {"events": with_urls(read_events(ctx.evidence_dir, max(1, min(limit, 200))), ctx.evidence_url)}
 
     return app

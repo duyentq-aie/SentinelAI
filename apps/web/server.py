@@ -5,7 +5,7 @@
 import os
 from pathlib import Path
 
-from apps.web.routes import Context, create_app
+from apps.web.routes import Context, backend_info, create_app
 from apps.web.worker import InferenceWorker
 from sentinel.config import REPO, load_camera_config, load_pipeline_config
 from sentinel.pipeline import Detectors, Pipeline, SharedState
@@ -22,7 +22,7 @@ os.makedirs(REPO / cfg.web.upload_dir, exist_ok=True)
 print("[*] Loading AI Models (Anti-Spam Tracking Edition)...")
 state = SharedState()
 pipeline = Pipeline(Detectors(cfg), state, cfg, camera)
-worker = InferenceWorker(pipeline, camera.source, jpeg_quality=cfg.web.jpeg_quality)
+worker = InferenceWorker(pipeline, camera.source, jpeg_quality=cfg.web.jpeg_quality, backend=backend_info(cfg))
 
 
 def _shutdown():
@@ -30,5 +30,13 @@ def _shutdown():
     pipeline.flush()                          # close open evidence events so events.jsonl is complete
 
 
+def _evidence_url():
+    """/static/... URL of the evidence folder when it lives under static/ (the only folder the app serves), else None."""
+    try:
+        return "/static/" + Path(cfg.evidence.dir).resolve().relative_to((REPO / "static").resolve()).as_posix()
+    except ValueError:
+        return None
+
+
 app = create_app(Context(worker=worker, records=state.violation_records, web=cfg.web, root=REPO,
-                         evidence_dir=Path(cfg.evidence.dir), on_shutdown=_shutdown))
+                         evidence_dir=Path(cfg.evidence.dir), on_shutdown=_shutdown, evidence_url=_evidence_url()))

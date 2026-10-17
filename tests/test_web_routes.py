@@ -1,5 +1,6 @@
 """HTTP-level tests of the demo routes with a fake worker (no models, no GPU)."""
 import json
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -102,3 +103,31 @@ def test_shutdown_hook_runs_when_the_app_stops(tmp_path):
     with TestClient(app) as c:
         assert c.get("/api/status").status_code == 200
     assert called == [1]
+
+
+def test_backend_info_describes_runtime_and_device():
+    from apps.web.routes import backend_info
+    from sentinel.config import load_pipeline_config
+    cfg = load_pipeline_config()
+    cfg.device = "cpu"
+    info = backend_info(cfg)
+    assert info["runtime"] == "pytorch" and info["device"] == "cpu" and info["rules"] == "windowed" and "yolo11s.pt" in info["models"]
+    cfg.models.coco.weights = "m/coco.onnx"; cfg.models.helmet.weights = "m/h.ONNX"; cfg.models.plate.weights = "m/p.onnx"
+    assert backend_info(cfg)["runtime"] == "onnxruntime"
+    cfg.models.plate.weights = "plate_best.pt"
+    assert backend_info(cfg)["runtime"] == "mixed"
+
+
+def test_events_get_browser_urls_only_when_the_evidence_folder_is_served(env, tmp_path):
+    from apps.web.routes import with_urls
+    ev = [{"id": "e1", "evidence": {"frame": "e1/frame.jpg", "vehicle": "e1/vehicle.jpg", "plate": None}}]
+    assert with_urls([dict(e) for e in ev], "/static/violations/")[0]["urls"] == {"frame": "/static/violations/e1/frame.jpg",
+                                                                                 "vehicle": "/static/violations/e1/vehicle.jpg", "plate": None}
+    assert with_urls([dict(e) for e in ev], None)[0]["urls"] == {"frame": None, "vehicle": None, "plate": None}
+
+
+def test_index_page_has_the_panels_and_never_injects_server_data_as_html():
+    html = (Path(__file__).resolve().parent.parent / "templates" / "index.html").read_text(encoding="utf-8")
+    for needle in ('id="camera_input"', 'id="video_upload"', 'id="events"', 'id="hud"', "/api/events", "/api/status", "/update_camera", "/upload_video"):
+        assert needle in html, needle
+    assert "innerHTML" not in html                       # event fields are rendered with textContent only

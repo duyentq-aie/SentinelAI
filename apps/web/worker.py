@@ -8,6 +8,7 @@ stops reading/inferring.
 """
 import threading
 import time
+from collections import deque
 
 import cv2
 
@@ -16,7 +17,7 @@ from sentinel.source import VideoSource
 
 class InferenceWorker:
     def __init__(self, pipeline, source, source_factory=VideoSource, idle_after=5.0,
-                 open_retry=1.0, read_retry=0.05, reopen_after_failures=100, encode=None, jpeg_quality=80, clock=time.monotonic):
+                 open_retry=1.0, read_retry=0.05, reopen_after_failures=100, encode=None, jpeg_quality=80, clock=time.monotonic, backend=None):
         self.pipeline = pipeline
         self._factory = source_factory
         self._pending = source              # source spec waiting to be (re)opened by the worker thread
@@ -36,6 +37,8 @@ class InferenceWorker:
         self._jpeg_id, self._jpeg = -1, None
         self.frames_processed = 0
         self.loops = 0
+        self.backend = backend or {}
+        self._timing = deque(maxlen=60)       # (finished_at, seconds spent in pipeline.process)
 
     # ---- control
     def set_source(self, source):
@@ -44,9 +47,14 @@ class InferenceWorker:
         return str(source)
 
     def status(self):
+        t = list(self._timing)
+        fps = (len(t) - 1) / (t[-1][0] - t[0][0]) if len(t) >= 2 and t[-1][0] > t[0][0] else None
         return {"running": self._thread is not None and self._thread.is_alive() and self._active(),
                 "source": str(self._source if self._source is not None else self._pending),
-                "frames_processed": self.frames_processed, "loops": self.loops}
+                "frames_processed": self.frames_processed, "loops": self.loops,
+                "fps": round(fps, 1) if fps else None,                                   # processing rate over the last <= 60 frames
+                "latency_ms": round(1000 * sum(d for _, d in t) / len(t), 1) if t else None,   # mean time inside pipeline.process
+                "backend": self.backend, "jpeg_quality": self.jpeg_quality}
 
     def stop(self):
         self._stop.set()
@@ -119,7 +127,9 @@ class InferenceWorker:
                         src.release(); src = self._open(self._source); failures = 0
                 continue
             failures = 0
+            t0 = time.perf_counter()
             result = self.pipeline.process(frame)
+            self._timing.append((time.perf_counter(), time.perf_counter() - t0))
             self.frames_processed += 1
             with self._cond:
                 self._frame, self._frame_id = result.frame, self._frame_id + 1

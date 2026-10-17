@@ -8,34 +8,58 @@
         body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 20px; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 20px; }
         .header h1 { color: #38bdf8; margin: 0; font-size: 2.2em; text-transform: uppercase; letter-spacing: 2px;}
-        
+
         /* Control Panel Styles */
         .control-panel { background-color: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; align-items: center; flex-wrap: wrap;}
-        
+
         input[type="text"] { flex-grow: 1; min-width: 300px; max-width: 400px; padding: 10px 15px; background-color: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; font-size: 1em; }
         input[type="text"]:focus { outline: none; border-color: #38bdf8; }
-        
+
         /* Upload Input Styling */
         input[type="file"] { background-color: #0f172a; color: #fff; border: 1px solid #475569; padding: 8px; border-radius: 4px; cursor: pointer; }
         input[type="file"]::file-selector-button { background-color: #475569; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 10px;}
-        
+
         button { background-color: #0284c7; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
         button:hover { background-color: #0369a1; }
         .btn-upload { background-color: #10b981; }
         .btn-upload:hover { background-color: #059669; }
+        .control-panel .hint { width: 100%; text-align: center; font-size: 0.8em; color: #94a3b8; }
 
         /* Main Layout Styles */
         .main-container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
-        
+
         /* Camera Feed */
         .camera-container { flex: 2; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .camera-title { font-size: 1.2em; margin-bottom: 10px; font-weight: bold; color: #cbd5e1; display: flex; justify-content: space-between;}
         .status { color: #22c55e; font-size: 0.8em; animation: blink 2s infinite; }
         .camera-feed { width: 100%; border-radius: 4px; border: 2px solid #000; display: block; background-color: #000; min-height: 400px; }
         @keyframes blink { 50% { opacity: 0; } }
+        .video-wrap { position: relative; }
+        .hud { position: absolute; top: 8px; right: 8px; background: rgba(15,23,42,0.78); border: 1px solid #334155; border-radius: 6px; padding: 6px 10px;
+               font: 12px/1.5 Consolas, 'Courier New', monospace; color: #e2e8f0; text-align: right; pointer-events: none; }
+        .hud b { color: #38bdf8; }
+
+        /* Right column: events + plate gallery */
+        .side-column { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 340px; }
+
+        /* Events panel */
+        .events-container { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-height: 640px; overflow-y: auto; }
+        .events-title { font-size: 1.2em; font-weight: bold; color: #f59e0b; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #475569; padding-bottom: 10px; }
+        .event-card { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px; margin-bottom: 10px; }
+        .event-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; color: #fff; text-transform: uppercase; }
+        .t-no_helmet { background: #dc2626; } .t-overload { background: #ea580c; } .t-red_light { background: #991b1b; } .t-other { background: #64748b; }
+        .event-meta { font-size: 11px; color: #94a3b8; margin: 4px 0 6px; }
+        .event-imgs { display: flex; gap: 6px; }
+        .event-imgs a { flex: 1; min-width: 0; }
+        .event-imgs img { width: 100%; height: 70px; object-fit: cover; border-radius: 3px; border: 1px solid #334155; background: #000; display: block; }
+        .event-imgs .none { flex: 1; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b; border: 1px dashed #334155; border-radius: 3px; }
+        .plate-text { font: bold 15px Consolas, monospace; letter-spacing: 1px; color: #fde047; margin-top: 6px; }
+        .plate-text small { font: 11px 'Segoe UI', sans-serif; letter-spacing: 0; color: #94a3b8; }
+        .empty { text-align: center; color: #64748b; font-size: 13px; padding: 16px 0; }
 
         /* Violation Gallery */
-        .gallery-container { flex: 1; background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-height: 800px; overflow-y: auto; }
+        .gallery-container { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-height: 360px; overflow-y: auto; }
         .gallery-title { font-size: 1.2em; font-weight: bold; color: #ef4444; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #475569; padding-bottom: 10px; }
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .plate-card { background: #0f172a; border: 1px solid #ef4444; border-radius: 5px; padding: 5px; text-align: center; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
@@ -49,107 +73,157 @@
         <p>Real-time Traffic Violation Detection System</p>
     </div>
 
+    <div class="control-panel">
+        <input type="text" id="camera_input" placeholder="Video file under an allowed folder (e.g. test_video.mp4)">
+        <button onclick="changeCamera()">Connect</button>
+        <input type="file" id="video_upload" accept="video/*">
+        <button class="btn-upload" onclick="uploadVideo()">Upload &amp; analyse</button>
+        <span class="hint">Sources are restricted by the server: allowed folders only; rtsp:// and camera indexes only if enabled in the config.</span>
+    </div>
+
     <div class="main-container">
         <div class="camera-container">
             <div class="camera-title">
                 <span id="cam-label">LIVE FEED: Waiting for input...</span>
-                <span class="status">● AI PROCESSING ACTIVE</span>
+                <span class="status">&#9679; AI PROCESSING ACTIVE</span>
             </div>
-            <img id="video_stream" src="/video_feed" class="camera-feed" alt="Video Stream">
+            <div class="video-wrap">
+                <img id="video_stream" src="/video_feed" class="camera-feed" alt="Video Stream">
+                <div class="hud" id="hud">starting&hellip;</div>
+            </div>
         </div>
 
-        <div class="gallery-container">
-            <div class="gallery-title">📸 VIOLATION RECORDS</div>
-            <div class="gallery-grid" id="gallery">
+        <div class="side-column">
+            <div class="events-container">
+                <div class="events-title">&#9888; VIOLATION EVENTS</div>
+                <div id="events"><div class="empty">no events yet</div></div>
+            </div>
+            <div class="gallery-container">
+                <div class="gallery-title">&#128248; PLATE CROPS</div>
+                <div class="gallery-grid" id="gallery"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Feature 1: Link Camera via URL/ID
-        async function changeCamera() {
-            const inputVal = document.getElementById('camera_input').value;
-            const camLabel = document.getElementById('cam-label');
-            
-            if (!inputVal) {
-                alert("Please enter a valid Camera URL or 0 for WebCam.");
-                return;
+        // Everything from the server is put into the page with textContent / properties, never as HTML.
+        function el(tag, cls, text) {
+            const e = document.createElement(tag);
+            if (cls) e.className = cls;
+            if (text !== undefined) e.textContent = text;
+            return e;
+        }
+        async function postForm(url, formData) {
+            const response = await fetch(url, { method: 'POST', body: formData });
+            if (!response.ok) {
+                let detail = response.statusText;
+                try { detail = (await response.json()).detail || detail; } catch (e) {}
+                throw new Error(detail);
             }
+            return response.json();
+        }
+        function refreshStream() { document.getElementById('video_stream').src = "/video_feed?" + new Date().getTime(); }
 
-            camLabel.innerText = "🎥 CONNECTING... PLEASE WAIT";
+        // Feature 1: switch the video source (the server applies a whitelist)
+        async function changeCamera() {
+            const inputVal = document.getElementById('camera_input').value.trim();
+            const camLabel = document.getElementById('cam-label');
+            if (!inputVal) { alert("Enter a video file name (under an allowed folder)."); return; }
+            camLabel.innerText = "CONNECTING... PLEASE WAIT";
             const formData = new FormData();
             formData.append("new_source", inputVal);
-
             try {
-                const response = await fetch('/update_camera', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    camLabel.innerText = "🎥 LIVE FEED: " + inputVal;
-                    document.getElementById('video_stream').src = "/video_feed?" + new Date().getTime();
-                } else {
-                    alert("Failed to connect to stream.");
-                }
-            } catch (error) { console.error("Error:", error); }
+                await postForm('/update_camera', formData);
+                camLabel.innerText = "LIVE FEED: " + inputVal;
+                refreshStream();
+            } catch (error) { camLabel.innerText = "LIVE FEED: ERROR"; alert("Rejected: " + error.message); }
         }
 
-        // Feature 2: Upload Local Video File
+        // Feature 2: upload a local video file (type and size are limited by the server)
         async function uploadVideo() {
-            const fileInput = document.getElementById('video_upload');
-            const file = fileInput.files[0];
+            const file = document.getElementById('video_upload').files[0];
             const camLabel = document.getElementById('cam-label');
-
-            if (!file) {
-                alert("Please select a video file to upload.");
-                return;
-            }
-
-            camLabel.innerText = "⏳ UPLOADING & ANALYZING...";
+            if (!file) { alert("Please select a video file to upload."); return; }
+            camLabel.innerText = "UPLOADING & ANALYZING...";
             const formData = new FormData();
             formData.append("file", file);
-
             try {
-                const response = await fetch('/upload_video', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    camLabel.innerText = "🎥 LIVE FEED: " + data.filename;
-                    // Force refresh the video stream
-                    document.getElementById('video_stream').src = "/video_feed?" + new Date().getTime();
-                } else {
-                    alert("Upload failed.");
-                    camLabel.innerText = "🎥 LIVE FEED: ERROR";
-                }
-            } catch (error) {
-                console.error("Upload error:", error);
-                alert("Error uploading file.");
-            }
+                const data = await postForm('/upload_video', formData);
+                camLabel.innerText = "LIVE FEED: " + data.filename;
+                refreshStream();
+            } catch (error) { camLabel.innerText = "LIVE FEED: ERROR"; alert("Upload failed: " + error.message); }
         }
 
-        // Feature 3: Fetch violation plates automatically
+        // Feature 3: plate crop gallery
         async function fetchViolations() {
             try {
-                const response = await fetch('/api/violations');
-                const data = await response.json();
+                const data = await (await fetch('/api/violations')).json();
                 const gallery = document.getElementById('gallery');
-                gallery.innerHTML = ''; 
-                
+                gallery.replaceChildren();
                 data.images.forEach(imgUrl => {
-                    const card = document.createElement('div');
-                    card.className = 'plate-card';
-                    card.innerHTML = `<img src="${imgUrl}" alt="Plate"><p>VIOLATOR</p>`;
+                    const card = el('div', 'plate-card');
+                    const img = el('img'); img.src = imgUrl; img.alt = 'Plate';
+                    card.append(img, el('p', null, 'PLATE'));
                     gallery.appendChild(card);
                 });
             } catch (error) { console.error('Error fetching violations:', error); }
         }
-        
-        setInterval(fetchViolations, 2000);
-        fetchViolations();
+
+        // Feature 4: event panel (type, time, frames, raw frame / vehicle / plate crops, OCR text)
+        function thumb(url, label) {
+            if (!url) return el('div', 'none', label + ': n/a');
+            const a = el('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.title = label;
+            const img = el('img'); img.src = url; img.alt = label; img.loading = 'lazy';
+            a.appendChild(img);
+            return a;
+        }
+        function eventCard(e) {
+            const card = el('div', 'event-card');
+            const head = el('div', 'event-head');
+            const t = ['no_helmet', 'overload', 'red_light'].includes(e.type) ? e.type : 'other';
+            head.append(el('span', 'badge t-' + t, String(e.type || '?').replace('_', ' ')), el('span', 'event-meta', (e.status || '') + ' · ' + (e.track_id || '')));
+            const when = String(e.created_at || '').replace('T', ' ');
+            const meta = el('div', 'event-meta', when + '  ·  frames ' + e.frame_start + '–' + e.frame_end + (e.light && e.light !== 'UNKNOWN' ? '  ·  light ' + e.light : ''));
+            const imgs = el('div', 'event-imgs');
+            const u = e.urls || {};
+            imgs.append(thumb(u.frame, 'raw frame'), thumb(u.vehicle, 'vehicle'), thumb(u.plate, 'plate'));
+            const pred = e.plate_pred;
+            const plate = el('div', 'plate-text');
+            if (pred && pred.text) plate.append(pred.text, el('small', null, '  OCR' + (pred.score != null ? ' · ' + Math.round(pred.score * 100) + '%' : '') + ' · not verified'));
+            else if (pred) plate.append('?', el('small', null, '  OCR could not read a plate'));
+            else plate.append('—', el('small', null, e.plate && e.plate.found ? '  plate found, OCR off' : e.plate && e.plate.searching ? '  searching plate…' : '  no plate found'));
+            card.append(head, meta, imgs, plate);
+            return card;
+        }
+        async function fetchEvents() {
+            try {
+                const data = await (await fetch('/api/events?limit=30')).json();
+                const box = document.getElementById('events');
+                box.replaceChildren();
+                if (!data.events.length) box.appendChild(el('div', 'empty', 'no events yet'));
+                data.events.forEach(e => box.appendChild(eventCard(e)));
+            } catch (error) { console.error('Error fetching events:', error); }
+        }
+
+        // Feature 5: HUD in the corner of the video (FPS, latency, backend)
+        async function fetchStatus() {
+            try {
+                const s = await (await fetch('/api/status')).json();
+                const hud = document.getElementById('hud');
+                const b = s.backend || {};
+                hud.replaceChildren();
+                const line = (label, value) => { const d = el('div'); d.append(label + ' ', el('b', null, value)); hud.appendChild(d); };
+                line('FPS', s.fps != null ? s.fps.toFixed(1) : '–');
+                line('latency', s.latency_ms != null ? s.latency_ms.toFixed(0) + ' ms' : '–');
+                line('backend', (b.runtime || '?') + ' · ' + (b.device || '?'));
+                line('rules', b.rules || '?');
+                line('state', s.running ? 'running' : 'idle');
+            } catch (error) { /* server restarting */ }
+        }
+
+        setInterval(fetchViolations, 2000); fetchViolations();
+        setInterval(fetchEvents, 2000); fetchEvents();
+        setInterval(fetchStatus, 1000); fetchStatus();
     </script>
 </body>
 </html>
