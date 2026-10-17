@@ -23,3 +23,5 @@ runs/
 .kaggle/
 kaggle.json
 .env
+
+.pytest_cache/
