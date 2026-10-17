@@ -89,7 +89,7 @@ def run_once(config, warmup, out_json):
         sync()
         proc = (time.perf_counter() - t0) * 1000
         t1 = time.perf_counter()
-        cv2.imencode(".jpg", r.frame)
+        cv2.imencode(".jpg", r.frame, [cv2.IMWRITE_JPEG_QUALITY, cfg.web.jpeg_quality])
         enc = (time.perf_counter() - t1) * 1000
         if i < warmup:
             continue

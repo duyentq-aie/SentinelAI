@@ -27,9 +27,10 @@ Fields share the **ground-truth schema of PLAN section 3.1**, so `tools/eval_eve
 | `type` | yes | yes | `no_helmet` \| `overload` \| `red_light` (legacy rules also: `wrong_way`, `wrong_lane`) |
 | `frame_start`, `frame_end` | yes | yes | first / last frame the violation was flagged (frame index inside the run) |
 | `key_frame`, `key_box` | yes | yes | frame of the evidence snapshot and the vehicle box `[x1,y1,x2,y2]` there (resized-frame pixels) |
-| `plate_text` | yes | `null` | ground-truth plate string (the pipeline does not read plates yet: OCR is P3) |
+| `plate_text` | yes | `null` | ground-truth plate string (predictions leave it `null`; the OCR result goes to `plate_pred`) |
 | `difficulty`, `notes` | yes | `null`, `""` | annotation fields |
 | `schema`, `status` | | yes | `sentinel.event/1`; `open` \| `closed` |
+| `frame_size` | | yes | `[w, h]` of the frame the pipeline worked on (1280x720 by default): `key_box`, `boxes`, `plate.box` are in these pixels. Ground-truth labels use the video's native pixels (`width`/`height` of the labels file); the evaluator rescales |
 | `track_id`, `trigger_frame` | | yes | tracker id (`M_77` motorcycle from the helmet model, `C_221` car/truck/bus from COCO) and the frame that triggered the event (= `frame_start`) |
 | `confidence`, `plate_pred` | | `null` for now | reserved for rule confidence / OCR result |
 | `boxes` | | yes | vehicle box sampled every 5 frames while the event is active (`{"frame": box}`, max 60) |

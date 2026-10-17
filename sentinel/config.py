@@ -82,6 +82,11 @@ class EvidenceCfg:
 
 
 @dataclass
+class RenderCfg:
+    blend: str = "roi"            # label-tag blending: "roi" (only the tag rectangle) or "full" (v0: copy + blend the whole frame)
+
+
+@dataclass
 class WebCfg:
     """Demo server. Defaults are deliberately restrictive: loopback only, no RTSP, no camera index, uploads limited in type and size."""
     host: str = "127.0.0.1"
@@ -92,6 +97,7 @@ class WebCfg:
     allowed_source_dirs: List[str] = field(default_factory=lambda: ["static/uploads", "."])   # "." = repo root (test_video.mp4)
     allow_rtsp: bool = False
     allow_camera_index: bool = False
+    jpeg_quality: int = 80        # MJPEG stream quality (cv2 default is 95; lower = less encode time and bandwidth)
 
 
 @dataclass
@@ -102,6 +108,7 @@ class PipelineConfig:
     rules: RulesCfg = field(default_factory=RulesCfg)
     evidence: EvidenceCfg = field(default_factory=EvidenceCfg)
     web: WebCfg = field(default_factory=WebCfg)
+    render: RenderCfg = field(default_factory=RenderCfg)
     root: Path = REPO                  # base for relative weights/tracker paths (not read from yaml)
 
     def validate(self):
@@ -137,6 +144,10 @@ class PipelineConfig:
         w = self.web
         if not 1 <= w.port <= 65535 or w.max_upload_mb < 1 or not w.allowed_extensions or not w.allowed_source_dirs:
             raise ValueError("web: port in 1..65535, max_upload_mb >= 1, allowed_extensions and allowed_source_dirs non-empty")
+        if not 1 <= w.jpeg_quality <= 100:
+            raise ValueError("web.jpeg_quality must be in 1..100")
+        if self.render.blend not in ("roi", "full"):
+            raise ValueError("render.blend must be 'roi' or 'full'")
         if any(not e.startswith(".") for e in w.allowed_extensions):
             raise ValueError("web.allowed_extensions entries must start with '.'")
         return self
@@ -153,6 +164,11 @@ class CameraConfig:
     source: str = ""
     violation_zone: List[List[int]] = field(default_factory=list)
     wrong_lane_zone: Optional[List[List[int]]] = None
+    frame_size: List[int] = field(default_factory=lambda: [1280, 720])   # coordinates below are in this (resized) frame
+    # drawn with tools/camera_config.py; used by the stop-line red-light rule (P2 3.3), stored and validated until then
+    stop_line: Optional[List[List[int]]] = None       # two points
+    direction: Optional[List[List[int]]] = None       # arrow tail -> head: legal direction of travel across the stop line
+    light_roi: Optional[List[int]] = None             # [x1, y1, x2, y2] around the traffic light that governs this approach
 
     def validate(self):
         for name in ("violation_zone", "wrong_lane_zone"):
@@ -163,6 +179,15 @@ class CameraConfig:
                 raise ValueError(f"{name} needs >= 3 [x, y] points, got {z}")
         if not self.violation_zone:
             raise ValueError("violation_zone is required")
+        for name in ("stop_line", "direction"):
+            v = getattr(self, name)
+            if v is not None and (len(v) != 2 or any(len(p) != 2 for p in v) or v[0] == v[1]):
+                raise ValueError(f"{name} needs two distinct [x, y] points, got {v}")
+        r = self.light_roi
+        if r is not None and (len(r) != 4 or not (r[0] < r[2] and r[1] < r[3])):
+            raise ValueError(f"light_roi must be [x1, y1, x2, y2] with x1 < x2 and y1 < y2, got {r}")
+        if len(self.frame_size) != 2 or min(self.frame_size) < 1:
+            raise ValueError("frame_size must be [width, height]")
         return self
 
     @staticmethod

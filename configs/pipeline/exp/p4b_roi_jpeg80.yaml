@@ -1,0 +1,59 @@
+# EXPERIMENT config (P4a+b: ROI blend + JPEG quality 80 (= current default)); otherwise identical to default.yaml
+# Default pipeline config. Values reproduce the behaviour of the original app.py (tag v0-baseline);
+# characterization tests rely on that. Paths are relative to the repo root.
+device: null            # null = Ultralytics default (GPU if available); "cpu" to force CPU
+frame_size: [1280, 720] # every frame is resized to this before inference
+
+models:
+  coco:   {weights: yolo11s.pt,     conf: 0.35, tracker: configs/trackers/botsort.yaml}
+  helmet: {weights: helmet_best.pt, conf: 0.55, tracker: configs/trackers/botsort.yaml}
+  plate:  {weights: plate_best.pt,  conf: 0.35}
+  # P4: to benchmark another tracker only change `tracker` (e.g. configs/trackers/bytetrack.yaml) or
+  # gmc_method inside configs/trackers/botsort.yaml.
+
+rules:
+  engine: windowed            # windowed = P2 3.2 voting rules; legacy = v0 counters (baseline replays)
+  helmet:
+    violation_frames: 5       # legacy engine only
+    window: 15                # W: observations kept (frames where a head is attached to the motorcycle; occluded frames are skipped)
+    min_votes: 5              # K: no-helmet votes needed in the window
+    min_ratio: 0.5            # r: votes / observations needed in the window  (not tuned on ground truth: "chua kiem dinh")
+  overload:
+    max_passengers: 2         # more heads than this on one motorcycle = overload vote
+    window: 15
+    min_votes: 5
+    min_ratio: 0.5
+  wrong_way:                  # legacy rule, OUT of the reported scope: off by default (baseline v1 and older had it on)
+    enabled: false
+    history_len: 30           # positions kept per track
+    min_history: 15           # positions needed before judging
+    dy_threshold: -30         # px; moved "up" the image by more than this -> WRONG-WAY
+  red_light:
+    enabled: true             # zone comes from the camera config
+
+evidence:
+  dir: static/violations      # events.jsonl + one folder per event (frame.jpg, vehicle.jpg, plate.jpg)
+  plate_margin: 10            # px around the plate box in the saved crop
+  max_records: 12             # gallery length kept in memory
+  max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
+  jpeg_quality: 90
+  close_after: 30             # frames without the violation before an event is closed
+  one_event_per_track: true   # at most one event per (track, type) per run: a flickering verdict cannot create duplicates
+  plate:                      # plate detector runs only for tracks that are currently violating
+    max_attempts: 90          # runs per track (0 = unlimited); 30 lost 1 of 21 plates on the GPU run, see EXP-004
+    stop_when_found: true     # false + max_attempts 0 reproduces the v0 behaviour (run on every violating frame)
+    every: 1                  # try on every k-th violating frame
+
+web:                          # demo server (apps/web); restrictive defaults
+  host: 127.0.0.1             # loopback only; change deliberately if you really want to expose it
+  port: 8000
+  upload_dir: static/uploads
+  max_upload_mb: 500
+  allowed_extensions: [".mp4", ".avi", ".mov", ".mkv", ".m4v", ".webm"]
+  allowed_source_dirs: [static/uploads, .]   # video files must live in one of these (relative to the repo root); "." = repo root
+  allow_rtsp: false           # rtsp:// URLs are rejected unless this is true
+  allow_camera_index: false   # "0", "1" ... (local cameras) are rejected unless this is true
+  jpeg_quality: 80            # MJPEG stream quality (cv2 default 95)
+
+render:
+  blend: roi                  # roi = blend only the label tag (pixel-identical to full, faster); full = v0 whole-frame blend (A/B reference)

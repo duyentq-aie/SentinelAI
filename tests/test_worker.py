@@ -141,3 +141,21 @@ def test_worker_idles_after_clients_stop():
     w.stop()
     assert pipe.processed == n                               # no inference while unwatched
     assert w.status()["running"] is False
+
+
+def test_nothing_is_encoded_without_a_client_and_the_default_encoder_uses_the_configured_quality(monkeypatch):
+    import cv2
+    seen = []
+    real = cv2.imencode
+    monkeypatch.setattr(cv2, "imencode", lambda ext, img, params=None: (seen.append(params), real(ext, img, params or []))[1])
+    FakeSource.instances = []
+    pipe = FakePipeline()
+    w = InferenceWorker(pipe, "video.mp4", source_factory=FakeSource, jpeg_quality=63, idle_after=0.2, read_retry=0.01, open_retry=0.01)
+    time.sleep(0.3)
+    assert seen == [] and pipe.processed == 0               # no client: not even read, let alone encoded
+    w.next_jpeg(0)                                          # a client appears
+    time.sleep(0.5)                                         # worker keeps producing frames for ~idle_after, but nobody asks for JPEGs
+    n_encoded_after_one_client_request = len(seen)
+    w.stop()
+    assert n_encoded_after_one_client_request == 1          # frames are encoded lazily, only when a client asks for one
+    assert seen[0] == [cv2.IMWRITE_JPEG_QUALITY, 63]

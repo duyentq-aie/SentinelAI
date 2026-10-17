@@ -8,6 +8,7 @@ Two frames per step (since 3.0b): `raw` (resized camera frame, never drawn on) f
 `display` (a copy) is what gets overlays and is streamed. Before 3.0b the helmet model saw traffic-light boxes and the plate model
 saw violation overlays, because everything was drawn on one frame (fixture tracks_test_video_v0_overlay.jsonl keeps that behaviour).
 """
+import functools
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -22,7 +23,7 @@ from sentinel.lights import detect_traffic_light_color
 from sentinel.perception import Perception, tracks_from_results
 from sentinel.rules.legacy import RuleResult, vehicle_label, violation_labels
 from sentinel.rules.windowed import make_rules
-from sentinel.viz import draw_sleek_box
+from sentinel.viz import draw_sleek_box as _draw_box
 
 
 class Detectors:
@@ -84,6 +85,7 @@ class Pipeline:
         self.cfg = cfg
         self.camera = camera
         self.rules = make_rules(cfg.rules, camera)
+        self._box = functools.partial(_draw_box, blend=cfg.render.blend)
         self.frame_idx = 0
         self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
                                          camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune)
@@ -122,7 +124,7 @@ class Pipeline:
                 if crop.size > 0:
                     t.state = p.light = detect_traffic_light_color(crop)
                     color = (0, 0, 255) if t.state == "RED" else (0, 255, 0)
-                    draw_sleek_box(display, x1, y1, x2, y2, f"LIGHT: {t.state}", color, 2)
+                    self._box(display, x1, y1, x2, y2, f"LIGHT: {t.state}", color, 2)
         p.helmet = self.d.track_helmet(raw)
         return p
 
@@ -130,7 +132,7 @@ class Pipeline:
     def _draw(self, frame, p, result):
         for hbox, h_type in result.heads:
             hx1, hy1, hx2, hy2 = hbox
-            draw_sleek_box(frame, hx1, hy1, hx2, hy2, h_type.upper(), (255, 144, 30) if h_type == "helmet" else (0, 0, 255))
+            self._box(frame, hx1, hy1, hx2, hy2, h_type.upper(), (255, 144, 30) if h_type == "helmet" else (0, 0, 255))
 
         zone_color = (0, 0, 255) if p.light == "RED" else (0, 255, 0)
         cv2.polylines(frame, [self.violation_zone], isClosed=True, color=zone_color, thickness=2)
@@ -139,9 +141,9 @@ class Pipeline:
         for v in result.vehicles:
             x1, y1, x2, y2 = v.coords
             if v.violator:
-                draw_sleek_box(frame, x1, y1, x2, y2, vehicle_label(v), (0, 0, 255), 2)
+                self._box(frame, x1, y1, x2, y2, vehicle_label(v), (0, 0, 255), 2)
             else:
-                draw_sleek_box(frame, x1, y1, x2, y2, vehicle_label(v), (0, 165, 255) if v.type == "motorcycle" else (255, 255, 0))
+                self._box(frame, x1, y1, x2, y2, vehicle_label(v), (0, 165, 255) if v.type == "motorcycle" else (255, 255, 0))
 
     def process(self, frame):
         raw = cv2.resize(frame, tuple(self.cfg.frame_size))      # models + evidence only ever see this
@@ -156,7 +158,7 @@ class Pipeline:
         self._draw(display, p, result)
         up = self.recorder.update(self.frame_idx, raw, result.vehicles, p.light)
         for x1, y1, x2, y2 in up.plate_boxes:
-            draw_sleek_box(display, x1, y1, x2, y2, "PLATE", (0, 255, 0), thickness=2)
+            self._box(display, x1, y1, x2, y2, "PLATE", (0, 255, 0), thickness=2)
         self.frame_idx += 1
 
         new_frame_time = time.time()

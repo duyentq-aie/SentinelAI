@@ -24,7 +24,7 @@ import cv2
 
 SCHEMA = "sentinel.event/1"
 GT_FIELDS = ("id", "type", "frame_start", "frame_end", "key_frame", "key_box", "plate_text", "difficulty", "notes")
-PREDICTION_FIELDS = ("schema", "status", "track_id", "trigger_frame", "confidence", "plate_pred", "boxes", "plate", "evidence",
+PREDICTION_FIELDS = ("schema", "status", "frame_size", "track_id", "trigger_frame", "confidence", "plate_pred", "boxes", "plate", "evidence",
                      "vehicle", "light", "video_id", "camera_id", "run", "created_at")
 
 TYPES_OF_REASON = {
@@ -57,6 +57,7 @@ class _Event:
     last_seen: int = 0
     closed: bool = False
     written: bool = False
+    frame_size: list = None
 
 
 @dataclass
@@ -208,6 +209,7 @@ class EvidenceRecorder:
                     key_box=list(v.coords), vehicle_cls=v.type, light=light,
                     created_at=time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(self.clock())))
         ev.frame_end = ev.last_seen = frame_idx
+        ev.frame_size = [int(raw.shape[1]), int(raw.shape[0])]
         ev.boxes[str(frame_idx)] = list(v.coords)
         d = self.root / ev.id
         d.mkdir(parents=True, exist_ok=True)
@@ -243,7 +245,7 @@ class EvidenceRecorder:
         out = {
             "id": ev.id, "type": ev.type, "frame_start": ev.frame_start, "frame_end": ev.frame_end, "key_frame": ev.frame_start,
             "key_box": ev.key_box, "plate_text": None, "difficulty": None, "notes": "",
-            "schema": SCHEMA, "status": status, "track_id": ev.track_id, "trigger_frame": ev.frame_start, "confidence": None,
+            "schema": SCHEMA, "status": status, "frame_size": ev.frame_size, "track_id": ev.track_id, "trigger_frame": ev.frame_start, "confidence": None,
             "plate_pred": None, "boxes": ev.boxes if status != "open" else {str(ev.frame_start): ev.key_box},
             "plate": ev.plate if ev.plate is not None else {"found": False, "attempts": self._attempts.get(ev.track_id, 0), "searching": True},
             "evidence": {k: (self._rel(p) if p.exists() else None) for k, p in files.items()},

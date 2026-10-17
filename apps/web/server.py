@@ -22,7 +22,7 @@ os.makedirs(REPO / cfg.web.upload_dir, exist_ok=True)
 print("[*] Loading AI Models (Anti-Spam Tracking Edition)...")
 state = SharedState()
 pipeline = Pipeline(Detectors(cfg), state, cfg, camera)
-worker = InferenceWorker(pipeline, camera.source)
+worker = InferenceWorker(pipeline, camera.source, jpeg_quality=cfg.web.jpeg_quality)
 
 
 def _shutdown():

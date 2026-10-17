@@ -16,14 +16,15 @@ from sentinel.source import VideoSource
 
 class InferenceWorker:
     def __init__(self, pipeline, source, source_factory=VideoSource, idle_after=5.0,
-                 open_retry=1.0, read_retry=0.05, reopen_after_failures=100, encode=None, clock=time.monotonic):
+                 open_retry=1.0, read_retry=0.05, reopen_after_failures=100, encode=None, jpeg_quality=80, clock=time.monotonic):
         self.pipeline = pipeline
         self._factory = source_factory
         self._pending = source              # source spec waiting to be (re)opened by the worker thread
         self._source = None                 # current source spec (for status)
         self.idle_after, self.open_retry, self.read_retry = idle_after, open_retry, read_retry
         self.reopen_after_failures = reopen_after_failures
-        self._encode = encode or (lambda f: cv2.imencode('.jpg', f)[1].tobytes())
+        self.jpeg_quality = jpeg_quality
+        self._encode = encode or (lambda f: cv2.imencode('.jpg', f, [cv2.IMWRITE_JPEG_QUALITY, self.jpeg_quality])[1].tobytes())
         self._clock = clock
         self._lock = threading.Lock()       # guards _pending / _last_poll / thread start
         self._cond = threading.Condition()  # guards published frame
