@@ -1,0 +1,87 @@
+{
+  "p4_before": {
+    "headless_fps_median": 12.05,
+    "headless_range": [
+      11.73,
+      13.19
+    ],
+    "stream_fps_median": 10.34,
+    "stream_range": [
+      10.08,
+      11.24
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  },
+  "p4a_draw_roi": {
+    "headless_fps_median": 14.64,
+    "headless_range": [
+      14.51,
+      15.15
+    ],
+    "stream_fps_median": 12.22,
+    "stream_range": [
+      12.15,
+      12.6
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  },
+  "p4b_roi_jpeg80": {
+    "headless_fps_median": 15.22,
+    "headless_range": [
+      14.57,
+      15.25
+    ],
+    "stream_fps_median": 12.85,
+    "stream_range": [
+      12.38,
+      12.89
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  },
+  "p4c_gmc_none": {
+    "headless_fps_median": 28.73,
+    "headless_range": [
+      28.55,
+      28.82
+    ],
+    "stream_fps_median": 21.46,
+    "stream_range": [
+      21.3,
+      21.53
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  },
+  "p4c_bytetrack": {
+    "headless_fps_median": 28.21,
+    "headless_range": [
+      23.6,
+      29.2
+    ],
+    "stream_fps_median": 21.07,
+    "stream_range": [
+      17.82,
+      21.71
+    ],
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ]
+  }
+}

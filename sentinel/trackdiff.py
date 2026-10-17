@@ -90,8 +90,33 @@ def diff_tracks(a, b, min_iou=0.5):
         agg["grid_changed"] = {f"col{c}_row{r}": v for (c, r), v in sorted(agg["grid_changed"].items())}
         out["models"][m] = agg
     la, lb = Counter(p.light for p in a[:n]), Counter(p.light for p in b[:n])
+    out["id_consistency"] = id_consistency(a, b, min_iou=min_iou)
     out["light"] = {"frames_state_differs": sum(1 for pa, pb in zip(a[:n], b[:n]) if pa.light != pb.light),
                     "states_a": dict(la), "states_b": dict(lb)}
+    return out
+
+
+def id_consistency(a, b, min_frames=5, min_iou=0.5):
+    """How differently two trackers number the SAME objects (raw id equality is meaningless: numbering offsets are arbitrary).
+
+    Detections are matched per frame (class + IoU); for every model:
+      split  = tracks of A whose detections are spread over >1 id of B (second id covers >= min_frames frames)  -> B fragments / switches ids
+      merged = tracks of B that cover >1 id of A (same rule)                                                    -> B glues different objects of A
+    """
+    out = {}
+    n = min(len(a), len(b))
+    for m in MODELS:
+        fwd, rev, ids_a, ids_b = defaultdict(Counter), defaultdict(Counter), set(), set()
+        for pa, pb in zip(a[:n], b[:n]):
+            ta, tb = getattr(pa, m), getattr(pb, m)
+            ids_a |= {t.id for t in ta}; ids_b |= {t.id for t in tb}
+            for x, y in match(ta, tb, min_iou)[0]:
+                fwd[x.id][y.id] += 1
+                rev[y.id][x.id] += 1
+        second = lambda c: c.most_common(2)[1][1] if len(c) > 1 else 0
+        out[m] = {"tracks_a": len(ids_a), "tracks_b": len(ids_b), "matched_tracks_a": len(fwd), "matched_tracks_b": len(rev),
+                  "split": sum(1 for c in fwd.values() if second(c) >= min_frames),
+                  "merged": sum(1 for c in rev.values() if second(c) >= min_frames)}
     return out
 
 
@@ -101,7 +126,10 @@ def format_report(d, name_a="A", name_b="B"):
          f"traffic-light state differs on {d['light']['frames_state_differs']} frames; states A={d['light']['states_a']} B={d['light']['states_b']}"]
     for m, g in d["models"].items():
         pct = lambda x, y: f"{100 * x / y:.1f}%" if y else "n/a"
-        L += [f"\n[{m}] detections A={g['detections_a']} B={g['detections_b']} | matched={g['matched']} lost(only A)={g['lost']} new(only B)={g['new']} "
+        ic = d["id_consistency"][m]
+        L += [f"\n[{m}] ids: {ic['tracks_a']} tracks in A, {ic['tracks_b']} in B; A-tracks split over >1 B-id: {ic['split']}/{ic['matched_tracks_a']}; "
+              f"B-tracks merging >1 A-id: {ic['merged']}/{ic['matched_tracks_b']}  (numbering offsets are not counted)"]
+        L += [f"[{m}] detections A={g['detections_a']} B={g['detections_b']} | matched={g['matched']} lost(only A)={g['lost']} new(only B)={g['new']} "
               f"id-changed={g['id_changed']}",
               f"   frames with any change: {g['frames_with_change']}/{d['frames_compared']} ({pct(g['frames_with_change'], d['frames_compared'])}), first at frame {g['first_change_frame']}",
               f"   matched boxes moved: mean {g['box_shift_px_mean']} px, max {g['box_shift_px_max']} px",

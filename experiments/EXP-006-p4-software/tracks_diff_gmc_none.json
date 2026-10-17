@@ -1,0 +1,175 @@
+{
+  "frames_a": 787,
+  "frames_b": 787,
+  "frames_compared": 787,
+  "models": {
+    "coco": {
+      "detections_a": 21005,
+      "detections_b": 21006,
+      "matched": 20966,
+      "lost": 39,
+      "new": 40,
+      "id_changed": 11403,
+      "frames_with_change": 741,
+      "by_class": {
+        "motorcycle": {
+          "id_changed": 5595,
+          "new": 34,
+          "lost": 26
+        },
+        "person": {
+          "id_changed": 4296,
+          "new": 4,
+          "lost": 11
+        },
+        "car": {
+          "id_changed": 1244,
+          "new": 1
+        },
+        "truck": {
+          "id_changed": 226,
+          "new": 1
+        },
+        "traffic light": {
+          "id_changed": 4
+        },
+        "bicycle": {
+          "id_changed": 38,
+          "lost": 2
+        }
+      },
+      "grid_changed": {
+        "col0_row0": 384,
+        "col0_row1": 568,
+        "col0_row2": 994,
+        "col1_row0": 426,
+        "col1_row1": 2509,
+        "col1_row2": 1118,
+        "col2_row0": 455,
+        "col2_row1": 2531,
+        "col2_row2": 803,
+        "col3_row0": 449,
+        "col3_row1": 892,
+        "col3_row2": 353
+      },
+      "near_light_changed": 7,
+      "changed_total": 11482,
+      "near_light_all_detections": 14,
+      "all_detections": 42011,
+      "box_shift_px_mean": 0.29,
+      "box_shift_px_max": 14,
+      "first_change_frame": 22
+    },
+    "helmet": {
+      "detections_a": 5164,
+      "detections_b": 5155,
+      "matched": 5151,
+      "lost": 13,
+      "new": 4,
+      "id_changed": 2664,
+      "frames_with_change": 550,
+      "by_class": {
+        "helmet": {
+          "id_changed": 855,
+          "lost": 9,
+          "new": 1
+        },
+        "no-helmet": {
+          "id_changed": 368,
+          "lost": 4,
+          "new": 3
+        },
+        "motorcycle": {
+          "id_changed": 1441
+        }
+      },
+      "grid_changed": {
+        "col0_row1": 62,
+        "col0_row2": 105,
+        "col1_row0": 42,
+        "col1_row1": 249,
+        "col1_row2": 346,
+        "col2_row0": 14,
+        "col2_row1": 692,
+        "col2_row2": 441,
+        "col3_row0": 4,
+        "col3_row1": 444,
+        "col3_row2": 282
+      },
+      "near_light_changed": 0,
+      "changed_total": 2681,
+      "near_light_all_detections": 0,
+      "all_detections": 10319,
+      "box_shift_px_mean": 0.28,
+      "box_shift_px_max": 7,
+      "first_change_frame": 52
+    }
+  },
+  "light": {
+    "frames_state_differs": 0,
+    "states_a": {
+      "UNKNOWN": 783,
+      "GREEN": 4
+    },
+    "states_b": {
+      "UNKNOWN": 783,
+      "GREEN": 4
+    }
+  },
+  "light_boxes": [
+    [
+      1122,
+      150,
+      1140,
+      184
+    ],
+    [
+      1121,
+      146,
+      1142,
+      190
+    ],
+    [
+      1122,
+      148,
+      1142,
+      187
+    ],
+    [
+      1122,
+      148,
+      1141,
+      187
+    ],
+    [
+      1122,
+      149,
+      1141,
+      190
+    ],
+    [
+      1121,
+      149,
+      1141,
+      191
+    ]
+  ],
+  "id_consistency": {
+    "coco": {
+      "tracks_a": 384,
+      "tracks_b": 378,
+      "matched_tracks_a": 382,
+      "matched_tracks_b": 378,
+      "split": 12,
+      "merged": 15
+    },
+    "helmet": {
+      "tracks_a": 174,
+      "tracks_b": 181,
+      "matched_tracks_a": 174,
+      "matched_tracks_b": 181,
+      "split": 2,
+      "merged": 0
+    }
+  }
+}

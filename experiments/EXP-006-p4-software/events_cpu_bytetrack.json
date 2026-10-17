@@ -1,0 +1,152 @@
+{
+  "impl": "refactored-3.0",
+  "device": "cpu",
+  "video": "test_video.mp4",
+  "events": [
+    {
+      "frame": 35,
+      "kind": "plate_capture",
+      "track": "M_78"
+    },
+    {
+      "frame": 71,
+      "kind": "plate_capture",
+      "track": "M_127"
+    },
+    {
+      "frame": 104,
+      "kind": "plate_capture",
+      "track": "M_152"
+    },
+    {
+      "frame": 112,
+      "kind": "plate_capture",
+      "track": "M_178"
+    },
+    {
+      "frame": 290,
+      "kind": "plate_capture",
+      "track": "M_302"
+    },
+    {
+      "frame": 328,
+      "kind": "plate_capture",
+      "track": "M_357"
+    },
+    {
+      "frame": 374,
+      "kind": "plate_capture",
+      "track": "M_390"
+    },
+    {
+      "frame": 451,
+      "kind": "plate_capture",
+      "track": "M_532"
+    },
+    {
+      "frame": 467,
+      "kind": "plate_capture",
+      "track": "M_493"
+    },
+    {
+      "frame": 474,
+      "kind": "plate_capture",
+      "track": "M_582"
+    },
+    {
+      "frame": 528,
+      "kind": "plate_capture",
+      "track": "M_695"
+    },
+    {
+      "frame": 533,
+      "kind": "plate_capture",
+      "track": "M_645"
+    },
+    {
+      "frame": 554,
+      "kind": "plate_capture",
+      "track": "M_724"
+    },
+    {
+      "frame": 582,
+      "kind": "plate_capture",
+      "track": "M_807"
+    },
+    {
+      "frame": 4,
+      "kind": "label_first_seen",
+      "label": "NO-HELMET"
+    },
+    {
+      "frame": 35,
+      "kind": "label_first_seen",
+      "label": "ID:M_78 NO-HELMET"
+    },
+    {
+      "frame": 71,
+      "kind": "label_first_seen",
+      "label": "ID:M_127 NO-HELMET"
+    },
+    {
+      "frame": 104,
+      "kind": "label_first_seen",
+      "label": "ID:M_152 NO-HELMET"
+    },
+    {
+      "frame": 112,
+      "kind": "label_first_seen",
+      "label": "ID:M_178 NO-HELMET"
+    },
+    {
+      "frame": 290,
+      "kind": "label_first_seen",
+      "label": "ID:M_302 NO-HELMET"
+    },
+    {
+      "frame": 328,
+      "kind": "label_first_seen",
+      "label": "ID:M_357 OVERLOAD"
+    },
+    {
+      "frame": 374,
+      "kind": "label_first_seen",
+      "label": "ID:M_390 NO-HELMET"
+    },
+    {
+      "frame": 451,
+      "kind": "label_first_seen",
+      "label": "ID:M_532 NO-HELMET"
+    },
+    {
+      "frame": 467,
+      "kind": "label_first_seen",
+      "label": "ID:M_493 NO-HELMET"
+    },
+    {
+      "frame": 474,
+      "kind": "label_first_seen",
+      "label": "ID:M_582 NO-HELMET"
+    },
+    {
+      "frame": 528,
+      "kind": "label_first_seen",
+      "label": "ID:M_695 NO-HELMET"
+    },
+    {
+      "frame": 533,
+      "kind": "label_first_seen",
+      "label": "ID:M_645 NO-HELMET"
+    },
+    {
+      "frame": 554,
+      "kind": "label_first_seen",
+      "label": "ID:M_724 NO-HELMET"
+    },
+    {
+      "frame": 582,
+      "kind": "label_first_seen",
+      "label": "ID:M_807 NO-HELMET"
+    }
+  ]
+}

@@ -39,3 +39,17 @@ def test_lost_new_idchange_and_nearness_to_light_are_reported():
     assert h["by_class"]["no-helmet"] == {"lost": 1}                    # the head just under the light was lost
     assert h["near_light_changed"] == 1 and h["changed_total"] == 3     # only that head is within 60 px of the light box
     assert d["light_boxes"] == [[500, 20, 520, 60]]
+
+
+def test_id_consistency_ignores_numbering_offsets_and_counts_splits_and_merges():
+    from sentinel.trackdiff import id_consistency
+    box = lambda x: (x, 100, x + 80, 200)
+    frames = lambda ids: [Perception(helmet=[T(i, "motorcycle", box(100 + 10 * k)) for i in ids(k)]) for k in range(12)]
+    a = frames(lambda k: [1])
+    shifted = frames(lambda k: [51])                       # same object, different numbering
+    split = frames(lambda k: [51] if k < 6 else [52])      # tracker lost the object and re-created it half way
+    assert id_consistency(a, shifted)["helmet"]["split"] == 0 and id_consistency(a, shifted)["helmet"]["merged"] == 0
+    r = id_consistency(a, split)["helmet"]
+    assert (r["split"], r["merged"], r["tracks_a"], r["tracks_b"]) == (1, 0, 1, 2)
+    m = id_consistency(split, a)["helmet"]                 # reverse: B glues two A tracks
+    assert (m["split"], m["merged"]) == (0, 1)
