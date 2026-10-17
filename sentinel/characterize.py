@@ -70,3 +70,51 @@ def compare_events(ref, got, tol=3, ignore_ids=False):
         if len(frames) > len(ref_by_key.get(k, [])):
             problems.append(f"extra {k} at frames {frames}")
     return problems
+
+
+_ENTITY = re.compile(r"[MC]_\d+")
+
+
+def _entity(e):
+    """Track id the event is about ('M_77'); falls back to the whole label for events without one (e.g. a bare head label)."""
+    text = e.get("track") or e.get("label") or ""
+    m = _ENTITY.search(text)
+    return m.group(0) if m else text
+
+
+def diff_events(a, b, tol=3):
+    """Compare two event lists keyed by (kind, track entity).
+
+    -> {"missing": events only in a, "added": events only in b, "changed": [{"entity", "kind", "a": [...], "b": [...], "why"}]}
+    'changed' = same (kind, entity) in both, but the label (e.g. violation reason) differs or the frame moved by more than tol.
+    """
+    def group(evs):
+        g = {}
+        for e in evs:
+            g.setdefault((e["kind"], _entity(e)), []).append(e)
+        return g
+    ga, gb = group(a), group(b)
+    out = {"missing": [], "added": [], "changed": []}
+    for k in sorted(set(ga) | set(gb), key=lambda k: min(e["frame"] for e in ga.get(k, gb.get(k)))):
+        if k not in gb:
+            out["missing"] += ga[k]
+        elif k not in ga:
+            out["added"] += gb[k]
+        else:
+            la = {e.get("label"): e["frame"] for e in ga[k]}
+            lb = {e.get("label"): e["frame"] for e in gb[k]}
+            why = []
+            for lab in sorted(set(la) - set(lb), key=str):
+                why.append(f"label only in A: {lab!r}@{la[lab]}")
+            for lab in sorted(set(lb) - set(la), key=str):
+                why.append(f"label only in B: {lab!r}@{lb[lab]}")
+            for lab in set(la) & set(lb):
+                if abs(la[lab] - lb[lab]) > tol:
+                    why.append(f"frame moved for {lab!r}: {la[lab]} -> {lb[lab]}")
+            if k[0] == "plate_capture":
+                fa, fb = ga[k][0]["frame"], gb[k][0]["frame"]
+                if abs(fa - fb) > tol:
+                    why.append(f"plate capture frame moved: {fa} -> {fb}")
+            if why:
+                out["changed"].append({"kind": k[0], "entity": k[1], "a": ga[k], "b": gb[k], "why": why})
+    return out

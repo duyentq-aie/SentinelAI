@@ -1,6 +1,6 @@
 {
   "experiment": "EXP-000-kaggle-original",
-  "source": "metadata embedded in the checkpoint files (train_args/train_metrics/train_results); NOT from notebooks",
+  "source": "helmet: notebooks/helmet-detection-yolo11.ipynb outputs (verified against helmet_best.pt train_args) + checkpoint metadata; plate: checkpoint metadata ONLY (notebooks/license-plate-detector.ipynb does NOT match plate_best.pt and has no saved outputs)",
   "split_used_for_metrics": "val (same split used to select best.pt)",
   "helmet": {
     "weights": "helmet_best.pt",
@@ -46,7 +46,120 @@
       "metrics/mAP50(B)": 0.99379,
       "metrics/mAP50-95(B)": 0.80898
     },
-    "best_epoch_val_mAP50-95": 0.80898
+    "best_epoch_val_mAP50-95": 0.80898,
+    "provenance": {
+      "notebook": "notebooks/helmet-detection-yolo11.ipynb",
+      "matches_checkpoint": true,
+      "evidence": "all 108 checkpoint train_args equal the notebook's logged trainer args except type/bookkeeping: device 0 vs '0', save_dir absent in checkpoint, warmup_bias_lr 0.1 vs 0.0 (schedule-mutated value stored in checkpoint); final val metrics and 1.453 h identical (see notebook_vs_checkpoint.json)",
+      "train_environment": {
+        "platform": "Kaggle",
+        "gpu": "Tesla T4 14913MiB",
+        "python": "3.12.12",
+        "torch": "2.9.0+cu126",
+        "ultralytics": "8.4.26",
+        "optimizer_chosen": "AdamW(lr=0.001429, momentum=0.9)",
+        "epochs_completed": 150,
+        "hours": 1.453,
+        "amp": true
+      },
+      "stale_doc": "markdown cell in the notebook still says yolo11n / epochs=50; the code (and the checkpoint) are yolo11s / 150 epochs"
+    },
+    "dataset_splits": {
+      "train": {
+        "images": 1014,
+        "background_images": 2
+      },
+      "val": {
+        "images": 278,
+        "background_images": 1,
+        "instances": 1384
+      },
+      "test": {
+        "images": 168,
+        "background_images": 2,
+        "instances": 818
+      },
+      "note": "counts from Ultralytics label-scan lines in the notebook log; 1460 images in total (about 69%/19%/12% train/val/test). Class names/ids: helmet, motorcycle, no-helmet. License/source of the Roboflow export: unknown."
+    },
+    "val_per_class_best_pt": {
+      "all": {
+        "images": 278,
+        "instances": 1384,
+        "P": 0.983,
+        "R": 0.989,
+        "mAP50": 0.994,
+        "mAP50-95": 0.809
+      },
+      "helmet": {
+        "images": 262,
+        "instances": 606,
+        "P": 0.987,
+        "R": 0.994,
+        "mAP50": 0.993,
+        "mAP50-95": 0.793
+      },
+      "motorcycle": {
+        "images": 276,
+        "instances": 608,
+        "P": 0.985,
+        "R": 0.995,
+        "mAP50": 0.995,
+        "mAP50-95": 0.882
+      },
+      "no-helmet": {
+        "images": 154,
+        "instances": 170,
+        "P": 0.977,
+        "R": 0.976,
+        "mAP50": 0.993,
+        "mAP50-95": 0.751
+      },
+      "speed_ms_per_image_T4": {
+        "preprocess": 0.1,
+        "inference": 2.9,
+        "postprocess": 4.0
+      }
+    },
+    "test_per_class_best_pt": {
+      "all": {
+        "images": 168,
+        "instances": 818,
+        "P": 0.987,
+        "R": 0.996,
+        "mAP50": 0.994,
+        "mAP50-95": 0.812
+      },
+      "helmet": {
+        "images": 164,
+        "instances": 359,
+        "P": 0.98,
+        "R": 1.0,
+        "mAP50": 0.993,
+        "mAP50-95": 0.791
+      },
+      "motorcycle": {
+        "images": 166,
+        "instances": 348,
+        "P": 0.991,
+        "R": 0.989,
+        "mAP50": 0.995,
+        "mAP50-95": 0.878
+      },
+      "no-helmet": {
+        "images": 100,
+        "instances": 111,
+        "P": 0.991,
+        "R": 0.998,
+        "mAP50": 0.995,
+        "mAP50-95": 0.768
+      },
+      "speed_ms_per_image_T4": {
+        "preprocess": 2.1,
+        "inference": 7.2,
+        "postprocess": 3.3
+      },
+      "caveat": "separate split, but mAP50 is saturated and test ~= val (0.994/0.812 vs 0.994/0.809); split independence is NOT verified (see NOTES.md)"
+    }
   },
   "plate": {
     "weights": "plate_best.pt",
@@ -90,6 +203,55 @@
       "metrics/mAP50(B)": 0.99492,
       "metrics/mAP50-95(B)": 0.75245
     },
-    "best_epoch_val_mAP50-95": 0.75245
+    "best_epoch_val_mAP50-95": 0.75245,
+    "provenance": {
+      "notebook": "notebooks/license-plate-detector.ipynb",
+      "matches_checkpoint": false,
+      "evidence": "10 of 19 explicit notebook train() arguments differ from plate_best.pt train_args (notebook_vs_checkpoint.json); notebook has no saved outputs, so it provides no metrics",
+      "differences": {
+        "model": [
+          "yolo11s.pt",
+          "yolo11n.pt"
+        ],
+        "epochs": [
+          150,
+          50
+        ],
+        "patience": [
+          30,
+          100
+        ],
+        "name": [
+          "plate_model_pro",
+          "license_plate_model"
+        ],
+        "degrees": [
+          15.0,
+          0.0
+        ],
+        "perspective": [
+          0.001,
+          0.0
+        ],
+        "shear": [
+          2.0,
+          0.0
+        ],
+        "scale": [
+          0.6,
+          0.5
+        ],
+        "fliplr": [
+          0.0,
+          0.5
+        ],
+        "cos_lr": [
+          true,
+          false
+        ]
+      },
+      "meaning": "plate_best.pt was produced by an earlier run (2026-03-23, ultralytics 8.4.25, yolo11n, 50 epochs, default aug) whose notebook is not in the repo; the saved notebook is a later 'pro' configuration whose weights are not the ones deployed"
+    },
+    "dataset_splits": "unknown (notebook has no outputs); test split exists in the dataset folder (notebook evaluates split='test') but no counts/metrics are recorded"
   }
 }

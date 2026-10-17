@@ -7,6 +7,11 @@ Quy ước: **[V]** = đã xác minh trực tiếp từ file/lệnh read-only; *
 > **Không có**: `docs/JD.md`, README, requirements, git (`Is a git repository: false`), code/notebook huấn luyện, dataset, log, biểu đồ kết quả, test.
 > Mọi thông tin về dữ liệu và huấn luyện dưới đây được **khôi phục từ metadata nhúng trong file `.pt`** (train_args, train_metrics, train_results), không phải từ tài liệu của dự án.
 
+> **Đính chính sau khi đọc notebook (2026-10-17, xem `experiments/EXP-000-kaggle-original/NOTES.md`):**
+> - Dataset helmet **có** split test (168 ảnh, 818 instance); notebook đã đánh giá trên đó (mAP50 0.994, mAP50-95 0.812, trùng val 0.994/0.809). Các câu "không có bằng chứng về test set" ở mục 2.B/2.D chỉ đúng với *repo*, không đúng với *lịch sử huấn luyện*. Số ảnh: train 1014 / val 278 / test 168.
+> - Notebook helmet **khớp** `helmet_best.pt`; notebook plate **không khớp** `plate_best.pt` (10/19 tham số khác, không có output).
+> - Độc lập giữa các split vẫn chưa kiểm chứng: tên ảnh `frame_10_579` cho thấy ảnh là frame trích từ video.
+
 ---
 
 ## 1. Tóm tắt

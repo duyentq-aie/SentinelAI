@@ -1,0 +1,222 @@
+{
+  "impl": "refactored-3.0",
+  "device": "cpu",
+  "video": "test_video.mp4",
+  "events": [
+    {
+      "frame": 60,
+      "kind": "plate_capture",
+      "track": "M_77"
+    },
+    {
+      "frame": 71,
+      "kind": "plate_capture",
+      "track": "M_129"
+    },
+    {
+      "frame": 103,
+      "kind": "plate_capture",
+      "track": "M_153"
+    },
+    {
+      "frame": 166,
+      "kind": "plate_capture",
+      "track": "C_223"
+    },
+    {
+      "frame": 243,
+      "kind": "plate_capture",
+      "track": "C_261"
+    },
+    {
+      "frame": 291,
+      "kind": "plate_capture",
+      "track": "M_299"
+    },
+    {
+      "frame": 324,
+      "kind": "plate_capture",
+      "track": "M_350"
+    },
+    {
+      "frame": 372,
+      "kind": "plate_capture",
+      "track": "M_380"
+    },
+    {
+      "frame": 440,
+      "kind": "plate_capture",
+      "track": "C_3"
+    },
+    {
+      "frame": 451,
+      "kind": "plate_capture",
+      "track": "M_519"
+    },
+    {
+      "frame": 468,
+      "kind": "plate_capture",
+      "track": "M_476"
+    },
+    {
+      "frame": 474,
+      "kind": "plate_capture",
+      "track": "M_565"
+    },
+    {
+      "frame": 501,
+      "kind": "plate_capture",
+      "track": "C_592"
+    },
+    {
+      "frame": 528,
+      "kind": "plate_capture",
+      "track": "M_677"
+    },
+    {
+      "frame": 537,
+      "kind": "plate_capture",
+      "track": "M_625"
+    },
+    {
+      "frame": 582,
+      "kind": "plate_capture",
+      "track": "M_773"
+    },
+    {
+      "frame": 584,
+      "kind": "plate_capture",
+      "track": "C_735"
+    },
+    {
+      "frame": 657,
+      "kind": "plate_capture",
+      "track": "C_874"
+    },
+    {
+      "frame": 662,
+      "kind": "plate_capture",
+      "track": "C_890"
+    },
+    {
+      "frame": 785,
+      "kind": "plate_capture",
+      "track": "C_1090"
+    },
+    {
+      "frame": 4,
+      "kind": "label_first_seen",
+      "label": "NO-HELMET"
+    },
+    {
+      "frame": 23,
+      "kind": "label_first_seen",
+      "label": "ID:M_1 NO-HELMET"
+    },
+    {
+      "frame": 35,
+      "kind": "label_first_seen",
+      "label": "ID:M_77 NO-HELMET"
+    },
+    {
+      "frame": 71,
+      "kind": "label_first_seen",
+      "label": "ID:M_129 NO-HELMET"
+    },
+    {
+      "frame": 103,
+      "kind": "label_first_seen",
+      "label": "ID:M_153 NO-HELMET"
+    },
+    {
+      "frame": 161,
+      "kind": "label_first_seen",
+      "label": "ID:C_223 WRONG-WAY"
+    },
+    {
+      "frame": 234,
+      "kind": "label_first_seen",
+      "label": "ID:C_261 WRONG-WAY"
+    },
+    {
+      "frame": 291,
+      "kind": "label_first_seen",
+      "label": "ID:M_299 NO-HELMET"
+    },
+    {
+      "frame": 324,
+      "kind": "label_first_seen",
+      "label": "ID:M_350 OVERLOAD"
+    },
+    {
+      "frame": 372,
+      "kind": "label_first_seen",
+      "label": "ID:M_380 NO-HELMET"
+    },
+    {
+      "frame": 440,
+      "kind": "label_first_seen",
+      "label": "ID:C_3 WRONG-WAY"
+    },
+    {
+      "frame": 451,
+      "kind": "label_first_seen",
+      "label": "ID:M_519 NO-HELMET"
+    },
+    {
+      "frame": 468,
+      "kind": "label_first_seen",
+      "label": "ID:M_476 NO-HELMET"
+    },
+    {
+      "frame": 474,
+      "kind": "label_first_seen",
+      "label": "ID:M_565 NO-HELMET"
+    },
+    {
+      "frame": 498,
+      "kind": "label_first_seen",
+      "label": "ID:C_592 WRONG-WAY"
+    },
+    {
+      "frame": 528,
+      "kind": "label_first_seen",
+      "label": "ID:M_677 NO-HELMET"
+    },
+    {
+      "frame": 537,
+      "kind": "label_first_seen",
+      "label": "ID:M_625 NO-HELMET"
+    },
+    {
+      "frame": 550,
+      "kind": "label_first_seen",
+      "label": "ID:M_677 OVERLOAD & NO-HELMET"
+    },
+    {
+      "frame": 573,
+      "kind": "label_first_seen",
+      "label": "ID:C_735 WRONG-WAY"
+    },
+    {
+      "frame": 582,
+      "kind": "label_first_seen",
+      "label": "ID:M_773 NO-HELMET"
+    },
+    {
+      "frame": 639,
+      "kind": "label_first_seen",
+      "label": "ID:C_874 WRONG-WAY"
+    },
+    {
+      "frame": 657,
+      "kind": "label_first_seen",
+      "label": "ID:C_890 WRONG-WAY"
+    },
+    {
+      "frame": 778,
+      "kind": "label_first_seen",
+      "label": "ID:C_1090 WRONG-WAY"
+    }
+  ]
+}

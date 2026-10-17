@@ -1,0 +1,114 @@
+{
+  "helmet_diff_all_args": {
+    "device": {
+      "notebook_log": 0,
+      "checkpoint": "0"
+    },
+    "save_dir": {
+      "notebook_log": "/kaggle/working/SentinelAI/helmet_model_pro",
+      "checkpoint": "<absent>"
+    },
+    "warmup_bias_lr": {
+      "notebook_log": 0.1,
+      "checkpoint": 0.0
+    }
+  },
+  "helmet_args_compared": 109,
+  "plate_explicit_args": {
+    "model": {
+      "notebook_explicit": "yolo11s.pt",
+      "checkpoint": "yolo11n.pt",
+      "match": false
+    },
+    "data": {
+      "notebook_explicit": "/kaggle/input/datasets/tranquangduyenk17ct/vietnam-license-plate-v1/data.yaml",
+      "checkpoint": "/kaggle/input/datasets/tranquangduyenk17ct/vietnam-license-plate-v1/data.yaml",
+      "match": true
+    },
+    "epochs": {
+      "notebook_explicit": 150,
+      "checkpoint": 50,
+      "match": false
+    },
+    "patience": {
+      "notebook_explicit": 30,
+      "checkpoint": 100,
+      "match": false
+    },
+    "imgsz": {
+      "notebook_explicit": 640,
+      "checkpoint": 640,
+      "match": true
+    },
+    "batch": {
+      "notebook_explicit": 32,
+      "checkpoint": 32,
+      "match": true
+    },
+    "project": {
+      "notebook_explicit": "/kaggle/working/SentinelAI",
+      "checkpoint": "/kaggle/working/SentinelAI",
+      "match": true
+    },
+    "name": {
+      "notebook_explicit": "plate_model_pro",
+      "checkpoint": "license_plate_model",
+      "match": false
+    },
+    "mosaic": {
+      "notebook_explicit": 1.0,
+      "checkpoint": 1.0,
+      "match": true
+    },
+    "degrees": {
+      "notebook_explicit": 15.0,
+      "checkpoint": 0.0,
+      "match": false
+    },
+    "perspective": {
+      "notebook_explicit": 0.001,
+      "checkpoint": 0.0,
+      "match": false
+    },
+    "shear": {
+      "notebook_explicit": 2.0,
+      "checkpoint": 0.0,
+      "match": false
+    },
+    "scale": {
+      "notebook_explicit": 0.6,
+      "checkpoint": 0.5,
+      "match": false
+    },
+    "hsv_h": {
+      "notebook_explicit": 0.015,
+      "checkpoint": 0.015,
+      "match": true
+    },
+    "hsv_s": {
+      "notebook_explicit": 0.7,
+      "checkpoint": 0.7,
+      "match": true
+    },
+    "hsv_v": {
+      "notebook_explicit": 0.4,
+      "checkpoint": 0.4,
+      "match": true
+    },
+    "fliplr": {
+      "notebook_explicit": 0.0,
+      "checkpoint": 0.5,
+      "match": false
+    },
+    "optimizer": {
+      "notebook_explicit": "auto",
+      "checkpoint": "auto",
+      "match": true
+    },
+    "cos_lr": {
+      "notebook_explicit": true,
+      "checkpoint": false,
+      "match": false
+    }
+  }
+}
