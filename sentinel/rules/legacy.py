@@ -59,6 +59,19 @@ class LegacyRules:
         self.track_history.clear()
         self.violation_counters.clear()
 
+    def _judge_motorcycle(self, track_id, n_heads, no_helmet_now):
+        """Legacy verdict: running no-helmet counter (+1 seen / -1 not seen, flagged at >= violation_frames) and a per-frame head count."""
+        rules = self.cfg
+        violator, reason = False, ""
+        c = self.violation_counters.get(track_id, 0)
+        self.violation_counters[track_id] = c + 1 if no_helmet_now else max(0, c - 1)
+        if self.violation_counters[track_id] >= rules.helmet.violation_frames:
+            violator, reason = True, "NO-HELMET"
+        if n_heads > rules.overload.max_passengers:
+            violator = True
+            reason = "OVERLOAD & NO-HELMET" if reason == "NO-HELMET" else "OVERLOAD"
+        return violator, reason
+
     def step(self, p: Perception) -> RuleResult:
         rules = self.cfg
         vehicles: List[Vehicle] = []
@@ -92,7 +105,6 @@ class LegacyRules:
 
         for m in motorcycles:
             mx1, my1, mx2, my2 = m.box
-            violator, reason = False, ""
             associated, no_helmet_now = [], False
             for hbox, h_type in heads:
                 hx1, hy1, hx2, hy2 = hbox
@@ -101,19 +113,9 @@ class LegacyRules:
                     associated.append((hbox, h_type))
                     if h_type == "no-helmet":
                         no_helmet_now = True
-            passengers = len(associated)
 
-            c = self.violation_counters.get(m.id, 0)
-            self.violation_counters[m.id] = c + 1 if no_helmet_now else max(0, c - 1)
-            if self.violation_counters[m.id] >= rules.helmet.violation_frames:
-                violator, reason = True, "NO-HELMET"
-
+            violator, reason = self._judge_motorcycle(m.id, len(associated), no_helmet_now)
             heads_drawn.extend(associated)
-
-            if passengers > rules.overload.max_passengers:
-                violator = True
-                reason = "OVERLOAD & NO-HELMET" if reason == "NO-HELMET" else "OVERLOAD"
-
             vehicles.append(Vehicle(f"M_{m.id}", m.box, "motorcycle", violator, reason))
 
         # --- red light: bottom-centre inside the zone while the light is RED ---

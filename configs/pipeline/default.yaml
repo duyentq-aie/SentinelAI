@@ -11,10 +11,17 @@ models:
   # gmc_method inside configs/trackers/botsort.yaml.
 
 rules:
+  engine: windowed            # windowed = P2 3.2 voting rules; legacy = v0 counters (baseline replays)
   helmet:
-    violation_frames: 5       # net "no-helmet" frames (+1 seen, -1 not seen) needed to flag NO-HELMET
+    violation_frames: 5       # legacy engine only
+    window: 15                # W: observations kept (frames where a head is attached to the motorcycle; occluded frames are skipped)
+    min_votes: 5              # K: no-helmet votes needed in the window
+    min_ratio: 0.5            # r: votes / observations needed in the window  (not tuned on ground truth: "chua kiem dinh")
   overload:
-    max_passengers: 2         # heads on one motorcycle above this -> OVERLOAD
+    max_passengers: 2         # more heads than this on one motorcycle = overload vote
+    window: 15
+    min_votes: 5
+    min_ratio: 0.5
   wrong_way:                  # legacy rule, OUT of the reported scope: off by default (baseline v1 and older had it on)
     enabled: false
     history_len: 30           # positions kept per track
@@ -30,6 +37,7 @@ evidence:
   max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
   jpeg_quality: 90
   close_after: 30             # frames without the violation before an event is closed
+  one_event_per_track: true   # at most one event per (track, type) per run: a flickering verdict cannot create duplicates
   plate:                      # plate detector runs only for tracks that are currently violating
     max_attempts: 90          # runs per track (0 = unlimited); 30 lost 1 of 21 plates on the GPU run, see EXP-004
     stop_when_found: true     # false + max_attempts 0 reproduces the v0 behaviour (run on every violating frame)

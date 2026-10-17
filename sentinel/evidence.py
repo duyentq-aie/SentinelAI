@@ -97,6 +97,7 @@ class EvidenceRecorder:
         self.on_plate_saved, self.on_evicted, self.clock = on_plate_saved, on_evicted, clock
         self.run, self._n = 0, 0
         self._open = {}            # (track_id, type) -> _Event
+        self._done = set()         # (track_id, type) that already had an event this run (one_event_per_track)
         self._plates = {}          # track_id -> plate dict (found)
         self._attempts = {}        # track_id -> detector runs
         self._violating_since = {} # track_id -> first frame of the current violating stretch
@@ -106,7 +107,7 @@ class EvidenceRecorder:
     def reset(self):
         """Source changed / video looped: ids restart, so close everything and forget id-keyed state."""
         self.flush()
-        self._plates.clear(); self._attempts.clear(); self._violating_since.clear()
+        self._plates.clear(); self._attempts.clear(); self._violating_since.clear(); self._done.clear()
         self.run += 1
 
     def flush(self):
@@ -125,6 +126,8 @@ class EvidenceRecorder:
             self._violating_since.setdefault(v.id, frame_idx)
             for etype in TYPES_OF_REASON.get(v.reason, [v.reason.lower().replace(" ", "_")]):
                 ev = self._open.get((v.id, etype))
+                if ev is None and cfg.one_event_per_track and (v.id, etype) in self._done:
+                    continue                      # this track already had its event of this type
                 if ev is None:
                     ev = self._start(frame_idx, raw, v, etype, light)
                     res.new_events.append(ev.id)
@@ -226,6 +229,7 @@ class EvidenceRecorder:
         if ev.plate is None:
             ev.plate = {"found": False, "attempts": self._attempts.get(ev.track_id, 0)}
         ev.closed = True
+        self._done.add((ev.track_id, ev.type))
         self._open.pop((ev.track_id, ev.type), None)
         self._write(ev, "closed")
 

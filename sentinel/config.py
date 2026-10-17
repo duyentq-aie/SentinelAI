@@ -26,12 +26,18 @@ class ModelsCfg:
 
 @dataclass
 class HelmetRule:
-    violation_frames: int = 5
+    violation_frames: int = 5     # legacy engine: net no-helmet frames
+    window: int = 15              # windowed engine: observations kept (frames in which a head is attached to the motorcycle)
+    min_votes: int = 5            # ... no-helmet votes needed inside the window
+    min_ratio: float = 0.5        # ... and votes / observations in the window
 
 
 @dataclass
 class OverloadRule:
-    max_passengers: int = 2
+    max_passengers: int = 2       # more heads than this on one motorcycle = overload vote
+    window: int = 15
+    min_votes: int = 5
+    min_ratio: float = 0.5
 
 
 @dataclass
@@ -49,6 +55,7 @@ class RedLightRule:
 
 @dataclass
 class RulesCfg:
+    engine: str = "windowed"      # "windowed" (P2 3.2 voting) or "legacy" (v0 counters, kept for baseline replays)
     helmet: HelmetRule = field(default_factory=HelmetRule)
     overload: OverloadRule = field(default_factory=OverloadRule)
     wrong_way: WrongWayRule = field(default_factory=WrongWayRule)
@@ -70,6 +77,7 @@ class EvidenceCfg:
     max_dir_mb: int = 200           # oldest evidence is deleted when the folder exceeds this; 0 = unlimited
     jpeg_quality: int = 90
     close_after: int = 30           # frames without the violation before an event is closed
+    one_event_per_track: bool = True  # at most one event per (track, type) per run, even if the verdict flickers
     plate: PlateCfg = field(default_factory=PlateCfg)
 
 
@@ -105,10 +113,17 @@ class PipelineConfig:
             if not 0 < m.conf <= 1:
                 raise ValueError(f"models.{name}.conf must be in (0, 1], got {m.conf}")
         r = self.rules
+        if r.engine not in ("legacy", "windowed"):
+            raise ValueError(f"rules.engine must be 'legacy' or 'windowed', got {r.engine!r}")
         if r.helmet.violation_frames < 1:
             raise ValueError("rules.helmet.violation_frames must be >= 1")
         if r.overload.max_passengers < 1:
             raise ValueError("rules.overload.max_passengers must be >= 1")
+        for name, rule in (("helmet", r.helmet), ("overload", r.overload)):
+            if not 1 <= rule.min_votes <= rule.window:
+                raise ValueError(f"rules.{name}: need 1 <= min_votes <= window")
+            if not 0 < rule.min_ratio <= 1:
+                raise ValueError(f"rules.{name}.min_ratio must be in (0, 1]")
         ww = r.wrong_way
         if not 1 <= ww.min_history <= ww.history_len:
             raise ValueError("rules.wrong_way needs 1 <= min_history <= history_len")

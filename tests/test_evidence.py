@@ -130,8 +130,8 @@ def test_escalation_opens_new_event_and_reuses_the_known_plate(tmp_path):
     assert evs["overload"]["frame_start"] == 2 and evs["overload"]["plate"]["found"] and evs["no_helmet"]["frame_start"] == 0
 
 
-def test_event_closes_after_the_violation_stops_and_reopens_as_a_new_event(tmp_path):
-    rec, _ = make(tmp_path, close_after=5)
+def test_event_closes_after_the_violation_stops_and_reopens_as_a_new_event_when_allowed(tmp_path):
+    rec, _ = make(tmp_path, close_after=5, one_event_per_track=False)
     for i in range(3):
         rec.update(i, raw_frame(), [veh()], "UNKNOWN")
     for i in range(3, 9):
@@ -178,3 +178,26 @@ def test_enforce_dir_limit_protects_named_entries(tmp_path):
         time.sleep(0.02)
     assert enforce_dir_limit(tmp_path, 3000, protect=("events.jsonl", "a")) == ["b"]
     assert enforce_dir_limit(tmp_path, 0) == []                          # 0 = unlimited
+
+
+def test_one_event_per_track_and_type_even_if_the_verdict_flickers(tmp_path):
+    rec, _ = make(tmp_path, close_after=3)                      # one_event_per_track defaults to True
+    for start in (0, 20, 40):                                    # violation comes back twice after the event closed
+        for i in range(start, start + 3):
+            rec.update(i, raw_frame(), [veh()], "UNKNOWN")
+        for i in range(start + 3, start + 10):
+            rec.update(i, raw_frame(), [veh(violator=False)], "UNKNOWN")
+    rec.flush()
+    assert len(last_by_id(tmp_path)) == 1
+    rec.update(0, raw_frame(), [veh("M_2")], "UNKNOWN")           # a different track still gets its own event
+    rec.update(1, raw_frame(), [veh("M_1", "OVERLOAD")], "UNKNOWN")   # and another TYPE on the same track too
+    rec.flush()
+    assert sorted((e["track_id"], e["type"]) for e in last_by_id(tmp_path).values()) == [("M_1", "no_helmet"), ("M_1", "overload"), ("M_2", "no_helmet")]
+
+
+def test_reset_allows_the_same_track_id_again(tmp_path):
+    rec, _ = make(tmp_path)
+    rec.update(0, raw_frame(), [veh()], "UNKNOWN")
+    rec.reset()
+    rec.update(0, raw_frame(), [veh()], "UNKNOWN")                # ids restarted: a new vehicle
+    assert len(last_by_id(tmp_path)) == 2

@@ -16,6 +16,7 @@ from sentinel.characterize import diff_events
 from sentinel.config import load_camera_config, load_pipeline_config
 from sentinel.offline import load_tracks, run_rules
 from sentinel.rules.legacy import LegacyRules, violation_labels
+from sentinel.rules.windowed import make_rules
 
 REPO = Path(__file__).resolve().parent.parent
 FIX = REPO / "tests" / "fixtures"
@@ -23,6 +24,8 @@ TRACKS = FIX / "tracks_test_video.jsonl"
 TRACKS_V0 = FIX / "tracks_test_video_v0_overlay.jsonl"
 BASELINE_V0 = FIX / "baseline_events_v0_cpu.json"
 BASELINE = FIX / "baseline_events_v1_clean.json"
+BASELINE_V2 = FIX / "baseline_events_v2.json"
+BASELINE_V3 = FIX / "baseline_events_v3_windowed.json"
 
 pytestmark = pytest.mark.skipif(not TRACKS.exists(), reason="tracks fixture not recorded (tools/record_tracks.py)")
 
@@ -83,13 +86,48 @@ def test_legacy_rules_reproduce_the_v0_label_events_exactly_on_the_old_fixture()
     assert d == {"missing": [], "added": [], "changed": []}, d
 
 
+def test_legacy_rules_with_wrong_way_off_reproduce_the_v2_label_events_exactly(tracks):
+    cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
+    cfg.rules.engine, cfg.rules.wrong_way.enabled = "legacy", False
+    got = run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels)
+    d = diff_events(_labels(BASELINE_V2), got, tol=0)
+    assert d == {"missing": [], "added": [], "changed": []}, d
+
+
+def test_windowed_rules_reproduce_the_v3_label_events_exactly(tracks):
+    """Regression snapshot of the windowed rules (not ground truth)."""
+    cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
+    assert cfg.rules.engine == "windowed"
+    d = diff_events(_labels(BASELINE_V3), run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
+    assert d == {"missing": [], "added": [], "changed": []}, d
+
+
+def test_windowed_vs_v2_changes_that_are_explained_in_exp005(tracks):
+    """The documented behavioural differences, pinned so that an accidental change of the rules shows up."""
+    d = diff_events(_labels(BASELINE_V2), _labels(BASELINE_V3), tol=0)
+    assert [e["label"] for e in d["missing"]] == ["ID:M_1 NO-HELMET"]                                   # sporadic votes, ratio .4 < .5
+    assert sorted(e["label"] for e in d["added"]) == ["ID:M_176 NO-HELMET", "ID:M_702 NO-HELMET"]       # borderline 1-frame / intermittent heads
+    m677 = next(c for c in d["changed"] if c["entity"] == "M_677")
+    assert "label only in A: 'ID:M_677 OVERLOAD & NO-HELMET'@550" in m677["why"]                         # 2-frame 3-head glitch rejected
+
+
+def test_v2_differs_from_v1_only_by_the_wrong_way_events():
+    v1 = json.loads(BASELINE.read_text(encoding="utf-8"))["events"]
+    v2 = json.loads(BASELINE_V2.read_text(encoding="utf-8"))["events"]
+    d = diff_events(v1, v2, tol=0)
+    assert d["added"] == [] and d["changed"] == []
+    assert len(d["missing"]) == 16
+    assert all(("WRONG-WAY" in e.get("label", "") or e["kind"] == "plate_capture") for e in d["missing"])
+    assert all(e["kind"] != "plate_capture" or e["track"].startswith("C_") for e in d["missing"])      # only car tracks lost their plate event
+
+
 def test_label_events_are_the_same_in_v0_and_v1_clean():
     """The 3.0b perception fix changed plate captures only; the 23 violation labels are unchanged."""
     assert diff_events(_labels(BASELINE_V0), _labels(BASELINE), tol=0) == {"missing": [], "added": [], "changed": []}
 
 
 def test_baseline_snapshot_shapes():
-    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23))):
+    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15))):
         d = json.loads(path.read_text(encoding="utf-8"))
         kinds = [e["kind"] for e in d["events"]]
         assert (kinds.count("plate_capture"), kinds.count("label_first_seen")) == expected and d["video_sha256"], path.name

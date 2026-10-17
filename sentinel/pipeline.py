@@ -20,7 +20,8 @@ from sentinel.config import CameraConfig, PipelineConfig
 from sentinel.evidence import EvidenceRecorder
 from sentinel.lights import detect_traffic_light_color
 from sentinel.perception import Perception, tracks_from_results
-from sentinel.rules.legacy import LegacyRules, RuleResult, vehicle_label, violation_labels
+from sentinel.rules.legacy import RuleResult, vehicle_label, violation_labels
+from sentinel.rules.windowed import make_rules
 from sentinel.viz import draw_sleek_box
 
 
@@ -82,7 +83,7 @@ class Pipeline:
         self.s = state
         self.cfg = cfg
         self.camera = camera
-        self.rules = LegacyRules(cfg.rules, camera)
+        self.rules = make_rules(cfg.rules, camera)
         self.frame_idx = 0
         self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
                                          camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune)
