@@ -1,0 +1,25 @@
+# environment
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# data / models / media (versioned via manifests + sha256, not git)
+data/
+*.pt
+*.onnx
+*.engine
+*.mp4
+*.avi
+*.mov
+
+# runtime output
+static/violations/
+static/uploads/
+outputs/
+runs/
+
+# secrets
+.kaggle/
+kaggle.json
+.env
