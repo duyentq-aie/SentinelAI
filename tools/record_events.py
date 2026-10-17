@@ -65,7 +65,9 @@ def run_refactored(video, device):
     cfg = load_pipeline_config(root=REPO, device=device)
     cfg.evidence.dir = str(work / "ev")
     camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
-    events = collect_events(Pipeline(Detectors(cfg), SharedState(), cfg, camera), read_frames(video))
+    pipe = Pipeline(Detectors(cfg), SharedState(), cfg, camera)
+    events = collect_events(pipe, read_frames(video))
+    pipe.flush()
     shutil.rmtree(work, ignore_errors=True)
     return events
 

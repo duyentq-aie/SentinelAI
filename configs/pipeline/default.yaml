@@ -24,6 +24,13 @@ rules:
     enabled: true             # zone comes from the camera config
 
 evidence:
-  dir: static/violations
+  dir: static/violations      # events.jsonl + one folder per event (frame.jpg, vehicle.jpg, plate.jpg)
   plate_margin: 10            # px around the plate box in the saved crop
   max_records: 12             # gallery length kept in memory
+  max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
+  jpeg_quality: 90
+  close_after: 30             # frames without the violation before an event is closed
+  plate:                      # plate detector runs only for tracks that are currently violating
+    max_attempts: 30          # runs per track (0 = unlimited)
+    stop_when_found: true     # false + max_attempts 0 reproduces the v0 behaviour (run on every violating frame)
+    every: 1                  # try on every k-th violating frame

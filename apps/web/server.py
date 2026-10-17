@@ -34,6 +34,12 @@ pipeline = Pipeline(Detectors(cfg), state, cfg, camera)
 worker = InferenceWorker(pipeline, camera.source)
 
 
+@app.on_event("shutdown")
+def _shutdown():
+    worker.stop()
+    pipeline.flush()                          # close open evidence events so events.jsonl is complete
+
+
 def generate_frames():
     last_id = 0
     while True:

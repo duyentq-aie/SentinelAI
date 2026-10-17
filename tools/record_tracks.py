@@ -63,6 +63,7 @@ def main():
     ap.add_argument("--tracks", required=True)
     ap.add_argument("--events")
     ap.add_argument("--config", default=None)
+    ap.add_argument("--keep-evidence", help="copy the evidence folder (events.jsonl + event folders) here")
     a = ap.parse_args()
     if a.device == "cpu":
         os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -87,6 +88,9 @@ def main():
         for lab in r.labels:
             first.setdefault(lab, i)
     events += [{"frame": fi, "kind": "label_first_seen", "label": lab} for lab, fi in sorted(first.items(), key=lambda x: x[1])]
+    pipe.flush()
+    if a.keep_evidence:
+        shutil.copytree(work / "ev", a.keep_evidence, dirs_exist_ok=True)
     shutil.rmtree(work, ignore_errors=True)
 
     Path(a.tracks).parent.mkdir(parents=True, exist_ok=True)

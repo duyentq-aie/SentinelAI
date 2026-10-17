@@ -56,10 +56,21 @@ class RulesCfg:
 
 
 @dataclass
+class PlateCfg:
+    max_attempts: int = 30          # plate-detector runs per violating track; 0 = unlimited
+    stop_when_found: bool = True    # False = keep detecting on every violating frame (v0 behaviour, used as the A/B reference)
+    every: int = 1                  # try on every k-th frame of a violating track
+
+
+@dataclass
 class EvidenceCfg:
     dir: str = "static/violations"
     plate_margin: int = 10
-    max_records: int = 12
+    max_records: int = 12           # gallery length kept in memory
+    max_dir_mb: int = 200           # oldest evidence is deleted when the folder exceeds this; 0 = unlimited
+    jpeg_quality: int = 90
+    close_after: int = 30           # frames without the violation before an event is closed
+    plate: PlateCfg = field(default_factory=PlateCfg)
 
 
 @dataclass
@@ -87,8 +98,13 @@ class PipelineConfig:
         ww = r.wrong_way
         if not 1 <= ww.min_history <= ww.history_len:
             raise ValueError("rules.wrong_way needs 1 <= min_history <= history_len")
-        if self.evidence.max_records < 1 or self.evidence.plate_margin < 0:
+        ev = self.evidence
+        if ev.max_records < 1 or ev.plate_margin < 0:
             raise ValueError("evidence.max_records must be >= 1 and plate_margin >= 0")
+        if ev.max_dir_mb < 0 or not 1 <= ev.jpeg_quality <= 100 or ev.close_after < 1:
+            raise ValueError("evidence: max_dir_mb >= 0, 1 <= jpeg_quality <= 100, close_after >= 1")
+        if ev.plate.max_attempts < 0 or ev.plate.every < 1:
+            raise ValueError("evidence.plate: max_attempts >= 0 and every >= 1")
         return self
 
     def path(self, p):
