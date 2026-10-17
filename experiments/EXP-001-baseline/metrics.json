@@ -1,0 +1,929 @@
+{
+  "experiment": "EXP-001-baseline",
+  "pipeline": "app.py @ v0-baseline (unmodified), PyTorch FP32, 1280x720 resize",
+  "video": "test_video.mp4",
+  "protocol": "one full pass of the video after warm-up; each repeat in a fresh process; frame time = time for next(generate_frames()) (includes read, 3 models, draw, evidence save, JPEG encode)",
+  "summary": {
+    "fps_runs": [
+      7.0,
+      6.83,
+      7.29
+    ],
+    "fps_median": 7.0,
+    "fps_spread_pct": 6.57,
+    "stages_median_of_runs": {
+      "coco": {
+        "mean_ms": 39.42,
+        "p50_ms": 37.39,
+        "p95_ms": 52.51
+      },
+      "helmet": {
+        "mean_ms": 36.47,
+        "p50_ms": 34.41,
+        "p95_ms": 47.7
+      },
+      "plate": {
+        "mean_ms": 17.09,
+        "p50_ms": 15.38,
+        "p95_ms": 25.07
+      },
+      "read": {
+        "mean_ms": 2.51,
+        "p50_ms": 2.27,
+        "p95_ms": 3.68
+      },
+      "encode": {
+        "mean_ms": 15.04,
+        "p50_ms": 14.39,
+        "p95_ms": 20.55
+      },
+      "frame_total": {
+        "mean_ms": 142.83,
+        "p50_ms": 138.47,
+        "p95_ms": 185.85
+      }
+    },
+    "plate_calls_per_frame_median": 1.729,
+    "gpu_peak_alloc_mib_max": 147.0,
+    "gpu_peak_temp_c_per_run": [
+      61.0,
+      61.0,
+      61.0
+    ],
+    "gpu_min_sm_clock_mhz_per_run": [
+      1500.0,
+      1500.0,
+      1500.0
+    ],
+    "gpu_max_power_w_per_run": [
+      20.19,
+      22.54,
+      22.6
+    ]
+  },
+  "model_complexity": {
+    "helmet_best.pt": {
+      "params": 9428953,
+      "gflops_640": 21.55,
+      "file_bytes": 19167578,
+      "classes": 3
+    },
+    "plate_best.pt": {
+      "params": 2590035,
+      "gflops_640": 6.44,
+      "file_bytes": 5471770,
+      "classes": 1
+    },
+    "yolo11s.pt": {
+      "params": 9458752,
+      "gflops_640": 21.72,
+      "file_bytes": 19313732,
+      "classes": 80
+    }
+  },
+  "runs": [
+    {
+      "n_frames_measured": 757,
+      "n_warmup": 30,
+      "video_total_frames": 787,
+      "fps_end_to_end": 7.0,
+      "stages": {
+        "coco": {
+          "n": 757,
+          "mean_ms": 39.42,
+          "p50_ms": 37.54,
+          "p95_ms": 51.5
+        },
+        "helmet": {
+          "n": 757,
+          "mean_ms": 36.47,
+          "p50_ms": 35.05,
+          "p95_ms": 47.7
+        },
+        "plate": {
+          "n": 1309,
+          "mean_ms": 17.09,
+          "p50_ms": 15.56,
+          "p95_ms": 23.16
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 2.59,
+          "p50_ms": 2.52,
+          "p95_ms": 3.68
+        },
+        "encode": {
+          "n": 777,
+          "mean_ms": 15.04,
+          "p50_ms": 14.54,
+          "p95_ms": 20.55
+        },
+        "frame_total": {
+          "n": 757,
+          "mean_ms": 142.83,
+          "p50_ms": 139.75,
+          "p95_ms": 182.53
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "gpu_peak_alloc_mib": 147.0,
+      "gpu_before": {
+        "temp_c": 59.0,
+        "sm_clock_mhz": 1500.0,
+        "power_w": 13.8,
+        "util_pct": 0.0,
+        "mem_used_mib": 164.0
+      },
+      "gpu_after": {
+        "temp_c": 60.0,
+        "sm_clock_mhz": 1500.0,
+        "power_w": 18.54,
+        "util_pct": 22.0,
+        "mem_used_mib": 426.0
+      },
+      "gpu_peak_temp_c": 61.0,
+      "gpu_min_sm_clock_mhz": 1500.0,
+      "gpu_max_power_w": 20.19,
+      "events": [
+        {
+          "frame": 60,
+          "kind": "plate_capture",
+          "track": "M_77"
+        },
+        {
+          "frame": 71,
+          "kind": "plate_capture",
+          "track": "M_128"
+        },
+        {
+          "frame": 103,
+          "kind": "plate_capture",
+          "track": "M_152"
+        },
+        {
+          "frame": 166,
+          "kind": "plate_capture",
+          "track": "C_221"
+        },
+        {
+          "frame": 243,
+          "kind": "plate_capture",
+          "track": "C_259"
+        },
+        {
+          "frame": 291,
+          "kind": "plate_capture",
+          "track": "M_297"
+        },
+        {
+          "frame": 324,
+          "kind": "plate_capture",
+          "track": "M_348"
+        },
+        {
+          "frame": 372,
+          "kind": "plate_capture",
+          "track": "M_379"
+        },
+        {
+          "frame": 440,
+          "kind": "plate_capture",
+          "track": "C_3"
+        },
+        {
+          "frame": 451,
+          "kind": "plate_capture",
+          "track": "M_519"
+        },
+        {
+          "frame": 468,
+          "kind": "plate_capture",
+          "track": "M_475"
+        },
+        {
+          "frame": 474,
+          "kind": "plate_capture",
+          "track": "M_565"
+        },
+        {
+          "frame": 501,
+          "kind": "plate_capture",
+          "track": "C_592"
+        },
+        {
+          "frame": 528,
+          "kind": "plate_capture",
+          "track": "M_677"
+        },
+        {
+          "frame": 537,
+          "kind": "plate_capture",
+          "track": "M_625"
+        },
+        {
+          "frame": 582,
+          "kind": "plate_capture",
+          "track": "M_773"
+        },
+        {
+          "frame": 584,
+          "kind": "plate_capture",
+          "track": "C_735"
+        },
+        {
+          "frame": 657,
+          "kind": "plate_capture",
+          "track": "C_874"
+        },
+        {
+          "frame": 662,
+          "kind": "plate_capture",
+          "track": "C_890"
+        },
+        {
+          "frame": 785,
+          "kind": "plate_capture",
+          "track": "C_1090"
+        },
+        {
+          "frame": 4,
+          "kind": "label_first_seen",
+          "label": "NO-HELMET"
+        },
+        {
+          "frame": 23,
+          "kind": "label_first_seen",
+          "label": "ID:M_1 NO-HELMET"
+        },
+        {
+          "frame": 35,
+          "kind": "label_first_seen",
+          "label": "ID:M_77 NO-HELMET"
+        },
+        {
+          "frame": 71,
+          "kind": "label_first_seen",
+          "label": "ID:M_128 NO-HELMET"
+        },
+        {
+          "frame": 103,
+          "kind": "label_first_seen",
+          "label": "ID:M_152 NO-HELMET"
+        },
+        {
+          "frame": 161,
+          "kind": "label_first_seen",
+          "label": "ID:C_221 WRONG-WAY"
+        },
+        {
+          "frame": 234,
+          "kind": "label_first_seen",
+          "label": "ID:C_259 WRONG-WAY"
+        },
+        {
+          "frame": 291,
+          "kind": "label_first_seen",
+          "label": "ID:M_297 NO-HELMET"
+        },
+        {
+          "frame": 324,
+          "kind": "label_first_seen",
+          "label": "ID:M_348 OVERLOAD"
+        },
+        {
+          "frame": 372,
+          "kind": "label_first_seen",
+          "label": "ID:M_379 NO-HELMET"
+        },
+        {
+          "frame": 440,
+          "kind": "label_first_seen",
+          "label": "ID:C_3 WRONG-WAY"
+        },
+        {
+          "frame": 451,
+          "kind": "label_first_seen",
+          "label": "ID:M_519 NO-HELMET"
+        },
+        {
+          "frame": 468,
+          "kind": "label_first_seen",
+          "label": "ID:M_475 NO-HELMET"
+        },
+        {
+          "frame": 474,
+          "kind": "label_first_seen",
+          "label": "ID:M_565 NO-HELMET"
+        },
+        {
+          "frame": 498,
+          "kind": "label_first_seen",
+          "label": "ID:C_592 WRONG-WAY"
+        },
+        {
+          "frame": 528,
+          "kind": "label_first_seen",
+          "label": "ID:M_677 NO-HELMET"
+        },
+        {
+          "frame": 537,
+          "kind": "label_first_seen",
+          "label": "ID:M_625 NO-HELMET"
+        },
+        {
+          "frame": 550,
+          "kind": "label_first_seen",
+          "label": "ID:M_677 OVERLOAD & NO-HELMET"
+        },
+        {
+          "frame": 573,
+          "kind": "label_first_seen",
+          "label": "ID:C_735 WRONG-WAY"
+        },
+        {
+          "frame": 582,
+          "kind": "label_first_seen",
+          "label": "ID:M_773 NO-HELMET"
+        },
+        {
+          "frame": 639,
+          "kind": "label_first_seen",
+          "label": "ID:C_874 WRONG-WAY"
+        },
+        {
+          "frame": 657,
+          "kind": "label_first_seen",
+          "label": "ID:C_890 WRONG-WAY"
+        },
+        {
+          "frame": 778,
+          "kind": "label_first_seen",
+          "label": "ID:C_1090 WRONG-WAY"
+        }
+      ]
+    },
+    {
+      "n_frames_measured": 757,
+      "n_warmup": 30,
+      "video_total_frames": 787,
+      "fps_end_to_end": 6.83,
+      "stages": {
+        "coco": {
+          "n": 757,
+          "mean_ms": 40.19,
+          "p50_ms": 37.39,
+          "p95_ms": 59.31
+        },
+        "helmet": {
+          "n": 757,
+          "mean_ms": 37.18,
+          "p50_ms": 34.41,
+          "p95_ms": 53.92
+        },
+        "plate": {
+          "n": 1309,
+          "mean_ms": 17.79,
+          "p50_ms": 15.38,
+          "p95_ms": 27.84
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 2.51,
+          "p50_ms": 2.27,
+          "p95_ms": 3.81
+        },
+        "encode": {
+          "n": 777,
+          "mean_ms": 15.22,
+          "p50_ms": 14.39,
+          "p95_ms": 22.05
+        },
+        "frame_total": {
+          "n": 757,
+          "mean_ms": 146.46,
+          "p50_ms": 138.47,
+          "p95_ms": 216.59
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "gpu_peak_alloc_mib": 147.0,
+      "gpu_before": {
+        "temp_c": 59.0,
+        "sm_clock_mhz": 1500.0,
+        "power_w": 13.99,
+        "util_pct": 0.0,
+        "mem_used_mib": 175.0
+      },
+      "gpu_after": {
+        "temp_c": 60.0,
+        "sm_clock_mhz": 1500.0,
+        "power_w": 19.3,
+        "util_pct": 20.0,
+        "mem_used_mib": 466.0
+      },
+      "gpu_peak_temp_c": 61.0,
+      "gpu_min_sm_clock_mhz": 1500.0,
+      "gpu_max_power_w": 22.54,
+      "events": [
+        {
+          "frame": 60,
+          "kind": "plate_capture",
+          "track": "M_77"
+        },
+        {
+          "frame": 71,
+          "kind": "plate_capture",
+          "track": "M_128"
+        },
+        {
+          "frame": 103,
+          "kind": "plate_capture",
+          "track": "M_152"
+        },
+        {
+          "frame": 166,
+          "kind": "plate_capture",
+          "track": "C_221"
+        },
+        {
+          "frame": 243,
+          "kind": "plate_capture",
+          "track": "C_259"
+        },
+        {
+          "frame": 291,
+          "kind": "plate_capture",
+          "track": "M_297"
+        },
+        {
+          "frame": 324,
+          "kind": "plate_capture",
+          "track": "M_348"
+        },
+        {
+          "frame": 372,
+          "kind": "plate_capture",
+          "track": "M_379"
+        },
+        {
+          "frame": 440,
+          "kind": "plate_capture",
+          "track": "C_3"
+        },
+        {
+          "frame": 451,
+          "kind": "plate_capture",
+          "track": "M_519"
+        },
+        {
+          "frame": 468,
+          "kind": "plate_capture",
+          "track": "M_475"
+        },
+        {
+          "frame": 474,
+          "kind": "plate_capture",
+          "track": "M_565"
+        },
+        {
+          "frame": 501,
+          "kind": "plate_capture",
+          "track": "C_592"
+        },
+        {
+          "frame": 528,
+          "kind": "plate_capture",
+          "track": "M_677"
+        },
+        {
+          "frame": 537,
+          "kind": "plate_capture",
+          "track": "M_625"
+        },
+        {
+          "frame": 582,
+          "kind": "plate_capture",
+          "track": "M_773"
+        },
+        {
+          "frame": 584,
+          "kind": "plate_capture",
+          "track": "C_735"
+        },
+        {
+          "frame": 657,
+          "kind": "plate_capture",
+          "track": "C_874"
+        },
+        {
+          "frame": 662,
+          "kind": "plate_capture",
+          "track": "C_890"
+        },
+        {
+          "frame": 785,
+          "kind": "plate_capture",
+          "track": "C_1090"
+        },
+        {
+          "frame": 4,
+          "kind": "label_first_seen",
+          "label": "NO-HELMET"
+        },
+        {
+          "frame": 23,
+          "kind": "label_first_seen",
+          "label": "ID:M_1 NO-HELMET"
+        },
+        {
+          "frame": 35,
+          "kind": "label_first_seen",
+          "label": "ID:M_77 NO-HELMET"
+        },
+        {
+          "frame": 71,
+          "kind": "label_first_seen",
+          "label": "ID:M_128 NO-HELMET"
+        },
+        {
+          "frame": 103,
+          "kind": "label_first_seen",
+          "label": "ID:M_152 NO-HELMET"
+        },
+        {
+          "frame": 161,
+          "kind": "label_first_seen",
+          "label": "ID:C_221 WRONG-WAY"
+        },
+        {
+          "frame": 234,
+          "kind": "label_first_seen",
+          "label": "ID:C_259 WRONG-WAY"
+        },
+        {
+          "frame": 291,
+          "kind": "label_first_seen",
+          "label": "ID:M_297 NO-HELMET"
+        },
+        {
+          "frame": 324,
+          "kind": "label_first_seen",
+          "label": "ID:M_348 OVERLOAD"
+        },
+        {
+          "frame": 372,
+          "kind": "label_first_seen",
+          "label": "ID:M_379 NO-HELMET"
+        },
+        {
+          "frame": 440,
+          "kind": "label_first_seen",
+          "label": "ID:C_3 WRONG-WAY"
+        },
+        {
+          "frame": 451,
+          "kind": "label_first_seen",
+          "label": "ID:M_519 NO-HELMET"
+        },
+        {
+          "frame": 468,
+          "kind": "label_first_seen",
+          "label": "ID:M_475 NO-HELMET"
+        },
+        {
+          "frame": 474,
+          "kind": "label_first_seen",
+          "label": "ID:M_565 NO-HELMET"
+        },
+        {
+          "frame": 498,
+          "kind": "label_first_seen",
+          "label": "ID:C_592 WRONG-WAY"
+        },
+        {
+          "frame": 528,
+          "kind": "label_first_seen",
+          "label": "ID:M_677 NO-HELMET"
+        },
+        {
+          "frame": 537,
+          "kind": "label_first_seen",
+          "label": "ID:M_625 NO-HELMET"
+        },
+        {
+          "frame": 550,
+          "kind": "label_first_seen",
+          "label": "ID:M_677 OVERLOAD & NO-HELMET"
+        },
+        {
+          "frame": 573,
+          "kind": "label_first_seen",
+          "label": "ID:C_735 WRONG-WAY"
+        },
+        {
+          "frame": 582,
+          "kind": "label_first_seen",
+          "label": "ID:M_773 NO-HELMET"
+        },
+        {
+          "frame": 639,
+          "kind": "label_first_seen",
+          "label": "ID:C_874 WRONG-WAY"
+        },
+        {
+          "frame": 657,
+          "kind": "label_first_seen",
+          "label": "ID:C_890 WRONG-WAY"
+        },
+        {
+          "frame": 778,
+          "kind": "label_first_seen",
+          "label": "ID:C_1090 WRONG-WAY"
+        }
+      ]
+    },
+    {
+      "n_frames_measured": 757,
+      "n_warmup": 30,
+      "video_total_frames": 787,
+      "fps_end_to_end": 7.29,
+      "stages": {
+        "coco": {
+          "n": 757,
+          "mean_ms": 37.8,
+          "p50_ms": 35.75,
+          "p95_ms": 52.51
+        },
+        "helmet": {
+          "n": 757,
+          "mean_ms": 34.94,
+          "p50_ms": 33.14,
+          "p95_ms": 47.16
+        },
+        "plate": {
+          "n": 1309,
+          "mean_ms": 16.62,
+          "p50_ms": 14.75,
+          "p95_ms": 25.07
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 2.36,
+          "p50_ms": 2.2,
+          "p95_ms": 3.41
+        },
+        "encode": {
+          "n": 777,
+          "mean_ms": 14.65,
+          "p50_ms": 14.11,
+          "p95_ms": 20.14
+        },
+        "frame_total": {
+          "n": 757,
+          "mean_ms": 137.24,
+          "p50_ms": 134.33,
+          "p95_ms": 185.85
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "gpu_peak_alloc_mib": 147.0,
+      "gpu_before": {
+        "temp_c": 59.0,
+        "sm_clock_mhz": 1500.0,
+        "power_w": 13.96,
+        "util_pct": 0.0,
+        "mem_used_mib": 204.0
+      },
+      "gpu_after": {
+        "temp_c": 60.0,
+        "sm_clock_mhz": 1500.0,
+        "power_w": 18.84,
+        "util_pct": 22.0,
+        "mem_used_mib": 440.0
+      },
+      "gpu_peak_temp_c": 61.0,
+      "gpu_min_sm_clock_mhz": 1500.0,
+      "gpu_max_power_w": 22.6,
+      "events": [
+        {
+          "frame": 60,
+          "kind": "plate_capture",
+          "track": "M_77"
+        },
+        {
+          "frame": 71,
+          "kind": "plate_capture",
+          "track": "M_128"
+        },
+        {
+          "frame": 103,
+          "kind": "plate_capture",
+          "track": "M_152"
+        },
+        {
+          "frame": 166,
+          "kind": "plate_capture",
+          "track": "C_221"
+        },
+        {
+          "frame": 243,
+          "kind": "plate_capture",
+          "track": "C_259"
+        },
+        {
+          "frame": 291,
+          "kind": "plate_capture",
+          "track": "M_297"
+        },
+        {
+          "frame": 324,
+          "kind": "plate_capture",
+          "track": "M_348"
+        },
+        {
+          "frame": 372,
+          "kind": "plate_capture",
+          "track": "M_379"
+        },
+        {
+          "frame": 440,
+          "kind": "plate_capture",
+          "track": "C_3"
+        },
+        {
+          "frame": 451,
+          "kind": "plate_capture",
+          "track": "M_519"
+        },
+        {
+          "frame": 468,
+          "kind": "plate_capture",
+          "track": "M_475"
+        },
+        {
+          "frame": 474,
+          "kind": "plate_capture",
+          "track": "M_565"
+        },
+        {
+          "frame": 501,
+          "kind": "plate_capture",
+          "track": "C_592"
+        },
+        {
+          "frame": 528,
+          "kind": "plate_capture",
+          "track": "M_677"
+        },
+        {
+          "frame": 537,
+          "kind": "plate_capture",
+          "track": "M_625"
+        },
+        {
+          "frame": 582,
+          "kind": "plate_capture",
+          "track": "M_773"
+        },
+        {
+          "frame": 584,
+          "kind": "plate_capture",
+          "track": "C_735"
+        },
+        {
+          "frame": 657,
+          "kind": "plate_capture",
+          "track": "C_874"
+        },
+        {
+          "frame": 662,
+          "kind": "plate_capture",
+          "track": "C_890"
+        },
+        {
+          "frame": 785,
+          "kind": "plate_capture",
+          "track": "C_1090"
+        },
+        {
+          "frame": 4,
+          "kind": "label_first_seen",
+          "label": "NO-HELMET"
+        },
+        {
+          "frame": 23,
+          "kind": "label_first_seen",
+          "label": "ID:M_1 NO-HELMET"
+        },
+        {
+          "frame": 35,
+          "kind": "label_first_seen",
+          "label": "ID:M_77 NO-HELMET"
+        },
+        {
+          "frame": 71,
+          "kind": "label_first_seen",
+          "label": "ID:M_128 NO-HELMET"
+        },
+        {
+          "frame": 103,
+          "kind": "label_first_seen",
+          "label": "ID:M_152 NO-HELMET"
+        },
+        {
+          "frame": 161,
+          "kind": "label_first_seen",
+          "label": "ID:C_221 WRONG-WAY"
+        },
+        {
+          "frame": 234,
+          "kind": "label_first_seen",
+          "label": "ID:C_259 WRONG-WAY"
+        },
+        {
+          "frame": 291,
+          "kind": "label_first_seen",
+          "label": "ID:M_297 NO-HELMET"
+        },
+        {
+          "frame": 324,
+          "kind": "label_first_seen",
+          "label": "ID:M_348 OVERLOAD"
+        },
+        {
+          "frame": 372,
+          "kind": "label_first_seen",
+          "label": "ID:M_379 NO-HELMET"
+        },
+        {
+          "frame": 440,
+          "kind": "label_first_seen",
+          "label": "ID:C_3 WRONG-WAY"
+        },
+        {
+          "frame": 451,
+          "kind": "label_first_seen",
+          "label": "ID:M_519 NO-HELMET"
+        },
+        {
+          "frame": 468,
+          "kind": "label_first_seen",
+          "label": "ID:M_475 NO-HELMET"
+        },
+        {
+          "frame": 474,
+          "kind": "label_first_seen",
+          "label": "ID:M_565 NO-HELMET"
+        },
+        {
+          "frame": 498,
+          "kind": "label_first_seen",
+          "label": "ID:C_592 WRONG-WAY"
+        },
+        {
+          "frame": 528,
+          "kind": "label_first_seen",
+          "label": "ID:M_677 NO-HELMET"
+        },
+        {
+          "frame": 537,
+          "kind": "label_first_seen",
+          "label": "ID:M_625 NO-HELMET"
+        },
+        {
+          "frame": 550,
+          "kind": "label_first_seen",
+          "label": "ID:M_677 OVERLOAD & NO-HELMET"
+        },
+        {
+          "frame": 573,
+          "kind": "label_first_seen",
+          "label": "ID:C_735 WRONG-WAY"
+        },
+        {
+          "frame": 582,
+          "kind": "label_first_seen",
+          "label": "ID:M_773 NO-HELMET"
+        },
+        {
+          "frame": 639,
+          "kind": "label_first_seen",
+          "label": "ID:C_874 WRONG-WAY"
+        },
+        {
+          "frame": 657,
+          "kind": "label_first_seen",
+          "label": "ID:C_890 WRONG-WAY"
+        },
+        {
+          "frame": 778,
+          "kind": "label_first_seen",
+          "label": "ID:C_1090 WRONG-WAY"
+        }
+      ]
+    }
+  ]
+}

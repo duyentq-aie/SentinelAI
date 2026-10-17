@@ -1,0 +1,95 @@
+{
+  "experiment": "EXP-000-kaggle-original",
+  "source": "metadata embedded in the checkpoint files (train_args/train_metrics/train_results); NOT from notebooks",
+  "split_used_for_metrics": "val (same split used to select best.pt)",
+  "helmet": {
+    "weights": "helmet_best.pt",
+    "ultralytics": "8.4.26",
+    "date": "2026-03-24T17:05:27.431677",
+    "base_model": "yolo11s.pt",
+    "data_yaml_on_kaggle": "/kaggle/input/datasets/tranquangduyenk17ct/helmet-detection-1/helmet plate detection 4.v1i.yolov8/data.yaml",
+    "classes": {
+      "0": "helmet",
+      "1": "motorcycle",
+      "2": "no-helmet"
+    },
+    "epochs_run": 150,
+    "best_epoch": 139,
+    "total_train_seconds": 5229.46,
+    "hyperparameters": {
+      "epochs": 150,
+      "patience": 25,
+      "batch": 32,
+      "imgsz": 640,
+      "optimizer": "auto",
+      "lr0": 0.01,
+      "lrf": 0.01,
+      "cos_lr": true,
+      "seed": 0,
+      "deterministic": true,
+      "mosaic": 1.0,
+      "mixup": 0.1,
+      "degrees": 10.0,
+      "scale": 0.5,
+      "translate": 0.1,
+      "fliplr": 0.5,
+      "hsv_h": 0.015,
+      "hsv_s": 0.7,
+      "hsv_v": 0.4,
+      "erasing": 0.4,
+      "close_mosaic": 10,
+      "amp": true
+    },
+    "final_val_metrics_all_classes": {
+      "metrics/precision(B)": 0.98295,
+      "metrics/recall(B)": 0.9886,
+      "metrics/mAP50(B)": 0.99379,
+      "metrics/mAP50-95(B)": 0.80898
+    },
+    "best_epoch_val_mAP50-95": 0.80898
+  },
+  "plate": {
+    "weights": "plate_best.pt",
+    "ultralytics": "8.4.25",
+    "date": "2026-03-23T19:19:04.289215",
+    "base_model": "yolo11n.pt",
+    "data_yaml_on_kaggle": "/kaggle/input/datasets/tranquangduyenk17ct/vietnam-license-plate-v1/data.yaml",
+    "classes": {
+      "0": "0"
+    },
+    "epochs_run": 50,
+    "best_epoch": 46,
+    "total_train_seconds": 3274.5,
+    "hyperparameters": {
+      "epochs": 50,
+      "patience": 100,
+      "batch": 32,
+      "imgsz": 640,
+      "optimizer": "auto",
+      "lr0": 0.01,
+      "lrf": 0.01,
+      "cos_lr": false,
+      "seed": 0,
+      "deterministic": true,
+      "mosaic": 1.0,
+      "mixup": 0.0,
+      "degrees": 0.0,
+      "scale": 0.5,
+      "translate": 0.1,
+      "fliplr": 0.5,
+      "hsv_h": 0.015,
+      "hsv_s": 0.7,
+      "hsv_v": 0.4,
+      "erasing": 0.4,
+      "close_mosaic": 10,
+      "amp": true
+    },
+    "final_val_metrics_all_classes": {
+      "metrics/precision(B)": 0.99401,
+      "metrics/recall(B)": 0.99064,
+      "metrics/mAP50(B)": 0.99492,
+      "metrics/mAP50-95(B)": 0.75245
+    },
+    "best_epoch_val_mAP50-95": 0.75245
+  }
+}
