@@ -10,7 +10,7 @@ Tham số mặc định chưa được tinh chỉnh trên dữ liệu có nhãn:
 - 1 sự kiện / (track, loại): `evidence.one_event_per_track: true` (mặc định) chặn sự kiện trùng khi kết luận dao động quanh ngưỡng.
 - Engine chọn qua `rules.engine` (`windowed` mặc định, `legacy` giữ để tái tạo baseline).
 
-## Unit test (track giả lập, `tests/test_rules_windowed.py`, 17 test)
+## Unit test (track giả lập, `tests/test_rules_windowed.py`, 16 test)
 nhiễu 1–2 frame không bao giờ kích hoạt; che khuất tạm thời không làm loãng tỉ lệ cũng không xóa phiếu; kết luận giữ nguyên qua đoạn che khuất; tỉ lệ thấp (1/3) không kích hoạt dù đủ 5 phiếu; phiếu cũ hết hạn khi người lái đội mũ;
 overload cần ≥ 5 quan sát 3 đầu (1–2 frame 3 đầu không đủ); `OVERLOAD & NO-HELMET`; các track độc lập; tham số lấy từ config; reset; dọn cửa sổ của track đã biến mất; chọn engine và kiểm tra giá trị config.
 
