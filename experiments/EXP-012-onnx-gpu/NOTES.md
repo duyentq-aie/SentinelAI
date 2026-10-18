@@ -17,3 +17,6 @@
 - Sự kiện: mọi cấu hình đều 14 sự kiện / 14 track có biển (v0: 20/20 do chính sách cũ) – không có khác biệt đếm giữa PyTorch/ONNX/FP16; **chưa** diff từng sự kiện (việc kế tiếp: `tools/diff_events.py`), nên chưa claim tương đương chính xác của FP16.
 - Telemetry: GPU util 37–46%, xung 1750–1940 MHz, không throttle; tải nền khác ~22–24% CPU (Ld9BoxHeadless của trình giả lập đang chạy, không tắt).
 - TensorRT / INT8: **không thử** (chưa cài TensorRT; ngoài thời gian ưu tiên). `Edge thật`: không có; mọi số là proxy RTX 3050 Laptop.
+
+## Ghi nhận (2026-10-18, theo quyết định chủ dự án)
+torch cu126 (venv-edge) chạy nhanh hơn cu118 (venv chính) ~25% cùng mã, cùng phiên (stream 16.94 → 20.93 FPS; tỉ lệ vs v0 2.44× → 3.07×). Chưa kiểm tra lặp lại hay nguyên nhân (cùng torch 2.7.1, khác bản CUDA/cuDNN/cuBLAS). **Venv chính chưa đổi.** TensorRT/INT8: ngoài phạm vi M1 (PLAN).

@@ -56,3 +56,9 @@ Các phương án, đo trên cả hai fixture (`experiments/EXP-005-windowed-rul
 | debounce (kết luận phải đúng ≥ 3 frame mới mở sự kiện) | M_176 và M_476 (471–474) biến mất (13 → 11 track) |
 
 **Quyết định:** không đổi mặc định (đổi theo một clip là tune trên nhiễu). Đã thêm tham số tùy chọn `rules.helmet.exit_ratio` / `rules.overload.exit_ratio` (mặc định `None` = hành vi cũ, có test, `tests/test_rules_windowed.py`) để thử trên video dev có nhãn: khi đó đo F1 sự kiện, độ trễ và số sự kiện ≤ 2 frame cho (a) mặc định, (b) `exit_ratio` 0.3, (c) debounce, và chọn theo ground truth.
+
+## Phụ lục 2 (2026-10-18): hysteresis `exit_ratio: 0.3` bật mặc định – **chưa tinh chỉnh, chờ dev video**
+- Ngưỡng 0.3 là giá trị thử trong `m176_variants.json`, không chọn bằng dữ liệu có nhãn.
+- `diff_events` baseline v4 (không hysteresis) → v5 (có): **MISSING 0 / ADDED 0 / CHANGED 0** trên 29 sự kiện (`events_v5_hysteresis_cpu.json`): thời điểm bắt đầu và số sự kiện không đổi, vì hysteresis chỉ giữ cờ lâu hơn sau khi đã bật. (`diff_events` so frame bắt đầu, không so frame kết thúc.)
+- Thay đổi nằm ở **khoảng sự kiện** (`intervals_default_fixture_plain_vs_hyst.json`, fixture mặc định, 13 track có kết luận, 7 đổi): M_129 (71–120, 126–178 → 71–178: hết tách đôi), M_300 (290–303, 307–307 → 290–333), M_176 (112–112 → 112–117: hết sự kiện 1 frame), M_153 +5 frame, M_571/632/679 +2…4 frame.
+- Rủi ro: cờ kéo dài thêm có thể dính sang đoạn đã đội mũ lại (chưa biết trên ground truth). Test: `tests/test_rules_windowed.py`, `tests/test_rules_offline.py` (v5).

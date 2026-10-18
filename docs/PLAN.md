@@ -176,6 +176,7 @@ Rủi ro:
 
 ### P3 – OCR biển số + đánh giá (6–10 h)
 > **Quyết định 2026-10-18:** OCR **giữ trong phạm vi dự án, với điều kiện có footage 1080p** (biển cao ≥ ~40–50 px; xem EXP-008: trên video 720p hiện có hộp biển do detector trả về chỉ ~26×22 px nên đọc được 0/14).
+> **Quyết định 2026-10-18 (vòng 2):** (1) **TensorRT / INT8 nằm ngoài phạm vi M1** (không có thiết bị Edge thật; ONNX CPU/GPU FP32/FP16 làm proxy, EXP-007/012). (2) Hysteresis `exit_ratio: 0.3` **bật mặc định**, gắn "chưa tinh chỉnh – chờ dev video" (EXP-005 phụ lục 2; baseline v5). (3) torch cu126 nhanh hơn cu118 ~25% với cùng mã (EXP-012: 16.94 → 20.93 FPS stream, cùng phiên; chưa kiểm tra nguyên nhân/độ lặp lại, **chưa đổi venv chính**). (4) Trước khi push: viết lại email tác giả trong lịch sử thành `<USER>@users.noreply.github.com`, thay đường dẫn home trong env.json bằng `<HOME>`.
 > Nếu không quay được footage đủ độ phân giải, OCR bị đưa ra khỏi số liệu báo cáo (code vẫn giữ). Việc đo exact-match / CER chỉ bắt đầu khi có video 1080p và nhãn `plate_text`.
 **Mục tiêu:** đọc được biển số cho sự kiện vi phạm và đo được độ chính xác.
 
