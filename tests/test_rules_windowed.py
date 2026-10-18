@@ -143,3 +143,43 @@ def test_invalid_window_config_is_rejected(tmp_path):
     f.write_text("rules:\n  engine: weird\n", encoding="utf-8")
     with pytest.raises(ValueError):
         load_pipeline_config(f)
+
+
+# ---- the M_176 pattern (EXP-005 / tools/rule_trace.py): the 5th vote lands exactly on ratio == r, the next clean frame drops it below
+M176 = [BAD, BAD, OK, OK, OK, BAD, BAD, OK, NONE, NONE, OK, BAD] + [OK] * 8
+
+
+def flagged_frames(r, seq):
+    return [i for i, v in enumerate(verdicts(r, seq)) if v]
+
+
+def test_borderline_vote_creates_a_one_frame_verdict_by_default():
+    assert flagged_frames(rules(), M176) == [11]                  # 5 votes / 10 observations = 0.5 >= r at frame 11, 5/11 at frame 12
+
+
+def test_hysteresis_keeps_the_flag_until_the_ratio_falls_below_exit_ratio():
+    r = rules(helmet__exit_ratio=0.3)
+    assert flagged_frames(r, M176) == [11, 12, 13, 14, 15, 16]    # ratio .50 .46 .42 .39 .36 .33 ... then < .3 at frame 17
+
+
+def test_hysteresis_does_not_change_when_a_track_is_first_flagged():
+    base = verdicts(rules(), [BAD] * 8 + [OK] * 20)
+    hyst = verdicts(rules(helmet__exit_ratio=0.3), [BAD] * 8 + [OK] * 20)
+    assert [i for i, v in enumerate(base) if v][0] == [i for i, v in enumerate(hyst) if v][0] == 4
+    assert sum(1 for v in hyst if v) >= sum(1 for v in base if v)
+
+
+def test_exit_ratio_must_not_exceed_min_ratio(tmp_path):
+    f = tmp_path / "c.yaml"
+    f.write_text("rules:\n  helmet: {exit_ratio: 0.9}\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="exit_ratio"):
+        load_pipeline_config(f)
+    f.write_text("rules:\n  overload: {exit_ratio: 0.3}\n", encoding="utf-8")
+    assert load_pipeline_config(f).rules.overload.exit_ratio == 0.3
+
+
+def test_reset_clears_the_hysteresis_state():
+    r = rules(helmet__exit_ratio=0.3)
+    verdicts(r, [BAD] * 6)
+    r.reset()
+    assert not r._on and verdicts(r, [OK] * 3) == [""] * 3

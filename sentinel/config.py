@@ -30,6 +30,7 @@ class HelmetRule:
     window: int = 15              # windowed engine: observations kept (frames in which a head is attached to the motorcycle)
     min_votes: int = 5            # ... no-helmet votes needed inside the window
     min_ratio: float = 0.5        # ... and votes / observations in the window
+    exit_ratio: Optional[float] = None   # hysteresis: once flagged, stay flagged while ratio >= exit_ratio (None = same as min_ratio = no hysteresis)
 
 
 @dataclass
@@ -38,6 +39,7 @@ class OverloadRule:
     window: int = 15
     min_votes: int = 5
     min_ratio: float = 0.5
+    exit_ratio: Optional[float] = None
 
 
 @dataclass
@@ -142,6 +144,8 @@ class PipelineConfig:
                 raise ValueError(f"rules.{name}: need 1 <= min_votes <= window")
             if not 0 < rule.min_ratio <= 1:
                 raise ValueError(f"rules.{name}.min_ratio must be in (0, 1]")
+            if rule.exit_ratio is not None and not 0 < rule.exit_ratio <= rule.min_ratio:
+                raise ValueError(f"rules.{name}.exit_ratio must be in (0, min_ratio]")
         ww = r.wrong_way
         if not 1 <= ww.min_history <= ww.history_len:
             raise ValueError("rules.wrong_way needs 1 <= min_history <= history_len")

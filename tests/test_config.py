@@ -99,3 +99,11 @@ def test_saved_evidence_is_never_stored_at_stream_quality(tmp_path):
     f.write_text("evidence:\n  jpeg_quality: 90\n", encoding="utf-8")
     with pytest.raises(ValueError, match="95"):
         load_pipeline_config(f)
+
+
+def test_every_shipped_pipeline_config_validates():
+    """configs/pipeline/**/*.yaml are used by experiments and tools: a rule change (e.g. evidence quality >= 95) must not silently break them."""
+    files = sorted((REPO / "configs" / "pipeline").rglob("*.yaml"))
+    assert len(files) >= 10
+    for f in files:
+        load_pipeline_config(f)

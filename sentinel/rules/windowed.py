@@ -25,11 +25,13 @@ class WindowedRules(LegacyRules):
         self._maxlen = max(rules_cfg.helmet.window, rules_cfg.overload.window)
         self._obs = defaultdict(lambda: deque(maxlen=self._maxlen))   # track id -> observations (no_helmet_vote, overload_vote)
         self._last_seen = {}
+        self._on = {}                        # (track id, 'helmet' | 'overload') -> flagged now (only used for hysteresis)
         self._frame = 0
 
     def reset(self):
         super().reset()
         self._obs.clear()
+        self._on.clear()
         self._last_seen.clear()
         self._frame = 0
 
@@ -39,12 +41,22 @@ class WindowedRules(LegacyRules):
         if self._frame % PURGE_EVERY == 0:
             for tid in [t for t, f in self._last_seen.items() if self._frame - f > PURGE_AFTER]:
                 self._obs.pop(tid, None)
+                self._on.pop((tid, "helmet"), None)
+                self._on.pop((tid, "overload"), None)
                 del self._last_seen[tid]
         return result
 
     @staticmethod
     def holds(votes, n, min_votes, min_ratio):
         return n > 0 and votes >= min_votes and votes / n >= min_ratio
+
+    def _verdict(self, key, votes, n, rule):
+        """Entry needs ratio >= min_ratio; with exit_ratio set the flag stays on while ratio >= exit_ratio (no flicker around the threshold)."""
+        on = self._on.get(key, False)
+        thr = rule.exit_ratio if (on and rule.exit_ratio is not None) else rule.min_ratio
+        on = self.holds(votes, n, rule.min_votes, thr)
+        self._on[key] = on
+        return on
 
     def _judge_motorcycle(self, track_id, n_heads, no_helmet_now):
         h, o = self.cfg.helmet, self.cfg.overload
@@ -56,8 +68,8 @@ class WindowedRules(LegacyRules):
         obs = list(window)
         hv = obs[-h.window:]
         ov = obs[-o.window:]
-        helmet = self.holds(sum(v[0] for v in hv), len(hv), h.min_votes, h.min_ratio)
-        overload = self.holds(sum(v[1] for v in ov), len(ov), o.min_votes, o.min_ratio)
+        helmet = self._verdict((track_id, "helmet"), sum(v[0] for v in hv), len(hv), h)
+        overload = self._verdict((track_id, "overload"), sum(v[1] for v in ov), len(ov), o)
         if helmet and overload:
             return True, "OVERLOAD & NO-HELMET"
         if overload:

@@ -31,3 +31,28 @@ Baseline v2: 28 sự kiện (15 nhãn + 13 chụp biển). Windowed (baseline v3
 - Không có video dev/test có nhãn: W, K, r chỉ là giá trị mặc định hợp lý, chưa được chọn bằng dữ liệu.
 - `M_176` cho thấy ngưỡng tỉ lệ ngay tại biên tạo sự kiện 1 frame; cần hysteresis (ngưỡng vào ≠ ngưỡng ra) hoặc `min` quan sát nếu ground truth xác nhận đó là dương tính giả.
 - Luật vượt đèn đỏ vẫn là luật cũ (vùng cố định), thuộc bước 3.3.
+
+## Phụ lục (2026-10-18): M_176 – lỗi của luật hay của cách tính khoảng sự kiện?
+Công cụ: `python tools/rule_trace.py --track 176` (in từng frame: số đầu, phiếu, cửa sổ, tỉ lệ, kết luận). Kết quả cho M_176 (fixture GMC bật):
+
+| frame | đầu / no-helmet | quan sát | phiếu | tỉ lệ | kết luận |
+|---|---|---|---|---|---|
+| 101–108 | 1 đầu; no-helmet ở 101, 102, 106, 107 | 1…8 | 1…4 | 1.00 → 0.50 | không |
+| 109–110 | **0 đầu** (không phải quan sát) | 8 | 4 | 0.50 | không |
+| 111 | 1 đầu, mũ | 9 | 4 | 0.44 | không |
+| **112** | 1 đầu, **no-helmet** | **10** | **5** | **0.50** | **CÓ** (votes ≥ K=5 và ratio = r) |
+| 113 | 1 đầu, mũ | 11 | 5 | 0.46 | không |
+
+**Chẩn đoán.** Cài đặt đúng như đặc tả (không có lỗi code); hiện tượng do hai tính chất ghép lại:
+1. **Ngưỡng bao gồm dấu bằng, trùng đúng biên:** phiếu thứ 5 đến cùng lúc `ratio = 0.50 = r` (≥), frame sau chỉ cần một quan sát sạch là rơi xuống 0.46.
+2. **Kết luận không có trí nhớ (không hysteresis)** và khoảng sự kiện được định nghĩa là các frame có kết luận ⇒ `frame_start = frame_end = 112`.
+Nên đây **vừa là điểm yếu của đặc tả luật (một ngưỡng, không hysteresis), vừa là hệ quả của cách tính khoảng**; nhưng không phải lỗi cài đặt. Bản thân tín hiệu (5 phiếu rải trên 12 frame, 4 phiếu đầu cách xa phiếu thứ 5) yếu: có thể là người không đội mũ bị phát hiện chập chờn, cũng có thể là người đội mũ bị nhận nhầm. **Không có ground truth nên không biết nó có phải vi phạm thật.**
+
+Các phương án, đo trên cả hai fixture (`experiments/EXP-005-windowed-rules/m176_variants.json`; kết quả giống nhau cho GMC bật/tắt):
+| phương án | tác động trên clip này |
+|---|---|
+| ngưỡng chặt `ratio > r` | chỉ M_176 biến mất (13 → 12 track) |
+| **hysteresis** (`exit_ratio` 0.3: đã vào thì giữ cờ tới khi tỉ lệ < 0.3) | không track nào thêm/bớt; M_176 thành 112–117 (6 frame), M_153 104–118, M_677 528–570: các khoảng dài và mượt hơn, hết sự kiện 1 frame |
+| debounce (kết luận phải đúng ≥ 3 frame mới mở sự kiện) | M_176 và M_476 (471–474) biến mất (13 → 11 track) |
+
+**Quyết định:** không đổi mặc định (đổi theo một clip là tune trên nhiễu). Đã thêm tham số tùy chọn `rules.helmet.exit_ratio` / `rules.overload.exit_ratio` (mặc định `None` = hành vi cũ, có test, `tests/test_rules_windowed.py`) để thử trên video dev có nhãn: khi đó đo F1 sự kiện, độ trễ và số sự kiện ≤ 2 frame cho (a) mặc định, (b) `exit_ratio` 0.3, (c) debounce, và chọn theo ground truth.
