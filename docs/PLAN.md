@@ -229,7 +229,7 @@ vẽ ≈ 15 ms, JPEG encode ≈ 14.6 ms, đọc + resize ≈ 3 ms; plate ≈ 28.
 
 **Hoàn thành khi:**
 - Có bảng: bước tối ưu / backend / precision → kích thước file, latency p50/p95 từng stage, **FPS headless** và **FPS có stream**, Δ mAP, Δ F1 sự kiện (dev).
-- Đạt **≥ 15 FPS headless ở 720p** trên proxy GPU (TensorRT FP16, hoặc ORT-GPU nếu quá time-box) với Δ F1 sự kiện ≤ 2 điểm so với PyTorch FP32 gốc. Nếu không đạt thì ghi rõ khoảng thiếu và stage còn chiếm thời gian.
+- **(sửa 2026-10-18)** Báo tốc độ chỉ dưới dạng **tỉ lệ so với v0 đo cùng phiên** (EXP-009: FPS tuyệt đối đổi ~40% theo tải nền CPU, tỉ lệ đổi ≤ 2%); không dùng ngưỡng FPS tuyệt đối. Con số "≥ 15 FPS" trong đề bài ban đầu chỉ được trích kèm trạng thái máy khi đo. Với backend ONNX/TensorRT: Δ F1 sự kiện ≤ 2 điểm so với PyTorch FP32 cùng cấu hình tracker.
 - Có cấu hình CPU khuyến nghị kèm FPS đo được.
 
 Rủi ro:

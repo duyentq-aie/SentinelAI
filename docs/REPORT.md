@@ -50,19 +50,20 @@ Design points that mattered: models and evidence use the **raw** frame (the v0 c
 | EXP-008 | plate OCR | see §8 |
 
 ## 5. Performance
-Same-session, interleaved A/B (3 rounds; median and range; `tools/benchmark_pipeline.py`), GPU FP32. *headless* = read + process (with drawing); *stream* = + JPEG encode, no HTTP.
+**Method.** Every benchmark session runs the original pipeline (`v0-baseline`) as reference, interleaved round by round with the other configurations (`tools/benchmark_pipeline.py`, 3-5 rounds), and reports the **ratio to v0 in the same round** (median and range). Absolute FPS is given for reference only: it moves with background CPU load (EXP-009: ~50% foreign CPU load = -40% FPS on every configuration, while the ratio changed by <= 2%). *stream* = read + process + draw + JPEG (no HTTP).
 
-| step (EXP-006) | headless FPS | stream FPS | `process` |
-|---|---|---|---|
-| before (whole-frame blend, JPEG 95) | 12.05 (11.73–13.19) | 10.34 (10.08–11.24) | 80.6 ms |
-| + ROI label blending | 14.64 (14.51–15.15) | 12.22 (12.15–12.60) | 66.4 ms |
-| + JPEG quality 80 (current default) | 15.22 (14.57–15.25) | 12.85 (12.38–12.89) | 63.9 ms |
-| + BoT-SORT `gmc_method: none` (**not default**) | 28.73 (28.55–28.82) | 21.46 (21.30–21.53) | 33.0 ms |
-| + ByteTrack instead (**not default**) | 28.21 (23.60–29.20) | 21.07 (17.82–21.71) | 33.5 ms |
+| configuration | ratio to v0 (stream FPS) | source |
+|---|---|---|
+| v0 original | 1.00x (6.8-8.6 FPS depending on session) | EXP-009/010 |
+| new pipeline, Ultralytics default tracker (GMC on) | 1.46x (1.45-1.50), quiet session; 1.40x in the noisy EXP-010 | EXP-009, EXP-010 |
+| **default**: BoT-SORT with GMC off (TEMPORARY, to be re-checked on dev video) | **2.42x** (2.40-2.46), quiet; 2.27x (1.84-2.42) noisy | EXP-009, EXP-010 |
+| ByteTrack (measured only, not default) | 2.23x (1.89-2.54), noisy | EXP-010 |
 
-Latency now (default config, EXP-006 `p4b`): COCO 31.5 ms (of which tracker ≈ 15), helmet 29.1 ms (tracker ≈ 15), plate detector 0.6, drawing 0.4, read 1.8, JPEG 12.1 (only when a client is watching).
-**Absolute numbers are not comparable across experiments** (the machine ran 7 FPS in one session and 12 FPS in another with the same code).
-Edge proxy (CPU, EXP-007): PyTorch 4.65 → ONNX Runtime 4.97 FPS headless; the tracker, not the model, dominates.
+Single P4 steps (ROI blending, JPEG 80 for the stream) are within the noise of EXP-010 (1.20-1.28x) and are **not** claimed individually. Saved evidence images are always JPEG quality >= 95; quality 80 is stream only.
+No absolute "15 FPS" claim is made: older figures (12-15 FPS in EXP-006, "7 vs 12 FPS") mixed different workloads and background load and are withdrawn (see EXP-009).
+Latency breakdown (EXP-006 `p4b`, not comparable across sessions): COCO 31.5 ms (tracker ~15), helmet 29.1 ms (tracker ~15), plate detector 0.6, drawing 0.4, read 1.8, JPEG 12.1. The pipeline is CPU-bound (GPU util 11-32%).
+Edge proxy (CPU, EXP-007): PyTorch 4.65 -> ONNX Runtime 4.97 FPS headless; the tracker, not the model, dominates.
+**Hardware:** all numbers come from one laptop (RTX 3050 Laptop GPU, 12 logical CPU threads, Windows 11). There is no real Edge device; the CPU/ONNX runs are a *proxy*, not a measurement of any Jetson or similar.
 
 ## 6. Rules and events
 - **v0 rules** (kept as `rules.engine: legacy`): running counters, per-frame head count, a car moving "up" the image = wrong-way (switched off by default: out of scope), vehicle bottom-centre in a fixed zone on red = red-light (wrong for a car waiting at the light).

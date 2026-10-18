@@ -1,5 +1,7 @@
 # MORNING REPORT – đêm 2026-10-18
 
+> **ĐÍNH CHÍNH (2026-10-18, sau khi bạn duyệt):** (1) mục "đạt 15 FPS" và câu "7 → 12 FPS cho cùng mã" dưới đây **không đúng**: 7.4 là v0, 12 là pipeline mới với khối lượng việc khác; biến thiên thật giữa phiên cùng mã là ~17–19% và FPS giảm ~40% khi 50% CPU bị chiếm (EXP-009). Từ nay chỉ báo tỉ lệ so với v0 đo cùng phiên. (2) GMC đã được đặt tắt mặc định (tạm thời). (3) Ảnh bằng chứng lưu chất lượng ≥ 95. Phần còn lại của báo cáo giữ nguyên như lúc viết.
+
 **Tóm tắt:** 10/10 mục xong và đã commit (không push). `pytest` nhanh: **211 passed**. Test chậm (perception không đổi, CPU): **1 passed** (170 s, `pytest -m slow`).
 Không có claim độ chính xác nào: vẫn **chưa có ground truth cho sự kiện**. Số đo là tương đối, trên một clip 26 s, máy RTX 3050 Laptop.
 
@@ -33,7 +35,7 @@ Không có claim độ chính xác nào: vẫn **chưa có ground truth cho sự
 
 - Giả thuyết "tracker + GMC là phần tốn" được **xác nhận**: tắt GMC giảm ~15 ms/model (process 63.9 → 33.0 ms). Trên 26 s video, `gmc none` giữ nguyên 29/29 sự kiện (loại + thời điểm) và đổi ít ID (COCO 12/382 track bị tách), ByteTrack làm 1 sự kiện lệch 7 frame. Một clip không đủ để kết luận → đợi video dev có nhãn rồi mới đổi 1 dòng config.
 - ONNX FP32 CPU cho **cùng detection** với PyTorch khi dùng đúng hình dạng đầu vào 384×640 (ONNX vuông 640×640 cho kết quả khác và chậm hơn), sự kiện giống hệt tới từng ID.
-- Mục tiêu "≥ 15 FPS ở 720p trên proxy GPU": đạt sát biên ở cấu hình mặc định (15.22, khoảng 14.57–15.25), vượt rõ nếu nhận thay đổi tracker.
+- ~~Mục tiêu "≥ 15 FPS ở 720p trên proxy GPU": đạt sát biên~~ — **bị rút lại** (xem đính chính ở đầu file).
 - Server thật (1 client, mặc định, 1 lần đo không chính thức): 14–15 FPS xử lý, độ trễ 63–88 ms.
 
 ## Quyết định tôi tự chọn (đều đảo ngược được bằng 1 dòng config; lý do ở `docs/PROGRESS.md`)

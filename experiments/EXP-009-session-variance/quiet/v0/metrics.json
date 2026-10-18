@@ -1,0 +1,610 @@
+{
+  "summary": {
+    "config": "v0",
+    "n_runs": 5,
+    "fps_headless": {
+      "median": 9.72,
+      "min": 9.45,
+      "max": 9.84,
+      "runs": [
+        9.45,
+        9.77,
+        9.66,
+        9.72,
+        9.84
+      ]
+    },
+    "fps_stream": {
+      "median": 8.61,
+      "min": 8.37,
+      "max": 8.7,
+      "runs": [
+        8.37,
+        8.64,
+        8.56,
+        8.61,
+        8.7
+      ]
+    },
+    "plate_calls_per_frame_median": 1.729,
+    "stages_median_of_runs": {
+      "process": {
+        "mean_ms": 102.84,
+        "p50_ms": 100.62,
+        "p95_ms": 131.41
+      },
+      "encode": {
+        "mean_ms": 13.3,
+        "p50_ms": 13.17,
+        "p95_ms": 14.31
+      },
+      "read": {
+        "mean_ms": 1.79,
+        "p50_ms": 1.68,
+        "p95_ms": 2.2
+      }
+    },
+    "evidence_first_run": {
+      "events": 20,
+      "events_by_type": {},
+      "tracks_with_event": 20,
+      "tracks_with_plate": 20,
+      "note": "v0 only records plate captures (no event notion): counts are captures"
+    },
+    "telemetry_median_of_runs": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 18.8,
+      "gpu_temp_c_max": 60.0,
+      "gpu_util_pct": 21.0,
+      "cpu_perf_pct": 150.0,
+      "cpu_other_pct": 4.2,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Code.exe": 1.1,
+        "sqlservr.exe": 6.1,
+        "System": 3.9,
+        "svchost.exe": 3.1,
+        "MsMpEng.exe": 1.1,
+        "esrv_svc.exe": 1.0,
+        "claude.exe": 0.7,
+        "promecefpluginhost.exe": 0.8,
+        "taskhostw.exe": 1.3
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 9.45,
+      "fps_stream": 8.37,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 105.81,
+          "p50_ms": 102.77,
+          "p95_ms": 136.68
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.6,
+          "p50_ms": 13.4,
+          "p95_ms": 14.95
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 1.83,
+          "p50_ms": 1.73,
+          "p95_ms": 2.38
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 38,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 18.77,
+          "min": 17.52,
+          "max": 22.33
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 58.5,
+          "min": 56.0,
+          "max": 60.0
+        },
+        "gpu_util_pct": {
+          "median": 21.0,
+          "min": 14.0,
+          "max": 28.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 147.77,
+          "min": 144.52,
+          "max": 150.94
+        },
+        "cpu_total_pct": {
+          "median": 19.05,
+          "min": 0.0,
+          "max": 28.4
+        },
+        "cpu_own_pct": {
+          "median": 90.4,
+          "min": 81.3,
+          "max": 94.5
+        },
+        "cpu_other_pct": {
+          "median": 6.9,
+          "min": 3.7,
+          "max": 14.4
+        },
+        "heaviest_other_processes_peak_pct": {
+          "Code.exe": 5.9,
+          "sqlservr.exe": 4.4,
+          "System": 3.2,
+          "svchost.exe": 2.9,
+          "MsMpEng.exe": 1.3
+        }
+      },
+      "gpu_mean_util_pct": 21.0,
+      "gpu_peak_temp_c": 60.0
+    },
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 9.77,
+      "fps_stream": 8.64,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 102.41,
+          "p50_ms": 100.07,
+          "p95_ms": 130.7
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.35,
+          "p50_ms": 13.24,
+          "p95_ms": 14.55
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 1.72,
+          "p50_ms": 1.66,
+          "p95_ms": 2.1
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 37,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 18.94,
+          "min": 13.94,
+          "max": 20.39
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 59.0,
+          "min": 58.0,
+          "max": 60.0
+        },
+        "gpu_util_pct": {
+          "median": 21.0,
+          "min": 13.0,
+          "max": 32.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 150.17,
+          "min": 142.73,
+          "max": 153.16
+        },
+        "cpu_total_pct": {
+          "median": 16.6,
+          "min": 0.0,
+          "max": 24.1
+        },
+        "cpu_own_pct": {
+          "median": 93.3,
+          "min": 87.4,
+          "max": 96.1
+        },
+        "cpu_other_pct": {
+          "median": 4.1,
+          "min": 2.0,
+          "max": 10.3
+        },
+        "heaviest_other_processes_peak_pct": {
+          "sqlservr.exe": 5.9,
+          "System": 2.6,
+          "MsMpEng.exe": 0.9,
+          "esrv_svc.exe": 0.8,
+          "claude.exe": 0.7
+        }
+      },
+      "gpu_mean_util_pct": 21.0,
+      "gpu_peak_temp_c": 60.0
+    },
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 9.66,
+      "fps_stream": 8.56,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 103.54,
+          "p50_ms": 100.74,
+          "p95_ms": 131.49
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.29,
+          "p50_ms": 13.17,
+          "p95_ms": 14.3
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 1.79,
+          "p50_ms": 1.69,
+          "p95_ms": 2.2
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 36,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 18.73,
+          "min": 17.35,
+          "max": 20.28
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 58.0,
+          "min": 57.0,
+          "max": 59.0
+        },
+        "gpu_util_pct": {
+          "median": 22.0,
+          "min": 14.0,
+          "max": 35.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 150.57,
+          "min": 147.2,
+          "max": 151.9
+        },
+        "cpu_total_pct": {
+          "median": 16.95,
+          "min": 0.0,
+          "max": 22.3
+        },
+        "cpu_own_pct": {
+          "median": 93.2,
+          "min": 87.6,
+          "max": 96.3
+        },
+        "cpu_other_pct": {
+          "median": 4.15,
+          "min": 2.1,
+          "max": 9.8
+        },
+        "heaviest_other_processes_peak_pct": {
+          "sqlservr.exe": 5.1,
+          "System": 3.8,
+          "esrv_svc.exe": 1.0,
+          "MsMpEng.exe": 0.9,
+          "promecefpluginhost.exe": 0.8
+        }
+      },
+      "gpu_mean_util_pct": 22.0,
+      "gpu_peak_temp_c": 59.0
+    },
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 9.72,
+      "fps_stream": 8.61,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 102.84,
+          "p50_ms": 100.62,
+          "p95_ms": 131.41
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.3,
+          "p50_ms": 13.17,
+          "p95_ms": 14.29
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 1.8,
+          "p50_ms": 1.68,
+          "p95_ms": 2.31
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 36,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 18.8,
+          "min": 15.24,
+          "max": 20.17
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 58.0,
+          "min": 57.0,
+          "max": 58.0
+        },
+        "gpu_util_pct": {
+          "median": 21.0,
+          "min": 13.0,
+          "max": 30.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 150.86,
+          "min": 147.37,
+          "max": 152.87
+        },
+        "cpu_total_pct": {
+          "median": 16.3,
+          "min": 0.0,
+          "max": 22.2
+        },
+        "cpu_own_pct": {
+          "median": 93.65,
+          "min": 88.4,
+          "max": 95.8
+        },
+        "cpu_other_pct": {
+          "median": 4.45,
+          "min": 2.6,
+          "max": 9.8
+        },
+        "heaviest_other_processes_peak_pct": {
+          "sqlservr.exe": 5.6,
+          "System": 5.4,
+          "taskhostw.exe": 1.3,
+          "esrv_svc.exe": 1.0,
+          "MsMpEng.exe": 0.9
+        }
+      },
+      "gpu_mean_util_pct": 21.0,
+      "gpu_peak_temp_c": 58.0
+    },
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 9.84,
+      "fps_stream": 8.7,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 101.62,
+          "p50_ms": 99.2,
+          "p95_ms": 130.2
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.28,
+          "p50_ms": 13.12,
+          "p95_ms": 14.31
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 1.73,
+          "p50_ms": 1.64,
+          "p95_ms": 2.19
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 35,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 18.89,
+          "min": 18.07,
+          "max": 20.2
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 57.0,
+          "min": 57.0,
+          "max": 58.0
+        },
+        "gpu_util_pct": {
+          "median": 21.0,
+          "min": 15.0,
+          "max": 31.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 150.28,
+          "min": 145.0,
+          "max": 152.53
+        },
+        "cpu_total_pct": {
+          "median": 16.2,
+          "min": 0.0,
+          "max": 29.1
+        },
+        "cpu_own_pct": {
+          "median": 93.6,
+          "min": 81.1,
+          "max": 95.5
+        },
+        "cpu_other_pct": {
+          "median": 4.1,
+          "min": 2.4,
+          "max": 16.0
+        },
+        "heaviest_other_processes_peak_pct": {
+          "sqlservr.exe": 6.1,
+          "System": 3.9,
+          "svchost.exe": 3.1,
+          "MsMpEng.exe": 1.1,
+          "Code.exe": 1.1
+        }
+      },
+      "gpu_mean_util_pct": 21.0,
+      "gpu_peak_temp_c": 58.0
+    }
+  ]
+}

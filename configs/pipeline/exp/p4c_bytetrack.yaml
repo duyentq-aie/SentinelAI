@@ -36,7 +36,7 @@ evidence:
   plate_margin: 10            # px around the plate box in the saved crop
   max_records: 12             # gallery length kept in memory
   max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
-  jpeg_quality: 90
+  jpeg_quality: 95            # evidence images: >= 95 enforced (was 90 when this experiment was run)
   close_after: 30             # frames without the violation before an event is closed
   one_event_per_track: true   # at most one event per (track, type) per run: a flickering verdict cannot create duplicates
   plate:                      # plate detector runs only for tracks that are currently violating

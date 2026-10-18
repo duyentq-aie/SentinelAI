@@ -1,0 +1,158 @@
+{
+  "v0": {
+    "headless_fps": 6.0,
+    "headless_range": [
+      5.86,
+      6.04
+    ],
+    "stream_fps": 5.28,
+    "stream_range": [
+      5.16,
+      5.33
+    ],
+    "ratio_vs_v0": null,
+    "plate_calls_per_frame": 1.729,
+    "tracks_with_event/with_plate": [
+      20,
+      20
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 17.1,
+      "gpu_temp_c_max": 60.0,
+      "gpu_util_pct": 14.0,
+      "cpu_perf_pct": 114.0,
+      "cpu_other_pct": 54.6,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "python.exe": 8.4
+      }
+    }
+  },
+  "default": {
+    "headless_fps": 17.02,
+    "headless_range": [
+      16.81,
+      17.13
+    ],
+    "stream_fps": 12.6,
+    "stream_range": [
+      12.47,
+      12.73
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 2.836,
+        "min": 2.802,
+        "max": 2.904,
+        "per_round": [
+          2.836,
+          2.904,
+          2.802
+        ]
+      },
+      "fps_stream": {
+        "median": 2.388,
+        "min": 2.362,
+        "max": 2.442,
+        "per_round": [
+          2.388,
+          2.442,
+          2.362
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 19.2,
+      "gpu_temp_c_max": 61.0,
+      "gpu_util_pct": 20.0,
+      "cpu_perf_pct": 115.0,
+      "cpu_other_pct": 54.8,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "python.exe": 8.4
+      }
+    }
+  },
+  "tracker_botsort_gmc": {
+    "headless_fps": 8.96,
+    "headless_range": [
+      8.92,
+      9.02
+    ],
+    "stream_fps": 7.58,
+    "stream_range": [
+      7.54,
+      7.61
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 1.503,
+        "min": 1.483,
+        "max": 1.522,
+        "per_round": [
+          1.483,
+          1.522,
+          1.503
+        ]
+      },
+      "fps_stream": {
+        "median": 1.441,
+        "min": 1.422,
+        "max": 1.461,
+        "per_round": [
+          1.422,
+          1.461,
+          1.441
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 17.1,
+      "gpu_temp_c_max": 60.0,
+      "gpu_util_pct": 11.0,
+      "cpu_perf_pct": 114.0,
+      "cpu_other_pct": 54.9,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "python.exe": 8.4
+      }
+    }
+  }
+}

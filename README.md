@@ -7,7 +7,7 @@ A small FastAPI demo streams the annotated video and lists the events.
 > **Read this first – what is and is not proven**
 > - There is **no ground truth for violation events yet** (no labelled video). No precision/recall of the *system* is claimed anywhere.
 >   The detector mAP of ~0.99 (val/test of the original Kaggle datasets) is **saturated and its splits are not verified independent** (frames from video): do not read it as generalisation.
-> - Everything measured here is **relative** (before/after on this machine: RTX 3050 Laptop 4 GB, i5-11400H) on **one 26 s clip** (`test_video.mp4`). Absolute FPS changes a lot between sessions (7 → 12 FPS for the same code); only compare numbers inside the same experiment table.
+> - Everything measured here is **relative** (before/after on this machine: RTX 3050 Laptop 4 GB, i5-11400H) on **one 26 s clip** (`test_video.mp4`). Absolute FPS depends on the machine state (the original prototype alone measured 7.4–8.6 FPS in different sessions, and about 40% less when half of the CPU is busy with other work, EXP-009): every speed claim is therefore given as a ratio to the original prototype (`v0`) measured in the same session.
 > - GPU/Edge numbers are **proxies**: no Jetson/RPi was available. ONNX Runtime GPU and TensorRT were **not** measured (CUDA 12 / TensorRT not installed).
 > - The red-light rule is still the v0 zone rule (a stopped car inside the zone on red is flagged). The stop-line + direction rule is planned, not built; the test clip has no red-light event at all.
 

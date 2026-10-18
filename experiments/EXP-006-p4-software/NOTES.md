@@ -38,5 +38,6 @@ Việc cần làm khi có dev video: chạy `tools/eval_events.py` (chưa có) v
 ## Lưu ý đọc số
 - FPS tuyệt đối của phiên này (12 → 15 → 28) **cao hơn** EXP-003/004 (khoảng 9–10 cho cùng mã pipeline trước tối ưu) vì máy ở trạng thái khác (nhiệt đỉnh GPU 59–61 °C, thấp hơn các phiên trước). **Không so số giữa các phiên**; chỉ so các dòng trong cùng bảng (xen kẽ cùng phiên).
 - Cải tiến (a) và (b) giữ nguyên toàn bộ 14 sự kiện bằng chứng (13 `no_helmet`, 1 `overload`) ở cả 5 cấu hình trên GPU (đếm theo loại), nhưng ID giữa GPU và CPU khác nhau nên việc so từng sự kiện đã làm bằng CPU như bảng trên.
-- Mục tiêu PLAN "≥ 15 FPS headless 720p trên proxy GPU": đạt ở cấu hình (b) là biên (15.22, khoảng 14.57–15.25) và vượt rõ ở (c1/c2); **chưa kiểm định độ chính xác** của (c).
+- ~~Mục tiêu PLAN "≥ 15 FPS headless 720p trên proxy GPU": đạt ở cấu hình (b)…~~ **ĐÍNH CHÍNH 2026-10-18 (EXP-009):** không được kết luận "đạt 15 FPS" từ phiên này. Phiên này không có v0 làm mốc và FPS tuyệt đối đổi ~40% theo tải nền CPU; chỉ các tỉ lệ so với v0 cùng phiên (EXP-009/EXP-010) mới đáng tin. **Chưa kiểm định độ chính xác** của (c).
+- ~~"FPS tuyệt đối cao hơn EXP-003/004 cho cùng mã pipeline"~~: không cùng mã/khối lượng (EXP-003/004 có wrong-way bật và 0.13–1.7 lần gọi plate/frame, EXP-006 có 0.018) — xem EXP-009.
 - Phần còn lại ở cấu hình b (63.9 ms): COCO 31.5 + helmet 29.1 (đều gồm ~15 ms tracker), encode 12.1 (chỉ khi có client), đọc 1.8.

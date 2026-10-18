@@ -1,0 +1,601 @@
+{
+  "summary": {
+    "config": "configs/pipeline/exp/p4c_bytetrack.yaml",
+    "n_runs": 3,
+    "fps_headless": {
+      "median": 21.2,
+      "min": 19.76,
+      "max": 22.32,
+      "runs": [
+        21.2,
+        22.32,
+        19.76
+      ]
+    },
+    "fps_stream": {
+      "median": 16.4,
+      "min": 15.21,
+      "max": 17.09,
+      "runs": [
+        16.4,
+        17.09,
+        15.21
+      ]
+    },
+    "plate_calls_per_frame_median": 0.018,
+    "stages_median_of_runs": {
+      "read": {
+        "mean_ms": 2.78,
+        "p50_ms": 2.75,
+        "p95_ms": 3.42
+      },
+      "rules": {
+        "mean_ms": 0.06,
+        "p50_ms": 0.06,
+        "p95_ms": 0.09
+      },
+      "coco": {
+        "mean_ms": 21.31,
+        "p50_ms": 20.45,
+        "p95_ms": 28.01
+      },
+      "plate_detector": {
+        "mean_ms": 1.04,
+        "p50_ms": 0.0,
+        "p95_ms": 0.0
+      },
+      "evidence_io_and_bookkeeping": {
+        "mean_ms": 0.47,
+        "p50_ms": 0.01,
+        "p95_ms": 0.03
+      },
+      "draw": {
+        "mean_ms": 0.46,
+        "p50_ms": 0.45,
+        "p95_ms": 0.68
+      },
+      "process": {
+        "mean_ms": 44.19,
+        "p50_ms": 41.29,
+        "p95_ms": 56.9
+      },
+      "helmet": {
+        "mean_ms": 18.18,
+        "p50_ms": 17.14,
+        "p95_ms": 25.1
+      },
+      "encode": {
+        "mean_ms": 13.81,
+        "p50_ms": 13.59,
+        "p95_ms": 15.84
+      }
+    },
+    "evidence_first_run": {
+      "events": 14,
+      "events_by_type": {
+        "no_helmet": 13,
+        "overload": 1
+      },
+      "tracks_with_event": 14,
+      "tracks_with_plate": 14,
+      "plates_found_first_time": 14,
+      "events_opened_counter": 14,
+      "mean_vehicle_crop_wh": [
+        238.1,
+        246.3
+      ],
+      "mean_plate_crop_wh": [
+        46.1,
+        40.1
+      ],
+      "mean_plate_box_wh": [
+        26.1,
+        21.7
+      ],
+      "evidence_dir_mb": 5.62
+    },
+    "telemetry_median_of_runs": {
+      "gpu_sm_clock_mhz": 1860.0,
+      "gpu_power_w": 31.8,
+      "gpu_temp_c_max": 71.0,
+      "gpu_util_pct": 37.0,
+      "cpu_perf_pct": 140.0,
+      "cpu_other_pct": 21.5,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Ld9BoxHeadless.exe": 22.7,
+        "System": 3.9,
+        "Code.exe": 3.7,
+        "dnplayer.exe": 2.3,
+        "MsMpEng.exe": 0.9,
+        "sqlservr.exe": 4.4,
+        "dwm.exe": 1.1,
+        "chrome.exe": 1.9
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "pipeline",
+      "config": "configs/pipeline/exp/p4c_bytetrack.yaml",
+      "n_frames": 757,
+      "fps_headless": 21.2,
+      "fps_stream": 16.4,
+      "stages": {
+        "read": {
+          "n": 757,
+          "mean_ms": 2.98,
+          "p50_ms": 2.9,
+          "p95_ms": 3.7
+        },
+        "rules": {
+          "n": 757,
+          "mean_ms": 0.06,
+          "p50_ms": 0.06,
+          "p95_ms": 0.09
+        },
+        "coco": {
+          "n": 757,
+          "mean_ms": 21.31,
+          "p50_ms": 20.45,
+          "p95_ms": 28.01
+        },
+        "plate_detector": {
+          "n": 757,
+          "mean_ms": 1.04,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 757,
+          "mean_ms": 0.47,
+          "p50_ms": 0.01,
+          "p95_ms": 0.03
+        },
+        "draw": {
+          "n": 757,
+          "mean_ms": 0.46,
+          "p50_ms": 0.45,
+          "p95_ms": 0.68
+        },
+        "process": {
+          "n": 757,
+          "mean_ms": 44.19,
+          "p50_ms": 41.29,
+          "p95_ms": 56.9
+        },
+        "helmet": {
+          "n": 757,
+          "mean_ms": 18.18,
+          "p50_ms": 17.14,
+          "p95_ms": 25.1
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.81,
+          "p50_ms": 13.59,
+          "p95_ms": 15.84
+        }
+      },
+      "plate_calls": 14,
+      "plate_calls_per_frame": 0.018,
+      "evidence": {
+        "events": 14,
+        "events_by_type": {
+          "no_helmet": 13,
+          "overload": 1
+        },
+        "tracks_with_event": 14,
+        "tracks_with_plate": 14,
+        "plates_found_first_time": 14,
+        "events_opened_counter": 14,
+        "mean_vehicle_crop_wh": [
+          238.1,
+          246.3
+        ],
+        "mean_plate_crop_wh": [
+          46.1,
+          40.1
+        ],
+        "mean_plate_box_wh": [
+          26.1,
+          21.7
+        ],
+        "evidence_dir_mb": 5.62
+      },
+      "system": {
+        "n_samples": 19,
+        "gpu_sm_clock_mhz": {
+          "median": 1860.0,
+          "min": 1500.0,
+          "max": 1942.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 31.75,
+          "min": 23.74,
+          "max": 41.56
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 67.0,
+          "min": 63.0,
+          "max": 68.0
+        },
+        "gpu_util_pct": {
+          "median": 37.0,
+          "min": 23.0,
+          "max": 50.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 0.53,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 140.37,
+          "min": 134.74,
+          "max": 141.37
+        },
+        "cpu_total_pct": {
+          "median": 35.1,
+          "min": 0.0,
+          "max": 44.9
+        },
+        "cpu_own_pct": {
+          "median": 75.0,
+          "min": 67.8,
+          "max": 78.3
+        },
+        "cpu_other_pct": {
+          "median": 21.5,
+          "min": 18.7,
+          "max": 27.8
+        },
+        "heaviest_other_processes_peak_pct": {
+          "Ld9BoxHeadless.exe": 21.4,
+          "System": 4.5,
+          "Code.exe": 3.7,
+          "dnplayer.exe": 2.5,
+          "MsMpEng.exe": 0.9
+        }
+      },
+      "gpu_mean_util_pct": 37.0,
+      "gpu_peak_temp_c": 68.0
+    },
+    {
+      "kind": "pipeline",
+      "config": "configs/pipeline/exp/p4c_bytetrack.yaml",
+      "n_frames": 757,
+      "fps_headless": 22.32,
+      "fps_stream": 17.09,
+      "stages": {
+        "evidence_io_and_bookkeeping": {
+          "n": 757,
+          "mean_ms": 0.46,
+          "p50_ms": 0.01,
+          "p95_ms": 0.02
+        },
+        "coco": {
+          "n": 757,
+          "mean_ms": 20.44,
+          "p50_ms": 19.64,
+          "p95_ms": 26.28
+        },
+        "rules": {
+          "n": 757,
+          "mean_ms": 0.06,
+          "p50_ms": 0.06,
+          "p95_ms": 0.09
+        },
+        "plate_detector": {
+          "n": 757,
+          "mean_ms": 1.02,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        },
+        "draw": {
+          "n": 757,
+          "mean_ms": 0.46,
+          "p50_ms": 0.45,
+          "p95_ms": 0.67
+        },
+        "helmet": {
+          "n": 757,
+          "mean_ms": 17.04,
+          "p50_ms": 16.43,
+          "p95_ms": 22.21
+        },
+        "process": {
+          "n": 757,
+          "mean_ms": 42.02,
+          "p50_ms": 39.28,
+          "p95_ms": 52.02
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 13.7,
+          "p50_ms": 13.57,
+          "p95_ms": 15.84
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 2.78,
+          "p50_ms": 2.75,
+          "p95_ms": 3.42
+        }
+      },
+      "plate_calls": 14,
+      "plate_calls_per_frame": 0.018,
+      "evidence": {
+        "events": 14,
+        "events_by_type": {
+          "no_helmet": 13,
+          "overload": 1
+        },
+        "tracks_with_event": 14,
+        "tracks_with_plate": 14,
+        "plates_found_first_time": 14,
+        "events_opened_counter": 14,
+        "mean_vehicle_crop_wh": [
+          238.1,
+          246.3
+        ],
+        "mean_plate_crop_wh": [
+          46.1,
+          40.1
+        ],
+        "mean_plate_box_wh": [
+          26.1,
+          21.7
+        ],
+        "evidence_dir_mb": 5.62
+      },
+      "system": {
+        "n_samples": 19,
+        "gpu_sm_clock_mhz": {
+          "median": 1695.0,
+          "min": 1500.0,
+          "max": 1770.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 27.99,
+          "min": 23.55,
+          "max": 32.47
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 65.0,
+          "min": 63.0,
+          "max": 66.0
+        },
+        "gpu_util_pct": {
+          "median": 39.0,
+          "min": 31.0,
+          "max": 44.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 141.88,
+          "min": 134.75,
+          "max": 143.19
+        },
+        "cpu_total_pct": {
+          "median": 33.1,
+          "min": 0.0,
+          "max": 41.9
+        },
+        "cpu_own_pct": {
+          "median": 77.1,
+          "min": 68.6,
+          "max": 80.5
+        },
+        "cpu_other_pct": {
+          "median": 19.1,
+          "min": 16.5,
+          "max": 25.0
+        },
+        "heaviest_other_processes_peak_pct": {
+          "Ld9BoxHeadless.exe": 15.5,
+          "System": 6.5,
+          "sqlservr.exe": 5.6,
+          "dnplayer.exe": 1.4,
+          "dwm.exe": 1.1
+        }
+      },
+      "gpu_mean_util_pct": 39.0,
+      "gpu_peak_temp_c": 66.0
+    },
+    {
+      "kind": "pipeline",
+      "config": "configs/pipeline/exp/p4c_bytetrack.yaml",
+      "n_frames": 757,
+      "fps_headless": 19.76,
+      "fps_stream": 15.21,
+      "stages": {
+        "rules": {
+          "n": 757,
+          "mean_ms": 0.07,
+          "p50_ms": 0.06,
+          "p95_ms": 0.1
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 2.69,
+          "p50_ms": 2.55,
+          "p95_ms": 3.42
+        },
+        "helmet": {
+          "n": 757,
+          "mean_ms": 19.78,
+          "p50_ms": 18.69,
+          "p95_ms": 26.45
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 757,
+          "mean_ms": 0.52,
+          "p50_ms": 0.01,
+          "p95_ms": 0.03
+        },
+        "process": {
+          "n": 757,
+          "mean_ms": 47.91,
+          "p50_ms": 44.74,
+          "p95_ms": 60.32
+        },
+        "draw": {
+          "n": 757,
+          "mean_ms": 0.51,
+          "p50_ms": 0.49,
+          "p95_ms": 0.78
+        },
+        "coco": {
+          "n": 757,
+          "mean_ms": 23.19,
+          "p50_ms": 22.35,
+          "p95_ms": 29.61
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 15.13,
+          "p50_ms": 14.79,
+          "p95_ms": 18.88
+        },
+        "plate_detector": {
+          "n": 757,
+          "mean_ms": 1.16,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        }
+      },
+      "plate_calls": 14,
+      "plate_calls_per_frame": 0.018,
+      "evidence": {
+        "events": 14,
+        "events_by_type": {
+          "no_helmet": 13,
+          "overload": 1
+        },
+        "tracks_with_event": 14,
+        "tracks_with_plate": 14,
+        "plates_found_first_time": 14,
+        "events_opened_counter": 14,
+        "mean_vehicle_crop_wh": [
+          238.1,
+          246.3
+        ],
+        "mean_plate_crop_wh": [
+          46.1,
+          40.1
+        ],
+        "mean_plate_box_wh": [
+          26.1,
+          21.7
+        ],
+        "evidence_dir_mb": 5.62
+      },
+      "system": {
+        "n_samples": 21,
+        "gpu_sm_clock_mhz": {
+          "median": 1920.0,
+          "min": 1680.0,
+          "max": 1942.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 38.89,
+          "min": 22.75,
+          "max": 43.93
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 69.0,
+          "min": 66.0,
+          "max": 71.0
+        },
+        "gpu_util_pct": {
+          "median": 37.0,
+          "min": 33.0,
+          "max": 49.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 0.52,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 136.02,
+          "min": 130.44,
+          "max": 137.5
+        },
+        "cpu_total_pct": {
+          "median": 43.1,
+          "min": 0.0,
+          "max": 49.5
+        },
+        "cpu_own_pct": {
+          "median": 67.0,
+          "min": 61.3,
+          "max": 70.6
+        },
+        "cpu_other_pct": {
+          "median": 28.7,
+          "min": 25.5,
+          "max": 35.1
+        },
+        "heaviest_other_processes_peak_pct": {
+          "Ld9BoxHeadless.exe": 22.7,
+          "sqlservr.exe": 4.4,
+          "System": 3.9,
+          "dnplayer.exe": 2.3,
+          "chrome.exe": 1.9
+        }
+      },
+      "gpu_mean_util_pct": 37.0,
+      "gpu_peak_temp_c": 71.0
+    }
+  ]
+}

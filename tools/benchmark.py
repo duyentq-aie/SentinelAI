@@ -371,7 +371,6 @@ def main():
                   "(GPU non-determinism + tracker); compare counts and approximate frames.",
           "events": runs[med_idx]["events"], "events_per_run_counts": [len(r["events"]) for r in runs]}
     (out / "events.json").write_text(json.dumps(ev, indent=2), encoding="utf-8")
-    for r in range(a.repeats):
     print(json.dumps(summary, indent=2))
 
 

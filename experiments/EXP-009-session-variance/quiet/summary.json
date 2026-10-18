@@ -1,0 +1,186 @@
+{
+  "v0": {
+    "headless_fps": 9.72,
+    "headless_range": [
+      9.45,
+      9.84
+    ],
+    "stream_fps": 8.61,
+    "stream_range": [
+      8.37,
+      8.7
+    ],
+    "ratio_vs_v0": null,
+    "plate_calls_per_frame": 1.729,
+    "tracks_with_event/with_plate": [
+      20,
+      20
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 18.8,
+      "gpu_temp_c_max": 60.0,
+      "gpu_util_pct": 21.0,
+      "cpu_perf_pct": 150.0,
+      "cpu_other_pct": 4.2,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Code.exe": 1.1,
+        "sqlservr.exe": 6.1,
+        "System": 3.9,
+        "svchost.exe": 3.1,
+        "MsMpEng.exe": 1.1,
+        "esrv_svc.exe": 1.0,
+        "claude.exe": 0.7,
+        "promecefpluginhost.exe": 0.8,
+        "taskhostw.exe": 1.3
+      }
+    }
+  },
+  "default": {
+    "headless_fps": 27.86,
+    "headless_range": [
+      27.56,
+      28.18
+    ],
+    "stream_fps": 20.86,
+    "stream_range": [
+      20.63,
+      21.08
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 2.866,
+        "min": 2.836,
+        "max": 2.917,
+        "per_round": [
+          2.916,
+          2.836,
+          2.917,
+          2.866,
+          2.859
+        ]
+      },
+      "fps_stream": {
+        "median": 2.423,
+        "min": 2.399,
+        "max": 2.465,
+        "per_round": [
+          2.465,
+          2.399,
+          2.463,
+          2.423,
+          2.421
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 22.4,
+      "gpu_temp_c_max": 61.0,
+      "gpu_util_pct": 32.0,
+      "cpu_perf_pct": 151.0,
+      "cpu_other_pct": 4.1,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "sqlservr.exe": 1.4,
+        "System": 2.3,
+        "Code.exe": 0.9,
+        "claude.exe": 1.2,
+        "esrv_svc.exe": 0.7,
+        "MsMpEng.exe": 1.2,
+        "wps.exe": 0.4,
+        "promecefpluginhost.exe": 0.4
+      }
+    }
+  },
+  "tracker_botsort_gmc": {
+    "headless_fps": 14.84,
+    "headless_range": [
+      14.72,
+      14.85
+    ],
+    "stream_fps": 12.57,
+    "stream_range": [
+      12.49,
+      12.59
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 1.524,
+        "min": 1.509,
+        "max": 1.571,
+        "per_round": [
+          1.571,
+          1.51,
+          1.524,
+          1.527,
+          1.509
+        ]
+      },
+      "fps_stream": {
+        "median": 1.459,
+        "min": 1.446,
+        "max": 1.502,
+        "per_round": [
+          1.502,
+          1.447,
+          1.459,
+          1.462,
+          1.446
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 18.7,
+      "gpu_temp_c_max": 59.0,
+      "gpu_util_pct": 21.0,
+      "cpu_perf_pct": 150.0,
+      "cpu_other_pct": 4.2,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "sqlservr.exe": 4.0,
+        "System": 2.4,
+        "MsMpEng.exe": 1.0,
+        "esrv_svc.exe": 0.9,
+        "promecefpluginhost.exe": 0.6,
+        "Code.exe": 1.3
+      }
+    }
+  }
+}
