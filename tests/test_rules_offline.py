@@ -27,7 +27,8 @@ BASELINE_V0 = FIX / "baseline_events_v0_cpu.json"
 BASELINE = FIX / "baseline_events_v1_clean.json"
 BASELINE_V2 = FIX / "baseline_events_v2.json"
 BASELINE_V3 = FIX / "baseline_events_v3_windowed.json"
-BASELINE_V4 = FIX / "baseline_events_v4_gmc_none.json"      # current default config: windowed rules + BoT-SORT without GMC (temporary)
+BASELINE_V4 = FIX / "baseline_events_v4_gmc_none.json"      # windowed rules without hysteresis + BoT-SORT without GMC (temporary)
+BASELINE_V5 = FIX / "baseline_events_v5_hysteresis.json"    # current default config: v4 + hysteresis exit_ratio 0.3 (not tuned)
 
 pytestmark = pytest.mark.skipif(not TRACKS.exists(), reason="tracks fixture not recorded (tools/record_tracks.py)")
 
@@ -107,6 +108,7 @@ def test_windowed_rules_reproduce_the_v3_label_events_exactly(sparse):
     """Regression snapshot of the windowed rules (not ground truth)."""
     cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     assert cfg.rules.engine == "windowed"
+    cfg.rules.helmet.exit_ratio = cfg.rules.overload.exit_ratio = None          # v3 predates hysteresis
     d = diff_events(_labels(BASELINE_V3), run_rules(sparse[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
     assert d == {"missing": [], "added": [], "changed": []}, d
 
@@ -115,8 +117,13 @@ def test_default_config_replay_reproduces_the_v4_label_events_exactly(tracks):
     """The default config (windowed rules, BoT-SORT without GMC): regression snapshot, not ground truth."""
     cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     assert cfg.rules.engine == "windowed" and "gmc_none" in cfg.models.coco.tracker
-    d = diff_events(_labels(BASELINE_V4), run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
+    assert cfg.rules.helmet.exit_ratio == cfg.rules.overload.exit_ratio == 0.3          # hysteresis is on by default (not tuned)
+    got = run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels)
+    d = diff_events(_labels(BASELINE_V5), got, tol=0)
     assert d == {"missing": [], "added": [], "changed": []}, d
+    cfg.rules.helmet.exit_ratio = cfg.rules.overload.exit_ratio = None                  # v4 = same without hysteresis: identical event starts
+    d4 = diff_events(_labels(BASELINE_V4), run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
+    assert d4 == {"missing": [], "added": [], "changed": []}, d4
 
 
 def test_default_fixture_was_recorded_with_the_current_default_tracker(tracks):
@@ -154,7 +161,7 @@ def test_label_events_are_the_same_in_v0_and_v1_clean():
 
 
 def test_baseline_snapshot_shapes():
-    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15)), (BASELINE_V4, (14, 15))):
+    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15)), (BASELINE_V4, (14, 15)), (BASELINE_V5, (14, 15))):
         d = json.loads(path.read_text(encoding="utf-8"))
         kinds = [e["kind"] for e in d["events"]]
         assert (kinds.count("plate_capture"), kinds.count("label_first_seen")) == expected and d["video_sha256"], path.name

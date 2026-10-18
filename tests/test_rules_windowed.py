@@ -153,8 +153,8 @@ def flagged_frames(r, seq):
     return [i for i, v in enumerate(verdicts(r, seq)) if v]
 
 
-def test_borderline_vote_creates_a_one_frame_verdict_by_default():
-    assert flagged_frames(rules(), M176) == [11]                  # 5 votes / 10 observations = 0.5 >= r at frame 11, 5/11 at frame 12
+def test_borderline_vote_creates_a_one_frame_verdict_without_hysteresis():
+    assert flagged_frames(rules(helmet__exit_ratio=None), M176) == [11]                  # 5 votes / 10 observations = 0.5 >= r at frame 11, 5/11 at frame 12
 
 
 def test_hysteresis_keeps_the_flag_until_the_ratio_falls_below_exit_ratio():
@@ -163,7 +163,7 @@ def test_hysteresis_keeps_the_flag_until_the_ratio_falls_below_exit_ratio():
 
 
 def test_hysteresis_does_not_change_when_a_track_is_first_flagged():
-    base = verdicts(rules(), [BAD] * 8 + [OK] * 20)
+    base = verdicts(rules(helmet__exit_ratio=None), [BAD] * 8 + [OK] * 20)
     hyst = verdicts(rules(helmet__exit_ratio=0.3), [BAD] * 8 + [OK] * 20)
     assert [i for i, v in enumerate(base) if v][0] == [i for i, v in enumerate(hyst) if v][0] == 4
     assert sum(1 for v in hyst if v) >= sum(1 for v in base if v)
@@ -183,3 +183,10 @@ def test_reset_clears_the_hysteresis_state():
     verdicts(r, [BAD] * 6)
     r.reset()
     assert not r._on and verdicts(r, [OK] * 3) == [""] * 3
+
+
+def test_hysteresis_is_on_by_default_and_marked_untuned():
+    c = load_pipeline_config()
+    assert c.rules.helmet.exit_ratio == c.rules.overload.exit_ratio == 0.3
+    assert flagged_frames(rules(), M176) == [11, 12, 13, 14, 15, 16]
+    assert "chua tinh chinh" in (REPO / "configs/pipeline/default.yaml").read_text(encoding="utf-8")

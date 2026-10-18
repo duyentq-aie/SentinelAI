@@ -18,12 +18,14 @@ rules:
     violation_frames: 5       # legacy engine only
     window: 15                # W: observations kept (frames where a head is attached to the motorcycle; occluded frames are skipped)
     min_votes: 5              # K: no-helmet votes needed in the window
-    min_ratio: 0.5            # r: votes / observations needed in the window  (not tuned on ground truth: "chua kiem dinh")
+    min_ratio: 0.5
+    exit_ratio: 0.3           # hysteresis (flag stays on while ratio >= 0.3): NOT TUNED - "chua tinh chinh", waiting for dev video (EXP-005 addendum)
   overload:
     max_passengers: 2         # more heads than this on one motorcycle = overload vote
     window: 15
     min_votes: 5
     min_ratio: 0.5
+    exit_ratio: 0.3
   wrong_way:                  # legacy rule, OUT of the reported scope: off by default (baseline v1 and older had it on)
     enabled: false
     history_len: 30           # positions kept per track
