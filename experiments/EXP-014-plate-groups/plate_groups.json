@@ -1,0 +1,130 @@
+{
+  "data": "data/raw/plate",
+  "images": {
+    "train": 5845,
+    "valid": 1680,
+    "test": 832
+  },
+  "thresholds": {
+    "0": {
+      "threshold": 0,
+      "groups": 8031,
+      "singletons": 7711,
+      "groups_of_2_to_5": 320,
+      "groups_of_6_plus": 0,
+      "largest_groups": [
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "groups_spanning_several_splits": 106,
+      "images_in_spanning_groups": {
+        "train": 100,
+        "valid": 78,
+        "test": 39
+      },
+      "pct_val_test_images_whose_group_has_a_train_image": {
+        "valid": 4.0,
+        "test": 3.4
+      }
+    },
+    "2": {
+      "threshold": 2,
+      "groups": 7416,
+      "singletons": 6648,
+      "groups_of_2_to_5": 760,
+      "groups_of_6_plus": 8,
+      "largest_groups": [
+        16,
+        9,
+        9,
+        9,
+        8
+      ],
+      "groups_spanning_several_splits": 316,
+      "images_in_spanning_groups": {
+        "train": 390,
+        "valid": 253,
+        "test": 134
+      },
+      "pct_val_test_images_whose_group_has_a_train_image": {
+        "valid": 13.8,
+        "test": 13.3
+      }
+    },
+    "4": {
+      "threshold": 4,
+      "groups": 6131,
+      "singletons": 5143,
+      "groups_of_2_to_5": 941,
+      "groups_of_6_plus": 47,
+      "largest_groups": [
+        240,
+        170,
+        117,
+        54,
+        30
+      ],
+      "groups_spanning_several_splits": 462,
+      "images_in_spanning_groups": {
+        "train": 1247,
+        "valid": 553,
+        "test": 267
+      },
+      "pct_val_test_images_whose_group_has_a_train_image": {
+        "valid": 31.4,
+        "test": 29.0
+      }
+    },
+    "6": {
+      "threshold": 6,
+      "groups": 4398,
+      "singletons": 3553,
+      "groups_of_2_to_5": 787,
+      "groups_of_6_plus": 58,
+      "largest_groups": [
+        964,
+        824,
+        263,
+        245,
+        233
+      ],
+      "groups_spanning_several_splits": 388,
+      "images_in_spanning_groups": {
+        "train": 2491,
+        "valid": 885,
+        "test": 427
+      },
+      "pct_val_test_images_whose_group_has_a_train_image": {
+        "valid": 51.4,
+        "test": 49.0
+      }
+    },
+    "8": {
+      "threshold": 8,
+      "groups": 2964,
+      "singletons": 2363,
+      "groups_of_2_to_5": 568,
+      "groups_of_6_plus": 33,
+      "largest_groups": [
+        3410,
+        492,
+        380,
+        59,
+        41
+      ],
+      "groups_spanning_several_splits": 274,
+      "images_in_spanning_groups": {
+        "train": 3581,
+        "valid": 1133,
+        "test": 572
+      },
+      "pct_val_test_images_whose_group_has_a_train_image": {
+        "valid": 66.6,
+        "test": 66.9
+      }
+    }
+  }
+}
