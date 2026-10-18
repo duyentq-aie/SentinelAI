@@ -12,7 +12,7 @@ No accuracy claims without ground truth ("chưa kiểm định").
 | 3 | demo security | **done** | ~15 min | 0aa1d87 | filename sanitising, type/size limits, source whitelist (files in allowed dirs; rtsp / camera index only if enabled), bind 127.0.0.1, no reload; 55 tests |
 | 4 | P4 software optimisations | **done** | ~1 h (incl. 17 min GPU benchmark + two CPU runs) | 0552187, d809f5b | ROI blend +21%, JPEG 80 +4–5%, tracker gmc none / ByteTrack ≈ +90% (**measured, NOT adopted**, "tạm thời, chưa chấp nhận") |
 | 5 | ONNX | **done (CPU only)** | ~35 min | 715a721 | onnxruntime-gpu needs CUDA 12 → fell back to onnxruntime CPU; rectangular 384×640 export = identical detections; pipeline events identical; CPU FPS +7%; GPU/TensorRT not measured |
-| 6 | OCR basic | **done, but unreadable on this footage** | ~45 min | b86c881 | chain works (tests + synthetic probe); 0/14 plates readable on the 720p clip (plate ≈ 25×23 px); 209 ms per event |
+| 6 | OCR basic | **done, but unreadable on this footage** | ~45 min | b86c881 | chain works (tests + synthetic probe); 0/14 plates readable on the 720p clip (plate box ≈ 26×22 px, saved crop with margin ≈ 46×40 px); 209 ms per event |
 | 7 | demo UI | **done** | ~15 min | fa281b6 | event panel + FPS/latency/backend box; the original template had no markup for the camera/upload controls (restored); real server smoke-tested |
 | 8 | hand tools + guides | **done** | ~20 min (written while benchmarks ran) | e32f12c | tools/camera_config.py, tools/label_events.py, RECORDING_GUIDE, LABELING_GUIDE; logic tested without GUI; **the GUIs themselves were not opened** |
 | 9 | README + REPORT v1 | **done** | ~10 min | (this commit) | |

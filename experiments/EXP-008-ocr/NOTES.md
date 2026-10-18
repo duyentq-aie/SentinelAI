@@ -15,7 +15,7 @@ Kiểm thử: test đơn vị cho từng khối (`tests/test_ocr_pure.py`: chấ
 
 ## Kết quả trên video test (CPU, `record_tracks --config configs/pipeline/ocr.yaml`)
 - Sự kiện giống hệt baseline v3 (diff rỗng): bật OCR không đổi luật hay sự kiện.
-- **14 sự kiện, 14 có `plate_pred`; 0 có chuỗi đúng định dạng biển số.** Kích thước crop biển lưu: 38–51 × 36–49 px (trung bình 46×44, **gồm viền 10 px nền**; biển thật khoảng 25×23 px).
+- **14 sự kiện, 14 có `plate_pred`; 0 có chuỗi đúng định dạng biển số.** Kích thước crop biển lưu: 38–51 × 36–49 px (trung bình 46×44, **gồm viền 10 px nền**; hộp biển do detector trả về đo được ≈ 26×22 px (EXP-010 `mean_plate_box_wh`); 46×44 là kích thước crop lưu, không phải biển).
 - Đầu ra thô của recogniser là mảnh vụn hoặc rỗng (`''`, `'0'`, `'M'`, `'BD'`, một số chữ Hán). Khi crop là 64 px cao và có viền 10 px, model PP-OCRv5 gần như chỉ "bịa" ký tự Hán (lần chạy đầu: 0/14 hợp lệ); sau khi cắt sát biển và phóng to tới 128 px, một phần đầu ra chuyển sang chữ/số Latin (vẫn còn vài ký tự Hán) nhưng không thành biển số hợp lệ (0/14).
   (Đã thử vài biến thể tiền xử lý trên 14 crop đã lưu bằng script tạm, không commit; **không** chọn tham số để "tăng số chuỗi hợp lệ" vì không có ground truth, sẽ là tune trên nhiễu. Hai thay đổi được giữ — crop sát biển và phóng to lớn hơn — vì có lý do nguyên tắc: ít điểm ảnh nền hơn và chữ đủ lớn cho recogniser.)
 - **Độ trễ OCR / sự kiện** (3 lần đọc, CPU, PaddleOCR mobile): trung bình **209 ms**, trung vị 220 ms, min 68, max 377 ms. Chạy trong luồng suy luận (chặn pipeline ~0.2 s mỗi sự kiện). Nạp model: ~11 s ở lần đầu (tải) / vài giây khi đã cache.

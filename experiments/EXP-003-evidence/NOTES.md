@@ -41,7 +41,7 @@ nhìn thấy được sau khoảng **80 lần thử** (ngưỡng hiện tại `m
 (Con số ≈ 80 là suy ra từ trung bình; không có bản ghi từng track của lần chạy GPU vì thư mục bằng chứng tạm đã xóa.)
 
 ## Phát hiện phụ
-- Crop biển trung bình chỉ **≈ 54 × 43 px** ở 720p: nhỏ cho OCR (P3). Quay 1080p hoặc chọn frame tốt nhất trong nhiều lần thử (thay vì dừng ở biển đầu tiên) có thể cần thiết.
+- **[đính chính 2026-10-18]** "54 × 43" là kích thước **ảnh crop lưu `plate.jpg`** (hộp biển + viền `plate_margin` = 10 px mỗi phía, bị cắt ở mép khung), KHÔNG phải kích thước biển. Hộp biển do detector trả về đo được ≈ **26 × 22 px** (EXP-009/010, `mean_plate_box_wh`); crop lưu ≈ 46 × 40 px ở cấu hình hiện tại (số 54 × 43 thuộc chính sách/tracker cũ, chọn frame khác). Crop biển lưu trung bình ≈ 54 × 43 px (xem đính chính) ở 720p: nhỏ cho OCR (P3). Quay 1080p hoặc chọn frame tốt nhất trong nhiều lần thử (thay vì dừng ở biển đầu tiên) có thể cần thiết.
 - 24 sự kiện bằng chứng: 13 `no_helmet`, 2 `overload`, 9 `wrong_way`, **0 `red_light`** — video test này không có vượt đèn đỏ nào được luật cũ bắt (đèn chỉ hiện ra 14 lần, UNKNOWN 783/787 frame).
 - Khung `PLATE` trên video stream chỉ vẽ ở frame detector chạy (không còn mọi frame).
 

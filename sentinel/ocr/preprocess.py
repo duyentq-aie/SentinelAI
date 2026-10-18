@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 TWO_LINE_RATIO = 0.55       # height / width above this = two-line plate (motorcycle plates ~0.7-0.8, car plates ~0.2-0.3)
-MIN_HEIGHT = 128            # plate crops from a 720p frame are only ~25x23 px: upscale to this height (at most MAX_SCALE x).
+MIN_HEIGHT = 128            # the plate box from a 720p frame is only ~26x22 px: upscale to this height (at most MAX_SCALE x).
 MAX_SCALE = 6.0             # (with a 64 px target the recogniser answered with CJK glyphs; larger targets give Latin characters)
 
 

@@ -47,6 +47,6 @@ and stop at the first plate (`stop_when_found`). A plate found for a track is re
 used as the A/B reference in `experiments/EXP-003-evidence/`.
 
 ## Known limits
-- Plate OCR exists (`evidence.ocr`, off by default) but on the 720p test clip it read **0 of 14** plates: the plate itself is only ~25x23 px (the saved crops average ~46x44 px including a 10 px margin). See experiments/EXP-008-ocr.
+- Plate OCR exists (`evidence.ocr`, off by default) but on the 720p test clip it read **0 of 14** plates: the plate box returned by the detector is only ~26x22 px (`mean_plate_box_wh`, EXP-010); the saved `plate.jpg` is that box plus a 10 px margin on each side, ~46x40 px. See experiments/EXP-008-ocr.
 - The `PLATE` overlay is only drawn on frames where the detector ran (it no longer runs on every frame).
 - Track ids are device-specific; events from a GPU run and a CPU run of the same video are not byte-identical.

@@ -9,7 +9,7 @@ Written 2026-10-18 from the experiment folders in `experiments/` (every number b
 | What it does | detects no-helmet / >2 riders on motorcycles (and, via the legacy zone rule, red-light running), tracks vehicles, saves evidence per event, optionally reads plate text, serves a demo UI |
 | What was improved on the original prototype | perception fixed (models no longer see overlays), rules rewritten as voting over a window, evidence + plate search made event-driven and bounded, security hardened, software optimised (default config +26% headless / +24% stream in the EXP-006 A/B, on top of the plate-policy gain in EXP-003; an unadopted tracker change would give ~2.4×), ONNX backend, OCR, tooling for recording/labelling |
 | What is **not** known | the precision/recall of the events (no labelled video), generalisation of the detectors (original test split not verified independent), behaviour at night / rain / other cameras, red-light rule quality (no red-light event in the clip), Edge performance on real hardware |
-| Biggest open risks | (1) no ground truth, (2) plate crops are ~25×23 px at 720p so OCR cannot work on this footage, (3) tracker changes that give 2× speed need validation before adoption |
+| Biggest open risks | (1) no ground truth, (2) the detected plate box is only ~26×22 px at 720p so OCR cannot work on this footage, (3) tracker changes that give 2× speed need validation before adoption |
 
 ## 2. System
 ```
@@ -75,7 +75,7 @@ Per event: raw frame, vehicle crop, plate crop and a JSON line in the ground-tru
 
 ## 8. Plate OCR (EXP-008)
 Chain (`sentinel/ocr/`): best crop of the track (size × sharpness) → tight crop, ×(up to 6) upscale, CLAHE, two-line split → PaddleOCR PP-OCRv5-mobile *recognition* → Vietnamese plate normalisation (position-based repair of O/0, B/8, S/5 …; series letters limited to those that exist) → vote over the 3 best crops. Result goes to `plate_pred` in `events.jsonl`.
-- On the test clip it **read 0 of 14 plates** (no valid-format string); the saved crops are ~46×44 px including a 10 px margin, the plate itself ~25×23 px, blurred and compressed. Mean OCR latency 209 ms per event (3 reads, CPU).
+- On the test clip it **read 0 of 14 plates** (no valid-format string); **sizes, defined:** the plate *box* from the detector is ~26×22 px (mean of `plate.box`, EXP-010: 26.4×22.2); the saved `plate.jpg` is that box plus a 10 px margin on each side (`evidence.plate_margin`), ~46×40 px (mean of `plate.crop_size`: 46.4×40.6); the older "54×43" (EXP-003) and "46×44" (EXP-008) are also *crop* sizes from earlier tracker/frame choices, never the plate itself. The plate is blurred and compressed. Mean OCR latency 209 ms per event (3 reads, CPU).
 - A synthetic probe (`tools/ocr_resolution_probe.py`) shows the chain reads a clean 2-line plate down to ~38 px height, but at 25 px a little blur or JPEG already breaks it: the footage, not the code, is the limit. No accuracy is claimed (no plate ground truth).
 - Next: 1080p footage with plate ≥ 40–50 px high, labelled `plate_text`, then exact-match/CER per condition.
 

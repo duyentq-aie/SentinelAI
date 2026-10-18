@@ -2,7 +2,7 @@
 
   python tools/ocr_resolution_probe.py [--text "29B1" "12345"] [--out experiments/EXP-008-ocr/resolution_probe.json]
 
-Renders a two-line motorcycle plate with OpenCV, shrinks it to several heights (the real crops from the 720p test video are ~25x23 px),
+Renders a two-line motorcycle plate with OpenCV, shrinks it to several heights (the real plate boxes from the 720p test video are ~26x22 px),
 and degrades it (blur, JPEG) the way real footage is,
 runs the full PlateOCR chain (preprocess -> PaddleOCR text recognition -> normalise -> vote) and reports what comes out.
 Needs paddleocr; the first run downloads the recognition model.

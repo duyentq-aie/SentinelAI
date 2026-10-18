@@ -13,7 +13,7 @@ Không có claim độ chính xác nào: vẫn **chưa có ground truth cho sự
 | 3 | bảo mật demo | xong; 55 test; bind 127.0.0.1, không reload, whitelist nguồn, giới hạn upload | 0aa1d87 |
 | 4 | tối ưu phần mềm | xong; **tracker đo nhưng KHÔNG đổi mặc định** | 0552187, d809f5b |
 | 5 | ONNX | xong **phần CPU**; GPU/TensorRT không đo được (onnxruntime-gpu cần CUDA 12) | 715a721 |
-| 6 | OCR | code + test xong và nối vào `events.jsonl`; **trên clip 720p đọc được 0/14 biển** (biển ~25×23 px) | b86c881 |
+| 6 | OCR | code + test xong và nối vào `events.jsonl`; **trên clip 720p đọc được 0/14 biển** (hộp biển ~26×22 px, crop lưu có viền ~46×40 px) | b86c881 |
 | 7 | UI demo | xong; đã chạy server thật: stream, bảng sự kiện, thumbnail, HUD hoạt động | fa281b6 |
 | 8 | công cụ tay + 2 hướng dẫn | xong; **GUI chưa được mở thử** (chỉ test phần logic) | e32f12c |
 | 9 | README + REPORT v1 | xong | commit cuối |
