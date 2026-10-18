@@ -1,0 +1,98 @@
+{
+  "variant": "C",
+  "description": "60/20/20, larger val/test for lower metric variance",
+  "seed": 0,
+  "tool_version": 1,
+  "balanced_classes": [
+    "no-helmet"
+  ],
+  "target_shares": [
+    0.6,
+    0.2,
+    0.2
+  ],
+  "objective": 0.000632,
+  "classes": [
+    "helmet",
+    "motorcycle",
+    "no-helmet",
+    "plate"
+  ],
+  "splits": {
+    "train": {
+      "images": 875,
+      "videos": [
+        "frame_1",
+        "frame_11",
+        "frame_12",
+        "frame_15",
+        "frame_16",
+        "frame_8",
+        "frame_9"
+      ],
+      "instances": {
+        "helmet": 1543,
+        "motorcycle": 1568,
+        "no-helmet": 565,
+        "plate": 1642
+      }
+    },
+    "valid": {
+      "images": 294,
+      "videos": [
+        "frame_10",
+        "frame_13",
+        "frame_14",
+        "frame_4",
+        "frame_5",
+        "frame_6"
+      ],
+      "instances": {
+        "helmet": 570,
+        "motorcycle": 608,
+        "no-helmet": 187,
+        "plate": 669
+      }
+    },
+    "test": {
+      "images": 291,
+      "videos": [
+        "frame_2",
+        "frame_3",
+        "frame_7",
+        "other:testing_images"
+      ],
+      "instances": {
+        "helmet": 722,
+        "motorcycle": 715,
+        "no-helmet": 193,
+        "plate": 793
+      }
+    }
+  },
+  "image_shares": {
+    "train": 0.599,
+    "valid": 0.201,
+    "test": 0.199
+  },
+  "manifest_sha256": "18e80b7a8f56265a49f110ba880a243baaa66c79482c2232da691745ae368c30",
+  "groups": {
+    "frame_1": "train",
+    "frame_10": "valid",
+    "frame_11": "train",
+    "frame_12": "train",
+    "frame_13": "valid",
+    "frame_14": "valid",
+    "frame_15": "train",
+    "frame_16": "train",
+    "frame_2": "test",
+    "frame_3": "test",
+    "frame_4": "valid",
+    "frame_5": "valid",
+    "frame_6": "valid",
+    "frame_7": "test",
+    "frame_8": "train",
+    "frame_9": "train",
+    "other:testing_images": "test"
+  }
+}

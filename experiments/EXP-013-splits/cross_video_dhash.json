@@ -1,0 +1,38 @@
+{
+ "A": {
+  "valid": {
+   "median": 7.0,
+   "pct_le_4": 14.0,
+   "pct_le_8": 62.1
+  },
+  "test": {
+   "median": 6.0,
+   "pct_le_4": 26.8,
+   "pct_le_8": 77.7
+  }
+ },
+ "B": {
+  "valid": {
+   "median": 9.0,
+   "pct_le_4": 6.2,
+   "pct_le_8": 47.8
+  },
+  "test": {
+   "median": 6.0,
+   "pct_le_4": 24.5,
+   "pct_le_8": 80.5
+  }
+ },
+ "C": {
+  "valid": {
+   "median": 8.0,
+   "pct_le_4": 13.3,
+   "pct_le_8": 55.1
+  },
+  "test": {
+   "median": 9.0,
+   "pct_le_4": 9.6,
+   "pct_le_8": 47.1
+  }
+ }
+}

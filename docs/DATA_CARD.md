@@ -36,3 +36,15 @@ Rò rỉ: tên file không có số frame nên không kiểm tra kề-frame đư
 2. Chia lại theo video/nhóm cho helmet **hoặc** dùng video tự quay làm test (đề xuất: video tự quay, vì chỉ có 16 video nguồn).
 3. Với plate: kiểm tra nhóm cảnh (cần metadata hoặc phân cụm) trước khi tin vào số liệu test.
 4. Xác minh license thật trên Roboflow trước khi phân phối dữ liệu hay weights.
+
+## Phụ lục (2026-10-18): dataset này có phải bản đã huấn luyện `helmet_best.pt`?
+| | `data/raw/helmet/data.yaml` (Roboflow export 2026-02-24) | checkpoint `helmet_best.pt` (`model.names`, `train_args`) |
+|---|---|---|
+| tên lớp | 0 helmet, 1 motorcycle, 2 no-helmet, **3 plate** (nc 4) | 0 helmet, 1 motorcycle, 2 no-helmet (nc 3) |
+| instance val (log huấn luyện, EXP-000) | helmet 606, motorcycle 608, no-helmet 170 (=1384) | khớp đúng: 606 / 608 / 170 |
+| instance test (log) | helmet 359, motorcycle 348, no-helmet 111 (=818) | khớp đúng: 359 / 348 / 111 |
+| ảnh nền (không nhãn) train / val / test | 0 / 0 / 0 (có `plate`) → **2 / 1 / 2 ảnh chỉ có nhãn plate** | log: 2 / 1 / 2 ảnh nền |
+| ảnh train / val / test | 1014 / 278 / 168 | log: 1014 / 278 / 168 |
+| `train_args.data` | | `.../helmet plate detection 4.v1i.yolov8/data.yaml` (cùng tên dự án Roboflow) |
+
+**Kết luận (suy luận từ số liệu, chưa kiểm trực tiếp):** cùng ảnh và cùng nhãn cho 3 lớp đầu, nhưng bản dùng để huấn luyện **không có lớp `plate`** (các ảnh chỉ có plate trở thành ảnh nền: 2/1/2 khớp đúng). Nên *không phải cùng `data.yaml`*: tập Kaggle là bản dẫn xuất 3 lớp (bỏ lớp 3), tập local là bản export 4 lớp. Mọi phép đếm khớp tới từng instance nên khả năng cao cùng nguồn Roboflow `helmet-plate-detection-4`, version 1. Không kiểm chứng được `data.yaml` thật trên Kaggle (không còn trong checkpoint). Để huấn luyện lại 3 lớp khớp checkpoint: bỏ nhãn lớp 3 khi dựng dữ liệu (xem `tools/kaggle_train.py`).
