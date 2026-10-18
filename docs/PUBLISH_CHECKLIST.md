@@ -6,7 +6,7 @@ Quét bằng `python tools/preflight_publish.py --history` (chỉ đọc, không
 - `LICENSE`: văn bản AGPL-3.0 chuẩn (661 dòng, sao từ bản đi kèm gói Ultralytics 8.4.26; Ultralytics là AGPL-3.0 nên dự án chọn AGPL-3.0). **Chưa có dòng bản quyền/tác giả riêng** – chủ repo thêm nếu muốn.
 - Không secret/token/khóa riêng trong cây làm việc lẫn lịch sử (các giá trị giả trong `tests/test_preflight_publish.py` mang nhãn `preflight-ignore`).
 - Không file lớn (> 5 MB) hay weights/video **được theo dõi** bởi git (`*.pt`, `*.onnx`, `*.mp4`... trong `.gitignore`); `venv-edge/` đã được thêm vào `.gitignore`.
-- License dataset ghi là **"chưa xác minh"** (README, AUDIT): hai dataset Roboflow/Kaggle chưa kiểm được điều khoản.
+- License dataset ghi là **"chưa xác minh"** (README, DATA_CARD): cả hai export Roboflow *khai báo* CC BY 4.0 trong `data.yaml` nhưng chưa kiểm độc lập; hai dataset thuộc workspace Roboflow của người khác (`trans-workspace`, `school-fuhih`), nên cần ghi công tác giả nếu phân phối lại.
 
 ## Cần bạn duyệt / quyết định
 | # | vấn đề | vị trí | gợi ý (chưa làm) |

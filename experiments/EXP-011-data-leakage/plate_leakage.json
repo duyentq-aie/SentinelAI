@@ -1,0 +1,114 @@
+{
+  "data": "data\\raw\\plate",
+  "images": {
+    "train": 5845,
+    "valid": 1680,
+    "test": 832
+  },
+  "gap_frames_for_groups": 15,
+  "identical_files_across_splits": 0,
+  "files_with_a_byte_identical_twin_anywhere": 102,
+  "dhash_nearest_train_hamming": {
+    "valid": {
+      "n": 1680,
+      "median": 7.0,
+      "mean": 7.31,
+      "pct_with_train_neighbour_le_0": 4.0,
+      "pct_with_train_neighbour_le_4": 29.7,
+      "pct_with_train_neighbour_le_8": 64.6,
+      "pct_with_train_neighbour_le_12": 84.1
+    },
+    "test": {
+      "n": 832,
+      "median": 7.0,
+      "mean": 7.31,
+      "pct_with_train_neighbour_le_0": 3.4,
+      "pct_with_train_neighbour_le_4": 28.0,
+      "pct_with_train_neighbour_le_8": 64.2,
+      "pct_with_train_neighbour_le_12": 86.5
+    }
+  },
+  "closest_pairs_examples": [
+    {
+      "split": "valid",
+      "image": "CarLongPlateGen3746_jpg.rf.fb59b3197a8eb9c8c7195b79e91182b8.jpg",
+      "nearest_train": "CarLongPlate825_jpg.rf.47b224081553366bee4cba44f4033751.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "valid",
+      "image": "brightnessquandoi13_jpg.rf.cc731239814bbe274cab3dffbcdf001f.jpg",
+      "nearest_train": "quandoi13_jpg.rf.e6b3514f115aa8d15b3bba5dba39b952.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "valid",
+      "image": "CarLongPlate132_jpg.rf.092fc99ba2db393730245455c710f657.jpg",
+      "nearest_train": "CarLongPlateGen1217_jpg.rf.d0ed2339b25bdde67542fff2e395e724.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "valid",
+      "image": "xemay2283_jpg.rf.8647d4ca2263469353e4bbb85fe38efd.jpg",
+      "nearest_train": "xemay2324_jpg.rf.6948f96ccf2234a0a23891fd91b1e8ce.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "valid",
+      "image": "xemay2193_jpg.rf.55ac502295af2b4211681b3b5124fb3d.jpg",
+      "nearest_train": "xemay2190_jpg.rf.cf0d84237f2e7093db7391b1068921d0.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "test",
+      "image": "CarLongPlateGen3691_jpg.rf.5d00ad6ec248282b6d6e0704f578c835.jpg",
+      "nearest_train": "CarLongPlate763_jpg.rf.91de2a088ac1f8dc710f11168a004098.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "test",
+      "image": "CarLongPlate200_jpg.rf.871791d84c75c1e9a275d7c2ca0b093e.jpg",
+      "nearest_train": "CarLongPlateGen1279_jpg.rf.917a70a35a19422dc8058d4a41d4859f.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "test",
+      "image": "CarLongPlateGen1844_jpg.rf.560ad8da7317214fa356686f7bb10f52.jpg",
+      "nearest_train": "CarLongPlate828_jpg.rf.970978d69f6d5ae1c79f74ca03fb7bed.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "test",
+      "image": "CarLongPlateGen3080_jpg.rf.cacaa7899520f9ebdbc4d4f032a750cb.jpg",
+      "nearest_train": "CarLongPlate85_jpg.rf.a362486948ea954e4facd116f47cb194.jpg",
+      "hamming": 0
+    },
+    {
+      "split": "test",
+      "image": "CarLongPlate278_jpg.rf.72d6312ec9fd8b53270c9c3c9b9fa83b.jpg",
+      "nearest_train": "CarLongPlateGen1349_jpg.rf.515909183143e56442c4780ec8ede9cd.jpg",
+      "hamming": 0
+    }
+  ],
+  "temporal": {
+    "valid": {
+      "n_parsed": 0,
+      "note": "names do not follow <video>_<frame>: temporal check not possible"
+    },
+    "test": {
+      "n_parsed": 0,
+      "note": "names do not follow <video>_<frame>: temporal check not possible"
+    }
+  },
+  "groups": {
+    "videos": 0,
+    "groups": 0,
+    "groups_spanning_several_splits": 0,
+    "images_in_leaky_groups": {},
+    "total_images_with_video_id": 0
+  },
+  "same_source_name_in_several_splits": 0,
+  "image_sizes": {
+    "640x640": 8357
+  }
+}
