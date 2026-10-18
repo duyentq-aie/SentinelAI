@@ -63,6 +63,7 @@ Single P4 steps (ROI blending, JPEG 80 for the stream) are within the noise of E
 No absolute "15 FPS" claim is made: older figures (12-15 FPS in EXP-006, "7 vs 12 FPS") mixed different workloads and background load and are withdrawn (see EXP-009).
 Latency breakdown (EXP-006 `p4b`, not comparable across sessions): COCO 31.5 ms (tracker ~15), helmet 29.1 ms (tracker ~15), plate detector 0.6, drawing 0.4, read 1.8, JPEG 12.1. The pipeline is CPU-bound (GPU util 11-32%).
 Edge proxy (CPU, EXP-007): PyTorch 4.65 -> ONNX Runtime 4.97 FPS headless; the tracker, not the model, dominates.
+ONNX Runtime on GPU (EXP-012, separate `venv-edge`, same-environment A/B): ratio to v0 PyTorch FP32 3.07x, ONNX FP32 3.07x, ONNX FP16 3.35x (3.27-3.79); FP16 is ~9% above PyTorch FP32, close to the noise. Event counts are equal (14/14) in all; per-event diff not yet done. TensorRT/INT8 not tried.
 **Hardware:** all numbers come from one laptop (RTX 3050 Laptop GPU, 12 logical CPU threads, Windows 11). There is no real Edge device; the CPU/ONNX runs are a *proxy*, not a measurement of any Jetson or similar.
 
 ## 6. Rules and events
@@ -84,7 +85,7 @@ Chain (`sentinel/ocr/`): best crop of the track (size × sharpness) → tight cr
 2. One 26 s clip, daytime, one camera; dev/test not separated; tracker/rule parameters were never tuned on separate data.
 3. Red-light: legacy rule only; the clip has no red-light event and the light is detected in 14 detections. The stop-line rule needs the camera geometry (tool exists) and video.
 4. Detector metrics saturated; leakage unchecked; training data and notebooks partly missing (plate).
-5. Edge: CPU proxy only; GPU ONNX/TensorRT/INT8 not measured; FP16 untested.
+5. Edge: no real Edge device; proxies only (CPU ONNX, RTX 3050 Laptop ONNX-GPU FP32/FP16 in EXP-012); TensorRT/INT8 not measured; FP16 event equivalence only checked by counts.
 6. Licences: Ultralytics AGPL-3.0; dataset licences unknown. Plates and faces are personal data.
 
 ## 10. Reproduce

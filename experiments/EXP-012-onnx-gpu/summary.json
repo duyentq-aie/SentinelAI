@@ -1,0 +1,306 @@
+{
+  "v0": {
+    "headless_fps": 7.79,
+    "headless_range": [
+      7.64,
+      7.86
+    ],
+    "stream_fps": 6.95,
+    "stream_range": [
+      6.82,
+      7.0
+    ],
+    "ratio_vs_v0": null,
+    "plate_calls_per_frame": 1.729,
+    "tracks_with_event/with_plate": [
+      20,
+      20
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 21.4,
+      "gpu_temp_c_max": 69.0,
+      "gpu_util_pct": 34.0,
+      "cpu_perf_pct": 137.0,
+      "cpu_other_pct": 23.4,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Ld9BoxHeadless.exe": 19.9,
+        "System": 4.0,
+        "MsMpEng.exe": 2.6,
+        "sqlservr.exe": 6.8,
+        "RuntimeBroker.exe": 6.6,
+        "dnplayer.exe": 2.3,
+        "svchost.exe": 5.6
+      }
+    }
+  },
+  "pt_gpu": {
+    "headless_fps": 22.29,
+    "headless_range": [
+      21.84,
+      24.0
+    ],
+    "stream_fps": 16.94,
+    "stream_range": [
+      16.66,
+      18.09
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 2.861,
+        "min": 2.859,
+        "max": 3.053,
+        "per_round": [
+          2.861,
+          2.859,
+          3.053
+        ]
+      },
+      "fps_stream": {
+        "median": 2.443,
+        "min": 2.437,
+        "max": 2.584,
+        "per_round": [
+          2.437,
+          2.443,
+          2.584
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1758.0,
+      "gpu_power_w": 33.2,
+      "gpu_temp_c_max": 71.0,
+      "gpu_util_pct": 38.0,
+      "cpu_perf_pct": 138.0,
+      "cpu_other_pct": 24.1,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Ld9BoxHeadless.exe": 18.8,
+        "System": 3.0,
+        "sqlservr.exe": 2.4,
+        "dnplayer.exe": 2.2,
+        "Code.exe": 1.8,
+        "dwm.exe": 2.1,
+        "MsMpEng.exe": 1.3,
+        "promecefpluginhost.exe": 0.5
+      }
+    }
+  },
+  "pt_gpu_edge": {
+    "headless_fps": 22.31,
+    "headless_range": [
+      21.54,
+      25.24
+    ],
+    "stream_fps": 20.93,
+    "stream_range": [
+      20.26,
+      23.67
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 2.92,
+        "min": 2.765,
+        "max": 3.211,
+        "per_round": [
+          2.765,
+          2.92,
+          3.211
+        ]
+      },
+      "fps_stream": {
+        "median": 3.069,
+        "min": 2.915,
+        "max": 3.381,
+        "per_round": [
+          2.915,
+          3.069,
+          3.381
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1942.0,
+      "gpu_power_w": 42.2,
+      "gpu_temp_c_max": 73.0,
+      "gpu_util_pct": 40.0,
+      "cpu_perf_pct": 140.0,
+      "cpu_other_pct": 22.0,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Ld9BoxHeadless.exe": 4.6,
+        "System": 2.2,
+        "sqlservr.exe": 2.8,
+        "dnplayer.exe": 1.1,
+        "dwm.exe": 1.7,
+        "svchost.exe": 1.9,
+        "MsMpEng.exe": 1.0
+      }
+    }
+  },
+  "onnx_gpu_fp32": {
+    "headless_fps": 22.77,
+    "headless_range": [
+      22.36,
+      27.35
+    ],
+    "stream_fps": 21.3,
+    "stream_range": [
+      20.93,
+      25.45
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 2.927,
+        "min": 2.923,
+        "max": 3.48,
+        "per_round": [
+          2.923,
+          2.927,
+          3.48
+        ]
+      },
+      "fps_stream": {
+        "median": 3.069,
+        "min": 3.065,
+        "max": 3.636,
+        "per_round": [
+          3.065,
+          3.069,
+          3.636
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1927.0,
+      "gpu_power_w": 44.5,
+      "gpu_temp_c_max": 74.0,
+      "gpu_util_pct": 46.0,
+      "cpu_perf_pct": 139.0,
+      "cpu_other_pct": 24.2,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Ld9BoxHeadless.exe": 4.0,
+        "System": 2.8,
+        "sqlservr.exe": 5.6,
+        "dnplayer.exe": 2.1,
+        "svchost.exe": 1.9,
+        "MsMpEng.exe": 1.7,
+        "Code.exe": 1.0
+      }
+    }
+  },
+  "onnx_gpu_fp16": {
+    "headless_fps": 24.5,
+    "headless_range": [
+      24.35,
+      28.53
+    ],
+    "stream_fps": 22.81,
+    "stream_range": [
+      22.7,
+      26.51
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 3.207,
+        "min": 3.126,
+        "max": 3.63,
+        "per_round": [
+          3.126,
+          3.207,
+          3.63
+        ]
+      },
+      "fps_stream": {
+        "median": 3.345,
+        "min": 3.266,
+        "max": 3.787,
+        "per_round": [
+          3.266,
+          3.345,
+          3.787
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.018,
+    "tracks_with_event/with_plate": [
+      14,
+      14
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1751.0,
+      "gpu_power_w": 26.4,
+      "gpu_temp_c_max": 72.0,
+      "gpu_util_pct": 37.0,
+      "cpu_perf_pct": 141.0,
+      "cpu_other_pct": 22.7,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "Ld9BoxHeadless.exe": 3.4,
+        "System": 3.1,
+        "sqlservr.exe": 5.8,
+        "dnplayer.exe": 1.2,
+        "wps.exe": 0.5,
+        "MsMpEng.exe": 1.1
+      }
+    }
+  }
+}
