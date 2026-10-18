@@ -1,0 +1,21 @@
+# Dependencies of the CPU container (see Dockerfile). torch/torchvision are installed first from the CPU index; ultralytics is installed with --no-deps
+# so that it does not pull the GUI build of OpenCV: its other dependencies are listed here, with the headless OpenCV.
+numpy==2.4.3
+opencv-python-headless==4.10.0.84
+PyYAML==6.0.2
+scipy==1.17.1
+pillow
+matplotlib
+requests
+psutil
+polars
+ultralytics-thop==2.0.18
+lap==0.5.13
+
+fastapi==0.135.2
+uvicorn==0.42.0
+Jinja2==3.1.6
+python-multipart==0.0.22
+
+onnx==1.23.2
+onnxruntime==1.31.0

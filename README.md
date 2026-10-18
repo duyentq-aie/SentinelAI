@@ -43,6 +43,14 @@ $env:SENTINEL_CONFIG = "configs\pipeline\ocr.yaml"; python app.py     # with pla
 The page shows the live annotated stream with an **FPS / latency / backend** box, the **event panel** (type, time, raw frame, vehicle, plate crop, OCR text) and plate crops.
 Video sources are restricted: files inside `static/uploads` or the repo root, `rtsp://` and camera indexes only if enabled in `configs/pipeline/default.yaml` (`web:`). Uploads are limited in type and size.
 
+### Docker (CPU, ONNX Runtime) - written, **not yet built or run**
+`Dockerfile`, `requirements-docker.txt`, `.dockerignore`, `configs/pipeline/docker_cpu.yaml`. Weights, ONNX files and videos are mounted, never baked in. On the dev machine the Docker engine was not running and C: had < 6 GB free, so the image was not built and the demo was not run in a container (nothing was installed to work around it); `tests/test_docker_files.py` only checks the files statically.
+```powershell
+python tools/export_onnx.py --models coco helmet --imgsz 384 640; python tools/export_onnx.py --models plate --imgsz 640 --dynamic
+docker build -t sentinel-cpu .
+docker run --rm -p 127.0.0.1:8000:8000 -v ${PWD}\models:/app/models:ro -v ${PWD}	est_video.mp4:/app/test_video.mp4:ro sentinel-cpu
+```
+
 ## Tests and experiments
 ```powershell
 python -m pytest                           # fast suite (~20 s, no GPU, no models needed)
@@ -60,4 +68,4 @@ Configs are interleaved by the benchmark tool (round 1: every config, round 2 ..
 
 ## Roadmap (not done)
 Record + label dev/test videos (`docs/RECORDING_GUIDE.md`, `docs/LABELING_GUIDE.md`) → event-level P/R/F1 (`tools/eval_events.py` is not written yet) → stop-line red-light rule (`tools/camera_config.py` already draws the geometry) →
-independent test split for the detectors (leakage check) → GPU/TensorRT/INT8 on real Edge hardware → Dockerfile.
+independent test split for the detectors (leakage check) → GPU/TensorRT/INT8 on real Edge hardware.

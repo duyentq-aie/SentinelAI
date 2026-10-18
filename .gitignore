@@ -25,3 +25,4 @@ kaggle.json
 .env
 
 .pytest_cache/
+venv-edge/
