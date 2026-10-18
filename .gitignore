@@ -26,3 +26,4 @@ kaggle.json
 
 .pytest_cache/
 venv-edge/
+kaggle_upload/
