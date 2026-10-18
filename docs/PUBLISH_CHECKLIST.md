@@ -21,3 +21,8 @@ Quét bằng `python tools/preflight_publish.py --history` (chỉ đọc, không
 | 8 | `.gitattributes`/kết thúc dòng: cảnh báo LF→CRLF khi commit trên Windows | toàn repo | tùy chọn: thêm `.gitattributes` `* text=auto` |
 
 Không có lệnh push nào đã được chạy; remote chưa được cấu hình hay dùng.
+
+## Cập nhật 2026-10-18 (sau khi bạn duyệt)
+- **Đường dẫn home:** đã thay bằng `<HOME>` trong mọi `env.json` đang được theo dõi; `benchmark_pipeline.py` tự thay từ nay. Còn lại 2 chỗ trong `tests/test_preflight_publish.py` là dữ liệu thử cố ý.
+- **Email tác giả:** `tools/rewrite_author.py --email <USER>@users.noreply.github.com [--name ...]` (dry-run mặc định; `--yes` mới viết lại; tự tạo bundle sao lưu lịch sử cũ ngoài repo; từ chối chuỗi giữ chỗ `<USER>`). **CHƯA chạy** vì cần tên GitHub thật của bạn. Nó đổi toàn bộ hash commit: chạy một lần, trước khi push. Cần xóa luôn commit cũ trong reflog/bundle nếu muốn email cũ biến mất hẳn khỏi máy.
+- Vẫn chưa push.

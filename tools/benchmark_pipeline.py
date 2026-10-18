@@ -304,7 +304,10 @@ def main():
         d.mkdir(parents=True, exist_ok=True)
         (d / "metrics.json").write_text(json.dumps({"summary": summaries[s], "runs": runs[s]}, indent=2), encoding="utf-8")
     ratios = ratios_vs_v0(runs, list(runs)) if "v0" in runs else {}
-    (out / "env.json").write_text(json.dumps({**env_info(), "system_static": static}, indent=2), encoding="utf-8")
+    env_text = json.dumps({**env_info(), "system_static": static}, indent=2)
+    for home in {str(Path.home()), str(Path.home()).replace("\\", "\\\\")}:          # published files must not carry the user's home path
+        env_text = env_text.replace(home, "<HOME>")
+    (out / "env.json").write_text(env_text, encoding="utf-8")
     table = {s: {"headless_fps": summaries[s]["fps_headless"]["median"], "headless_range": [summaries[s]["fps_headless"]["min"], summaries[s]["fps_headless"]["max"]],
                  "stream_fps": summaries[s]["fps_stream"]["median"], "stream_range": [summaries[s]["fps_stream"]["min"], summaries[s]["fps_stream"]["max"]],
                  "ratio_vs_v0": ratios.get(s), "plate_calls_per_frame": summaries[s]["plate_calls_per_frame_median"],
