@@ -63,7 +63,7 @@ Configs are interleaved by the benchmark tool (round 1: every config, round 2 ..
 ## Data, models, licences
 - Models: YOLO11s (COCO, vehicles + traffic lights), YOLO11s fine-tuned for helmet / motorcycle / no-helmet, YOLO11n fine-tuned for licence plates (Kaggle runs; see `experiments/EXP-000-kaggle-original`).
   The notebook for the plate model does **not** match the deployed `plate_best.pt` (documented there).
-- **Ultralytics is AGPL-3.0**; this project is a portfolio piece and accepts that (derived code and weights follow AGPL-3.0). Dataset licences of the two Roboflow/Kaggle datasets are **unknown** – check before any redistribution.
+- **Ultralytics is AGPL-3.0**; this project is a portfolio piece and accepts that (derived code and weights follow AGPL-3.0). Dataset licences of the two Roboflow/Kaggle datasets are **not verified (chưa xác minh)** – check before any redistribution of data or weights. See `LICENSE` (AGPL-3.0) and `docs/PUBLISH_CHECKLIST.md`.
 - Plate text, plate crops and vehicle video are personal data: raw videos and evidence stay out of git (`*.mp4`, `*.pt`, `data/`, `static/violations/` are ignored); blur plates and faces before publishing any image or clip (`docs/RECORDING_GUIDE.md`).
 
 ## Roadmap (not done)
