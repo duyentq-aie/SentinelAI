@@ -1,0 +1,15 @@
+{
+  "id": "<KAGGLE_USER>/sentinel-helmet-train-a",
+  "title": "sentinel helmet train a",
+  "code_file": "train_helmet.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "<KAGGLE_USER>/sentinel-helmet-split-a"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}
