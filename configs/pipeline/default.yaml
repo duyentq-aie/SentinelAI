@@ -4,8 +4,10 @@ device: null            # null = Ultralytics default (GPU if available); "cpu" t
 frame_size: [1280, 720] # every frame is resized to this before inference
 
 models:
-  coco:   {weights: yolo11s.pt,     conf: 0.35, tracker: configs/trackers/botsort.yaml}
-  helmet: {weights: helmet_best.pt, conf: 0.55, tracker: configs/trackers/botsort.yaml}
+  # TEMPORARY (decision 2026-10-18): BoT-SORT with global motion compensation OFF (fixed camera): ~2x faster (EXP-006). NOT validated:
+  # re-check event P/R and ID stability on dev videos. The Ultralytics default is configs/pipeline/exp/tracker_botsort_gmc.yaml.
+  coco:   {weights: yolo11s.pt,     conf: 0.35, tracker: configs/trackers/botsort_gmc_none.yaml}
+  helmet: {weights: helmet_best.pt, conf: 0.55, tracker: configs/trackers/botsort_gmc_none.yaml}
   plate:  {weights: plate_best.pt,  conf: 0.35}
   # P4: to benchmark another tracker only change `tracker` (e.g. configs/trackers/bytetrack.yaml) or
   # gmc_method inside configs/trackers/botsort.yaml.
@@ -35,7 +37,7 @@ evidence:
   plate_margin: 10            # px around the plate box in the saved crop
   max_records: 12             # gallery length kept in memory
   max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
-  jpeg_quality: 90
+  jpeg_quality: 95            # quality of the SAVED evidence images (>= 95 enforced; the stream quality is web.jpeg_quality)
   close_after: 30             # frames without the violation before an event is closed
   one_event_per_track: true   # at most one event per (track, type) per run: a flickering verdict cannot create duplicates
   plate:                      # plate detector runs only for tracks that are currently violating

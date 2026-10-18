@@ -1,4 +1,4 @@
-# EXPERIMENT copy of botsort.yaml with gmc_method: none (see EXP-006).
+# DEFAULT TRACKER since 2026-10-18 - TEMPORARY, re-check on dev videos (EXP-006): copy of botsort.yaml with gmc_method: none (fixed camera).
 # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
 
 # BoT-SORT tracker defaults for mode="track"
@@ -13,7 +13,7 @@ match_thresh: 0.8 # (float) Association similarity threshold (IoU/cost); tune wi
 fuse_score: True # (bool) Fuse detection score with motion/IoU for matching; stabilizes weak detections
 
 # BoT-SORT specifics
-gmc_method: none # EXPERIMENT (EXP-006): camera is fixed, so skip global motion compensation. Not the default: unvalidated for ID stability.
+gmc_method: none # camera is fixed, so skip global motion compensation (saves ~15 ms per model per frame). UNVALIDATED for ID stability / event P-R.
 
 # ReID model related thresh
 proximity_thresh: 0.5 # (float) Min IoU to consider tracks proximate for ReID; higher is stricter

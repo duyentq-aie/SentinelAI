@@ -85,7 +85,7 @@ class EvidenceCfg:
     plate_margin: int = 10
     max_records: int = 12           # gallery length kept in memory
     max_dir_mb: int = 200           # oldest evidence is deleted when the folder exceeds this; 0 = unlimited
-    jpeg_quality: int = 90
+    jpeg_quality: int = 95            # saved evidence images; validate() enforces >= 95 (the MJPEG stream uses web.jpeg_quality)
     close_after: int = 30           # frames without the violation before an event is closed
     one_event_per_track: bool = True  # at most one event per (track, type) per run, even if the verdict flickers
     plate: PlateCfg = field(default_factory=PlateCfg)
@@ -148,8 +148,8 @@ class PipelineConfig:
         ev = self.evidence
         if ev.max_records < 1 or ev.plate_margin < 0:
             raise ValueError("evidence.max_records must be >= 1 and plate_margin >= 0")
-        if ev.max_dir_mb < 0 or not 1 <= ev.jpeg_quality <= 100 or ev.close_after < 1:
-            raise ValueError("evidence: max_dir_mb >= 0, 1 <= jpeg_quality <= 100, close_after >= 1")
+        if ev.max_dir_mb < 0 or not 95 <= ev.jpeg_quality <= 100 or ev.close_after < 1:
+            raise ValueError("evidence: max_dir_mb >= 0, 95 <= jpeg_quality <= 100 (evidence is not stored at stream quality), close_after >= 1")
         o = ev.ocr
         if o.margin < 0 or o.candidates < 1 or o.reads < 1 or o.min_gap < 1 or o.reads > o.candidates:
             raise ValueError("evidence.ocr: candidates >= 1, min_gap >= 1 and 1 <= reads <= candidates")

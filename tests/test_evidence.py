@@ -201,3 +201,40 @@ def test_reset_allows_the_same_track_id_again(tmp_path):
     rec.reset()
     rec.update(0, raw_frame(), [veh()], "UNKNOWN")                # ids restarted: a new vehicle
     assert len(last_by_id(tmp_path)) == 2
+
+
+def psnr(a, b):
+    mse = float(np.mean((a.astype(np.float64) - b.astype(np.float64)) ** 2))
+    return 99.0 if mse == 0 else 10 * np.log10(255.0 ** 2 / mse)
+
+
+def natural_like(h=720, w=1280):
+    """Smooth gradients, a few edges and mild sensor noise: closer to video than white noise (which no JPEG preserves)."""
+    rng = np.random.default_rng(3)
+    y, x = np.mgrid[0:h, 0:w]
+    img = np.stack([(x / w * 255), (y / h * 255), ((x + y) / (w + h) * 255)], axis=-1)
+    img = img + rng.normal(0, 2.0, img.shape)
+    img = np.clip(img, 0, 255).astype(np.uint8)
+    cv2.rectangle(img, (300, 200), (700, 500), (20, 30, 200), -1)
+    cv2.putText(img, "29B1 12345", (320, 350), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
+    return img
+
+
+def roundtrip(img, q):
+    return cv2.imdecode(cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, q])[1], cv2.IMREAD_COLOR)
+
+
+def test_saved_evidence_images_keep_high_quality(tmp_path):
+    """frame.jpg / vehicle.jpg are written at evidence.jpeg_quality (>= 95), not at the stream quality (80): compared with independent round trips."""
+    raw = natural_like()
+    rec, _ = make(tmp_path)
+    rec.update(0, raw, [veh(box=(300, 200, 700, 500))], "UNKNOWN")
+    rec.flush()
+    saved = cv2.imread(str(next(tmp_path.glob("*/frame.jpg"))))
+    vehicle = cv2.imread(str(next(tmp_path.glob("*/vehicle.jpg"))))
+    crop = raw[200:500, 300:700]
+    for img, ref in ((saved, raw), (vehicle, crop)):
+        assert psnr(ref, img) >= psnr(ref, roundtrip(ref, 95)) - 0.05           # as good as a quality-95 encode
+        assert psnr(ref, img) > psnr(ref, roundtrip(ref, 80)) + 0.5             # and better than the stream quality
+    size80 = len(cv2.imencode('.jpg', raw, [cv2.IMWRITE_JPEG_QUALITY, 80])[1])
+    assert next(tmp_path.glob('*/frame.jpg')).stat().st_size > 1.3 * size80    # a quality-95 file is much bigger than a quality-80 one

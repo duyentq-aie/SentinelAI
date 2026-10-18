@@ -81,3 +81,21 @@ def test_web_defaults_are_restrictive():
 def test_entrypoint_does_not_expose_the_server_or_autoreload():
     src = (REPO / "app.py").read_text(encoding="utf-8")
     assert "0.0.0.0" not in src and "reload=True" not in src
+
+
+def test_default_tracker_is_botsort_without_gmc_and_marked_temporary():
+    c = load_pipeline_config()
+    assert c.models.coco.tracker == c.models.helmet.tracker == "configs/trackers/botsort_gmc_none.yaml"
+    assert yaml.safe_load((REPO / c.models.coco.tracker).read_text(encoding="utf-8"))["gmc_method"] == "none"
+    assert "TEMPORARY" in (REPO / "configs/pipeline/default.yaml").read_text(encoding="utf-8")
+    ref = load_pipeline_config(REPO / "configs/pipeline/exp/tracker_botsort_gmc.yaml")
+    assert yaml.safe_load((REPO / ref.models.coco.tracker).read_text(encoding="utf-8"))["gmc_method"] == "sparseOptFlow"
+
+
+def test_saved_evidence_is_never_stored_at_stream_quality(tmp_path):
+    c = load_pipeline_config()
+    assert c.evidence.jpeg_quality >= 95 and c.web.jpeg_quality == 80 and c.evidence.jpeg_quality > c.web.jpeg_quality
+    f = tmp_path / "low.yaml"
+    f.write_text("evidence:\n  jpeg_quality: 90\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="95"):
+        load_pipeline_config(f)

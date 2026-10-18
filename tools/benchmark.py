@@ -98,7 +98,8 @@ def run_once(n_warmup, out_json, detail=False):
     import cv2
     import torch
 
-    work = Path(tempfile.mkdtemp(prefix="sentinel_bench_"))
+    work = REPO / "outputs" / "work" / f"bench_{os.getpid()}"            # scratch under outputs/ (git-ignored); nothing is deleted
+    work.mkdir(parents=True, exist_ok=True)
     for f in WEIGHTS + [VIDEO]:
         shutil.copy2(REPO / f, work / f)           # app.py writes to ./static under cwd -> keep repo clean
     shutil.copytree(REPO / "templates", work / "templates")
@@ -304,7 +305,6 @@ def run_once(n_warmup, out_json, detail=False):
         res["detail"] = {k: summarize(v) for k, v in series.items()}
         res["plate_nonzero_frames_pct"] = round(100 * sum(1 for x in series["plate_wall"] if x > 0) / n, 1)
     Path(out_json).write_text(json.dumps(res, indent=2), encoding="utf-8")
-    shutil.rmtree(work, ignore_errors=True)
 
 
 # ---------------------------------------------------------- model complexity
@@ -372,7 +372,6 @@ def main():
           "events": runs[med_idx]["events"], "events_per_run_counts": [len(r["events"]) for r in runs]}
     (out / "events.json").write_text(json.dumps(ev, indent=2), encoding="utf-8")
     for r in range(a.repeats):
-        (out / f"_run{r + 1}.json").unlink(missing_ok=True)   # raw per-run files kept until aggregation succeeded
     print(json.dumps(summary, indent=2))
 
 

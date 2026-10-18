@@ -21,18 +21,27 @@ from sentinel.rules.windowed import make_rules
 REPO = Path(__file__).resolve().parent.parent
 FIX = REPO / "tests" / "fixtures"
 TRACKS = FIX / "tracks_test_video.jsonl"
+TRACKS_SPARSE = FIX / "tracks_test_video_gmc_sparse.jsonl"      # clean perception, BoT-SORT with GMC (the default until 2026-10-18)
 TRACKS_V0 = FIX / "tracks_test_video_v0_overlay.jsonl"
 BASELINE_V0 = FIX / "baseline_events_v0_cpu.json"
 BASELINE = FIX / "baseline_events_v1_clean.json"
 BASELINE_V2 = FIX / "baseline_events_v2.json"
 BASELINE_V3 = FIX / "baseline_events_v3_windowed.json"
+BASELINE_V4 = FIX / "baseline_events_v4_gmc_none.json"      # current default config: windowed rules + BoT-SORT without GMC (temporary)
 
 pytestmark = pytest.mark.skipif(not TRACKS.exists(), reason="tracks fixture not recorded (tools/record_tracks.py)")
 
 
 @pytest.fixture(scope="module")
 def tracks():
+    """The fixture of the CURRENT default config (BoT-SORT, GMC off)."""
     return load_tracks(TRACKS)
+
+
+@pytest.fixture(scope="module")
+def sparse():
+    """Baselines v1-v3 were recorded with GMC on: their tests replay this fixture."""
+    return load_tracks(TRACKS_SPARSE)
 
 
 def test_fixture_metadata_is_complete(tracks):
@@ -43,7 +52,7 @@ def test_fixture_metadata_is_complete(tracks):
     assert len(perceptions) == 787
 
 
-@pytest.fixture(scope="module", params=[TRACKS, TRACKS_V0], ids=["clean", "v0_overlay"])
+@pytest.fixture(scope="module", params=[TRACKS, TRACKS_SPARSE, TRACKS_V0], ids=["default", "gmc_sparse", "v0_overlay"])
 def any_tracks(request):
     return load_tracks(request.param)
 
@@ -75,8 +84,8 @@ def _labels(path):
     return [e for e in json.loads(path.read_text(encoding="utf-8"))["events"] if e["kind"] == "label_first_seen"]
 
 
-def test_legacy_rules_reproduce_the_v1_clean_label_events_exactly(tracks):
-    d = diff_events(_labels(BASELINE), _replay(tracks[1]), tol=0)
+def test_legacy_rules_reproduce_the_v1_clean_label_events_exactly(sparse):
+    d = diff_events(_labels(BASELINE), _replay(sparse[1]), tol=0)
     assert d == {"missing": [], "added": [], "changed": []}, d
 
 
@@ -86,20 +95,38 @@ def test_legacy_rules_reproduce_the_v0_label_events_exactly_on_the_old_fixture()
     assert d == {"missing": [], "added": [], "changed": []}, d
 
 
-def test_legacy_rules_with_wrong_way_off_reproduce_the_v2_label_events_exactly(tracks):
+def test_legacy_rules_with_wrong_way_off_reproduce_the_v2_label_events_exactly(sparse):
     cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     cfg.rules.engine, cfg.rules.wrong_way.enabled = "legacy", False
-    got = run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels)
+    got = run_rules(sparse[1], make_rules(cfg.rules, cam), violation_labels)
     d = diff_events(_labels(BASELINE_V2), got, tol=0)
     assert d == {"missing": [], "added": [], "changed": []}, d
 
 
-def test_windowed_rules_reproduce_the_v3_label_events_exactly(tracks):
+def test_windowed_rules_reproduce_the_v3_label_events_exactly(sparse):
     """Regression snapshot of the windowed rules (not ground truth)."""
     cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     assert cfg.rules.engine == "windowed"
-    d = diff_events(_labels(BASELINE_V3), run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
+    d = diff_events(_labels(BASELINE_V3), run_rules(sparse[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
     assert d == {"missing": [], "added": [], "changed": []}, d
+
+
+def test_default_config_replay_reproduces_the_v4_label_events_exactly(tracks):
+    """The default config (windowed rules, BoT-SORT without GMC): regression snapshot, not ground truth."""
+    cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
+    assert cfg.rules.engine == "windowed" and "gmc_none" in cfg.models.coco.tracker
+    d = diff_events(_labels(BASELINE_V4), run_rules(tracks[1], make_rules(cfg.rules, cam), violation_labels), tol=0)
+    assert d == {"missing": [], "added": [], "changed": []}, d
+
+
+def test_default_fixture_was_recorded_with_the_current_default_tracker(tracks):
+    """If configs/trackers/botsort_gmc_none.yaml (or the default tracker) changes, the fixture must be re-recorded."""
+    meta, _ = tracks
+    cfg = load_pipeline_config()
+    for name in ("coco", "helmet"):
+        t = meta["trackers"][name]
+        assert t["file"] == getattr(cfg.models, name).tracker
+        assert hashlib.sha256(cfg.path(t["file"]).read_bytes()).hexdigest() == t["sha256"], f"{name} tracker yaml changed since the fixture was recorded"
 
 
 def test_windowed_vs_v2_changes_that_are_explained_in_exp005(tracks):
@@ -127,7 +154,7 @@ def test_label_events_are_the_same_in_v0_and_v1_clean():
 
 
 def test_baseline_snapshot_shapes():
-    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15))):
+    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15)), (BASELINE_V4, (14, 15))):
         d = json.loads(path.read_text(encoding="utf-8"))
         kinds = [e["kind"] for e in d["events"]]
         assert (kinds.count("plate_capture"), kinds.count("label_first_seen")) == expected and d["video_sha256"], path.name

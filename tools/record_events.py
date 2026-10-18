@@ -21,7 +21,8 @@ sys.path.insert(0, str(REPO))
 
 def run_original(video, tag="v0-baseline"):
     import cv2
-    work = Path(tempfile.mkdtemp(prefix="sentinel_orig_"))
+    work = REPO / "outputs" / "work" / f"orig_{os.getpid()}"
+    work.mkdir(parents=True, exist_ok=True)
     (work / "app.py").write_text(
         subprocess.check_output(["git", "show", f"{tag}:app.py"], cwd=REPO, text=True, encoding="utf-8"), encoding="utf-8")
     for f in ["helmet_best.pt", "plate_best.pt", "yolo11s.pt"]:
@@ -52,7 +53,6 @@ def run_original(video, tag="v0-baseline"):
         first.setdefault(lab, fi)
     for lab, fi in sorted(first.items(), key=lambda x: x[1]):
         events.append({"frame": fi, "kind": "label_first_seen", "label": lab})
-    shutil.rmtree(work, ignore_errors=True)
     return events
 
 
@@ -60,15 +60,14 @@ def run_refactored(video, device):
     from sentinel.characterize import collect_events, read_frames
     from sentinel.config import load_camera_config, load_pipeline_config
     from sentinel.pipeline import Detectors, Pipeline, SharedState
-    work = Path(tempfile.mkdtemp(prefix="sentinel_ref_"))
-    (work / "ev").mkdir()
+    work = REPO / "outputs" / "work" / f"ref_{os.getpid()}"
+    (work / "ev").mkdir(parents=True, exist_ok=True)
     cfg = load_pipeline_config(root=REPO, device=device)
     cfg.evidence.dir = str(work / "ev")
     camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     pipe = Pipeline(Detectors(cfg), SharedState(), cfg, camera)
     events = collect_events(pipe, read_frames(video))
     pipe.flush()
-    shutil.rmtree(work, ignore_errors=True)
     return events
 
 

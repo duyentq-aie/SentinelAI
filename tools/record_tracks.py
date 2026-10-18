@@ -74,8 +74,8 @@ def main():
     from sentinel.pipeline import Detectors, Pipeline, SharedState
 
     cfg = load_pipeline_config(a.config, root=REPO, device=a.device)
-    work = Path(tempfile.mkdtemp(prefix="sentinel_rec_"))
-    (work / "ev").mkdir()
+    work = REPO / "outputs" / "work" / f"rec_{os.getpid()}"             # scratch under outputs/ (git-ignored); this tool deletes nothing
+    (work / "ev").mkdir(parents=True, exist_ok=True)
     cfg.evidence.dir = str(work / "ev")
     camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     pipe = Pipeline(Detectors(cfg), SharedState(), cfg, camera)
@@ -91,7 +91,6 @@ def main():
     pipe.flush()
     if a.keep_evidence:
         shutil.copytree(work / "ev", a.keep_evidence, dirs_exist_ok=True)
-    shutil.rmtree(work, ignore_errors=True)
 
     Path(a.tracks).parent.mkdir(parents=True, exist_ok=True)
     write_tracks(a.tracks, fixture_meta(cfg, a.video, a.device), perceptions)
