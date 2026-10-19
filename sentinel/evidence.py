@@ -73,6 +73,7 @@ class _Event:
     written: bool = False
     frame_size: list = None
     plate_pred: dict = None
+    linked: dict = None                       # red_light events only: {"track": "M_<id>", "reason": "NO-HELMET"} of the overlapping helmet-model track
 
 
 @dataclass
@@ -287,6 +288,8 @@ class EvidenceRecorder:
                     key_box=list(v.coords), vehicle_cls=v.type, light=light,
                     created_at=time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(self.clock())))
         ev.frame_end = ev.last_seen = frame_idx
+        if getattr(v, "linked", ""):
+            ev.linked = {"track": v.linked, "reason": v.linked_reason}
         ev.frame_size = [int(raw.shape[1]), int(raw.shape[0])]
         ev.boxes[str(frame_idx)] = list(v.coords)
         d = self.root / ev.id
@@ -335,6 +338,8 @@ class EvidenceRecorder:
             "vehicle": {"cls": ev.vehicle_cls, "box_size": [ev.key_box[2] - ev.key_box[0], ev.key_box[3] - ev.key_box[1]]},
             "light": ev.light, "video_id": self.video_id, "camera_id": self.camera_id, "run": ev.run, "created_at": ev.created_at,
         }
+        if ev.linked:
+            out["linked"] = ev.linked
         return out
 
     def _write(self, ev, status):

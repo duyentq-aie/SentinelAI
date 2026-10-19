@@ -1,4 +1,4 @@
-"""Red-light rule "stop_line_crossing": a motorcycle violates when the bottom-centre of its track CROSSES the stop line in the direction of travel
+"""Red-light rule "stop_line_crossing": a motorcycle violates when the bottom-centre of its COCO-model track (id K_<n>) CROSSES the stop line in the direction of travel
 while the signal of its lane is RED.
 
 Geometry. The stop line is a segment A-B; the direction of travel is a vector (camera.direction, tail -> head). The signed distance of a point P to the line is
@@ -8,6 +8,13 @@ It is a violation only if, in that very frame, the light is RED, the crossing po
 Not violations: a stationary vehicle (no flip), a vehicle already beyond the line when the light turned red (no flip while RED), travelling the other way (+1 -> -1),
 jitter inside the dead zone, a crossing on green. At most one violation per track and run.
 The verdict is held for `hold_s` seconds after the crossing so the evidence recorder opens one event with the vehicle box and plate search.
+
+Source of the tracks (EXP-023): the helmet model almost never sees motorcycles at and above the stop line (13 vs 1000+ detections of the COCO model in the pha-xanh part of test_video), so the
+rule uses the COCO model's motorcycle tracks (ids K_<n>). The evidence of a red_light event is that K_ track. A K_ track is LINKED to the helmet-model track M_ it overlaps (IoU >= link_iou, or one box
+centre inside the other box; best match wins): the event record carries {"linked": {"track": "M_9", "reason": "NO-HELMET"}} and the drawn label shows both reasons. The helmet/overload verdicts
+and their events stay those of the M_ track.
+ID breaks: two reportable crossings in the same lane less than merge_s seconds apart whose crossing points are less than merge_px apart are one event (the second is recorded as merged, not reported).
+A track that breaks BEFORE the line and restarts beyond it is not a crossing (no side flip): a known limit.
 
 Lanes (camera.lanes): polygons with signal "roi" (the shared light_roi applies) or "exempt" (no red-light rule, e.g. a right-turn lane with its own signal). A vehicle belongs to the
 lane that contains the crossing point. With NO lanes configured the shared signal applies to the whole line (a warning is logged). With lanes configured, a crossing outside every
@@ -71,10 +78,12 @@ class StopLineCrossing:
 
     def set_fps(self, fps):
         self._hold = to_frames(self.cfg.hold_s, fps)
+        self._merge = to_frames(self.cfg.merge_s, fps) if self.cfg.merge_s > 0 else 0
         self._purge = to_frames(PURGE_S, fps)
 
     def reset(self):
         self._side, self._fired, self._hold_until, self._last_seen = {}, set(), {}, {}
+        self._reported = []                      # (frame, lane name, crossing point, track id) of the reportable crossings of the last merge_s seconds
         self._frame = 0
         self.unassigned_crossings = 0
         self.crossings = []                      # one dict per crossing seen (frame, id, lane, light, violation, why, box, point): reported or not, for the crossings report
@@ -88,15 +97,42 @@ class StopLineCrossing:
                 return lane
         return None
 
-    def update(self, light, vehicles):
-        """Mark violating motorcycles in place (vehicles: sentinel.rules.legacy.Vehicle list). Called once per frame."""
-        self._frame += 1
-        if not self.active:
-            return
-        h = self.cfg.jitter_px
-        for v in vehicles:
-            if not v.id.startswith("M_"):
+    def _link(self, bike, vehicles):
+        """The helmet-model track (M_) that is the same rider as this COCO track (K_): IoU >= link_iou, or the centre of one box inside the other box. The best match
+        (highest IoU, then nearest centres) wins. -> Vehicle or None."""
+        best, key = None, None
+        bx1, by1, bx2, by2 = bike.coords
+        bc = ((bx1 + bx2) / 2, (by1 + by2) / 2)
+        for m in vehicles:
+            if not m.id.startswith("M_"):
                 continue
+            mx1, my1, mx2, my2 = m.coords
+            mc = ((mx1 + mx2) / 2, (my1 + my2) / 2)
+            ov = iou(bike.coords, m.coords)
+            inside = (mx1 <= bc[0] <= mx2 and my1 <= bc[1] <= my2) or (bx1 <= mc[0] <= bx2 and by1 <= mc[1] <= by2)
+            if ov >= self.cfg.link_iou or inside:
+                k = (-ov, math.hypot(bc[0] - mc[0], bc[1] - mc[1]))
+                if key is None or k < key:
+                    best, key = m, k
+        return best
+
+    def _merge_target(self, lane_name, point):
+        """A reported crossing of the same lane less than merge_s ago and merge_px away: this one is the same event (the track broke in two)."""
+        for fr, ln, pt, vid in self._reported:
+            if ln == lane_name and self._frame - fr < self._merge and math.hypot(point[0] - pt[0], point[1] - pt[1]) < self.cfg.merge_px:
+                return vid
+        return None
+
+    def update(self, light, bikes, vehicles=()):
+        """Judge the motorcycle tracks `bikes` (Vehicle list, ids "K_<COCO track>") of this frame; `vehicles` are the other vehicles of the frame (the helmet-model M_ tracks are
+        linked to a violating bike). -> the violating bikes (violator=True, reason RED-LIGHT RUNNER, linked/linked_reason set), to be appended to the frame's vehicles."""
+        self._frame += 1
+        out = []
+        if not self.active:
+            return out
+        h = self.cfg.jitter_px
+        self._reported = [r for r in self._reported if self._frame - r[0] < self._merge]
+        for v in bikes:
             x1, y1, x2, y2 = v.coords
             p = ((x1 + x2) / 2.0, float(y2))
             s = self.signed_distance(p)
@@ -108,7 +144,8 @@ class StopLineCrossing:
                 t = ((p[0] - self.A[0]) * self.L[0] + (p[1] - self.A[1]) * self.L[1]) / (self.length ** 2)
                 if -SEGMENT_MARGIN <= t <= 1 + SEGMENT_MARGIN:
                     lane = self._lane_of(p) if self.lane_polys else None
-                    violation = False
+                    lane_name = getattr(lane, "name", None)
+                    violation, merged = False, None
                     if self.lane_polys and lane is None:
                         self.unassigned_crossings += 1
                         why = "crossing point in no lane: not attributable to a signal (precision first: counted, not reported)"
@@ -119,23 +156,43 @@ class StopLineCrossing:
                     elif v.id in self._fired:
                         why = "track already reported"
                     else:
-                        violation = True
-                        self._fired.add(v.id)
-                        self._hold_until[v.id] = self._frame + self._hold - 1
-                        why = f"crossed the stop line on RED in lane {lane.name!r}" if lane else "crossed the stop line on RED (no lanes configured)"
-                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": getattr(lane, "name", None), "light": light, "violation": violation,
+                        merged = self._merge_target(lane_name, p)
+                        if merged is not None:
+                            self._fired.add(v.id)
+                            why = (f"same event as the crossing of {merged} in lane {lane_name!r} less than {self.cfg.merge_s:g} s and {self.cfg.merge_px:g} px earlier "
+                                   f"(a track that broke in two): not a second event")
+                        else:
+                            violation = True
+                            self._fired.add(v.id)
+                            self._hold_until[v.id] = self._frame + self._hold - 1
+                            self._reported.append((self._frame, lane_name, p, v.id))
+                            why = f"crossed the stop line on RED in lane {lane.name!r}" if lane else "crossed the stop line on RED (no lanes configured)"
+                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": lane_name, "light": light, "violation": violation, "merged_into": merged,
                                            "why": why, "box": [int(c) for c in v.coords], "point": [round(p[0], 1), round(p[1], 1)]})
                 else:
-                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": None, "light": light, "violation": False, "why": "crossed the line's extension beyond the ends of the segment: ignored",
+                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": None, "light": light, "violation": False, "merged_into": None,
+                                           "why": "crossed the line's extension beyond the ends of the segment: ignored",
                                            "box": [int(c) for c in v.coords], "point": [round(p[0], 1), round(p[1], 1)]})
             if self._hold_until.get(v.id, -1) >= self._frame:
-                v.violator = True
-                v.reason = join_reason(v.reason, self.REASON)
+                v.violator, v.reason = True, self.REASON
+                m = self._link(v, vehicles)
+                if m is not None:
+                    v.linked = m.id
+                    v.linked_reason = m.reason if m.violator else ""
+                out.append(v)
         if self._frame % self._purge == 0:
             for vid in [k for k, f in self._last_seen.items() if self._frame - f > self._purge]:
                 for d in (self._side, self._hold_until, self._last_seen):
                     d.pop(vid, None)
                 self._fired.discard(vid)
+        return out
+
+
+def iou(a, b):
+    ix, iy = max(0, min(a[2], b[2]) - max(a[0], b[0])), max(0, min(a[3], b[3]) - max(a[1], b[1]))
+    i = ix * iy
+    u = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - i
+    return i / u if u else 0.0
 
 
 def _poly(points):

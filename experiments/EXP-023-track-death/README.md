@@ -46,7 +46,7 @@ Cùng tracker yaml, conf 0.35, hình học đã duyệt, đèn ROI (EXP-022): 24
 | (c) tracker | ≈3–5% (3/61) | mục (c) |
 Phụ: hộp helmet model rộng/lệch (M_257: 111×130 so với người lái ~35×70), nên điểm giữa-đáy kém tin cậy kể cả khi track còn sống.
 
-## Đề xuất sửa (CHƯA làm, chờ duyệt)
-1. **Cho luật `stop_line_crossing` dùng track xe máy của COCO** (pipeline đã chạy COCO tracker mỗi frame; hiện luật chỉ lọc `M_` của helmet model). Hộp COCO gọn, thấy xe tới tận vạch (what-if: tới được vạch 99 track). Luật helmet/overload giữ nguyên với helmet model. Cần: id riêng (ví dụ `K_`) để không trùng `M_`, ghép lý do với helmet khi hộp chồng nhau (IoU), và một kiểm tra rằng ID vỡ (242 track) không tạo sự kiện kép: `one_event_per_track` + `_fired` đã chặn theo track nhưng một xe có thể đổi ID sau khi cắt vạch.
-2. Không khuyên hạ `models.helmet.conf`: hạ xuống 0.1 vẫn chỉ cho 10 + 57 detection phía trên vạch, và đổi conf ảnh hưởng luật helmet/overload (EXP-005/006).
-3. Để đo thật: cần video có nhãn vượt đèn (hiện clip này chỉ kiểm được "không báo oan"), và nhãn xe máy ở vùng xa nếu muốn cải thiện detector (không train trong đợt này).
+## Đề xuất sửa: đã duyệt và làm (2026-10-19)
+Chủ dự án duyệt: luật `stop_line_crossing` dùng track xe máy của COCO (`K_`), ghép lý do với track helmet, gộp sự kiện khi ID vỡ; **không** hạ `models.helmet.conf`, không train, không đổi luật helmet/overload. Chi tiết, tiêu chí ghép (IoU >= 0.3 hoặc tâm trong hộp), tham số gộp (1 s, 40 px) và kết quả trên test_video: mục "Luật đèn đỏ dùng track COCO" của `experiments/EXP-022-light-roi/README.md`. Lỗi đã được sửa là hộp/track helmet **không tới vạch**; M_257 vẫn là xe đứng chờ (luật vùng cũ báo oan, luật mới đúng khi không báo).
+
+**Giới hạn còn lại:** helmet model hầu như không thấy xe máy ở vùng vạch dừng trở lên (13 so với 1000+ detection của COCO); nguyên nhân sâu (kích thước xe trong dữ liệu train so với test_video) **chưa kiểm tra**, để đến khi có nhãn. Hướng sau này (chưa làm): pseudo-label xe máy ở xa bằng COCO vào dữ liệu train (duyệt tay một mẫu), rồi train lại (xem `docs/PLAN.md`, G9).

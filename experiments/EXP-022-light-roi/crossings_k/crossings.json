@@ -1,0 +1,249 @@
+[
+ {
+  "n": 1,
+  "time_s": 0.8,
+  "frame": 24,
+  "track": "K_21",
+  "lane": "right-turn",
+  "light": "RED",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 879.5,
+  "point_y": 279.0,
+  "box": [
+   861,
+   217,
+   898,
+   279
+  ]
+ },
+ {
+  "n": 2,
+  "time_s": 1.67,
+  "frame": 50,
+  "track": "K_28",
+  "lane": "right-turn",
+  "light": "RED",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 1027.0,
+  "point_y": 273.0,
+  "box": [
+   1012,
+   209,
+   1042,
+   273
+  ]
+ },
+ {
+  "n": 3,
+  "time_s": 5.4,
+  "frame": 162,
+  "track": "K_230",
+  "lane": "right-turn",
+  "light": "RED",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 988.5,
+  "point_y": 271.0,
+  "box": [
+   969,
+   210,
+   1008,
+   271
+  ]
+ },
+ {
+  "n": 4,
+  "time_s": 7.7,
+  "frame": 231,
+  "track": "K_247",
+  "lane": "right-turn",
+  "light": "RED",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 984.0,
+  "point_y": 273.0,
+  "box": [
+   971,
+   232,
+   997,
+   273
+  ]
+ },
+ {
+  "n": 5,
+  "time_s": 9.93,
+  "frame": 298,
+  "track": "K_12",
+  "lane": "through",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "light is GREEN",
+  "merged_into": "",
+  "point_x": 756.5,
+  "point_y": 284.0,
+  "box": [
+   740,
+   245,
+   773,
+   284
+  ]
+ },
+ {
+  "n": 6,
+  "time_s": 14.67,
+  "frame": 440,
+  "track": "K_302",
+  "lane": "right-turn",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 976.0,
+  "point_y": 274.0,
+  "box": [
+   958,
+   208,
+   994,
+   274
+  ]
+ },
+ {
+  "n": 7,
+  "time_s": 15.83,
+  "frame": 475,
+  "track": "K_357",
+  "lane": "through",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "light is GREEN",
+  "merged_into": "",
+  "point_x": 758.5,
+  "point_y": 282.0,
+  "box": [
+   742,
+   230,
+   775,
+   282
+  ]
+ },
+ {
+  "n": 8,
+  "time_s": 17.7,
+  "frame": 531,
+  "track": "K_655",
+  "lane": "right-turn",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 1011.5,
+  "point_y": 273.0,
+  "box": [
+   998,
+   229,
+   1025,
+   273
+  ]
+ },
+ {
+  "n": 9,
+  "time_s": 18.8,
+  "frame": 564,
+  "track": "K_19",
+  "lane": "through",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "light is GREEN",
+  "merged_into": "",
+  "point_x": 633.0,
+  "point_y": 287.0,
+  "box": [
+   614,
+   224,
+   652,
+   287
+  ]
+ },
+ {
+  "n": 10,
+  "time_s": 19.5,
+  "frame": 585,
+  "track": "K_580",
+  "lane": "through",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "light is GREEN",
+  "merged_into": "",
+  "point_x": 735.5,
+  "point_y": 280.0,
+  "box": [
+   719,
+   234,
+   752,
+   280
+  ]
+ },
+ {
+  "n": 11,
+  "time_s": 23.17,
+  "frame": 695,
+  "track": "K_745",
+  "lane": "right-turn",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 965.0,
+  "point_y": 274.0,
+  "box": [
+   952,
+   231,
+   978,
+   274
+  ]
+ },
+ {
+  "n": 12,
+  "time_s": 24.17,
+  "frame": 725,
+  "track": "K_652",
+  "lane": "through",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "light is GREEN",
+  "merged_into": "",
+  "point_x": 699.0,
+  "point_y": 285.0,
+  "box": [
+   681,
+   227,
+   717,
+   285
+  ]
+ },
+ {
+  "n": 13,
+  "time_s": 24.23,
+  "frame": 727,
+  "track": "K_770",
+  "lane": "left-turn",
+  "light": "GREEN",
+  "reported": "no",
+  "reason": "lane 'left-turn' is exempt (own signal / phase not confirmed): no red-light rule",
+  "merged_into": "",
+  "point_x": 445.5,
+  "point_y": 295.0,
+  "box": [
+   428,
+   243,
+   463,
+   295
+  ]
+ }
+]

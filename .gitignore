@@ -41,3 +41,5 @@ experiments/EXP-022-light-roi/*.jpg
 experiments/EXP-022-light-roi/crossings/evidence*/
 experiments/EXP-022-light-roi/crossings/*.jpg
 experiments/EXP-023-track-death/*.jpg
+experiments/EXP-022-light-roi/crossings_k/*.jpg
+experiments/EXP-022-light-roi/crossings_k/evidence*/

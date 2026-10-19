@@ -31,16 +31,17 @@ def rules(cam=None, fps=30, **red):
     return make_rules(cfg, cam or camera([LEFT, THROUGH]), fps)
 
 
-def frame(y, x=400, tid=1, light="RED", extra=()):
-    return Perception(helmet=[Track(tid, "motorcycle", (x - 30, y - 100, x + 30, y), 0.9), *extra], light=light)
+def frame(y, x=400, tid=1, light="RED", helmet=()):
+    """One COCO motorcycle (the red-light source, vehicle id K_<tid>) with its bottom-centre at (x, y); `helmet`: helmet-model tracks of the frame."""
+    return Perception(coco=[Track(tid, "motorcycle", (x - 30, y - 70, x + 30, y), 0.9)], helmet=list(helmet), light=light)
 
 
 def run(r, ys, x=400, light="RED", tid=1):
-    """Feed one motorcycle at bottom-centre (x, y) per frame; -> [(reason, violator)] after each frame."""
+    """Feed one motorcycle per frame; -> [(reason, violator)] of its K_ vehicle after each frame (violating bikes only appear in the result)."""
     out = []
     for y in ys:
-        v = {v.id: v for v in r.step(frame(y, x, tid, light)).vehicles}[f"M_{tid}"]
-        out.append((v.reason, v.violator))
+        v = {v.id: v for v in r.step(frame(y, x, tid, light)).vehicles}.get(f"K_{tid}")
+        out.append((v.reason, True) if v else ("", False))
     return out
 
 
@@ -112,7 +113,7 @@ def test_the_verdict_is_held_for_hold_s_seconds_at_any_frame_rate():
         assert sum(flags(res)) == round(r.stop_line_rule.cfg.hold_s * fps)
 
 
-def test_cars_are_not_judged_and_reasons_are_combined_with_other_violations():
+def test_cars_are_not_judged_and_reasons_are_joined_with_ampersand():
     r = rules()
     for y in APPROACH:
         res = r.step(Perception(coco=[Track(7, "car", (370, y - 100, 430, y), 0.9)], light="RED"))
@@ -171,3 +172,103 @@ def test_mode_is_stop_line_crossing_by_default_and_legacy_zone_stays_selectable(
     cfg.red_light.mode = "whatever"
     with pytest.raises(ValueError):
         PipelineConfig(rules=cfg).validate()
+
+
+def test_the_evidence_track_is_the_coco_track_not_the_helmet_track():
+    r = rules()
+    ids = set()
+    for y in APPROACH:
+        res = r.step(Perception(coco=[Track(5, "motorcycle", (370, y - 70, 430, y), 0.9)], helmet=[Track(9, "motorcycle", (330, y - 140, 470, y + 10), 0.9)], light="RED"))
+        ids |= {v.id for v in res.vehicles if v.violator}
+    assert ids == {"K_5"}                                                          # M_9 (helmet model) crosses too, but red-light evidence is the K_ track
+
+
+def test_helmet_track_is_linked_by_iou_or_by_a_centre_inside_the_other_box_and_best_match_wins():
+    def violating(helmet):
+        r = rules()
+        out = None
+        for y in APPROACH:
+            res = r.step(Perception(coco=[Track(5, "motorcycle", (370, y - 70, 430, y), 0.9)], helmet=[h(y) for h in helmet], light="RED"))
+            hits = [v for v in res.vehicles if v.id == "K_5"]
+            out = hits[0] if hits else out
+        return out
+    same = lambda y: Track(9, "motorcycle", (365, y - 75, 435, y + 2), 0.9)                       # IoU ~0.8
+    big = lambda y: Track(11, "motorcycle", (320, y - 140, 480, y + 10), 0.9)                       # oversized helmet box: IoU < 0.3, but K_ centre is inside it
+    far = lambda y: Track(13, "motorcycle", (50, y - 70, 110, y), 0.9)
+    assert violating([same]).linked == "M_9"
+    v = violating([big])
+    assert iou_of(v.coords, big(300).box) < 0.3 and v.linked == "M_11"
+    assert violating([far]).linked == ""
+    assert violating([big, same]).linked == "M_9"                                                 # best match: highest IoU
+
+
+def test_the_linked_helmet_reason_is_shown_next_to_the_red_light_reason_and_written_to_the_event(tmp_path):
+    from sentinel.rules.legacy import vehicle_label
+    from test_evidence import make, raw_frame, records
+    r = rules()
+    got = None
+    for y in APPROACH:
+        head = Track(0, "no-helmet", (385, y - 66, 415, y - 40), 0.9)
+        res = r.step(Perception(coco=[Track(5, "motorcycle", (370, y - 70, 430, y), 0.9)], helmet=[Track(9, "motorcycle", (365, y - 75, 435, y + 2), 0.9), head], light="RED"))
+        k = [v for v in res.vehicles if v.id == "K_5"]
+        got = (k[0], res) if k else got
+    k, res = got
+    assert k.linked == "M_9" and k.linked_reason == "NO-HELMET" and vehicle_label(k) == "ID:K_5 RED-LIGHT & NO-HELMET"
+    m = [v for v in res.vehicles if v.id == "M_9"][0]
+    assert m.violator and m.reason == "NO-HELMET"                                                 # the helmet verdict stays on the M_ track, no second red_light event
+    rec, _ = make(tmp_path)
+    rec.update(0, raw_frame(), [k, m], "RED")
+    rec.flush()
+    evs = {x["track_id"]: x for x in records(tmp_path)}
+    assert evs["K_5"]["type"] == "red_light" and evs["K_5"]["linked"] == {"track": "M_9", "reason": "NO-HELMET"}
+    assert evs["M_9"]["type"] == "no_helmet" and "linked" not in evs["M_9"]
+
+
+def iou_of(a, b):
+    from sentinel.rules.stopline import iou
+    return iou(a, b)
+
+
+def two_tracks(r, gap_frames, x1=400, x2=400, lane_x=None):
+    """Track 1 crosses on red; track 2 (the same rider after an ID break) crosses `gap_frames` later. -> set of violating K_ ids over the run."""
+    seen = set()
+    n = len(APPROACH)
+    for i in range(n + gap_frames + 3):
+        cocos = []
+        if i < n:
+            cocos.append(Track(1, "motorcycle", (x1 - 30, APPROACH[i] - 70, x1 + 30, APPROACH[i]), 0.9))
+        j = i - gap_frames
+        if 0 <= j < n:
+            cocos.append(Track(2, "motorcycle", (x2 - 30, APPROACH[j] - 70, x2 + 30, APPROACH[j]), 0.9))
+        res = r.step(Perception(coco=cocos, light="RED"))
+        seen |= {v.id for v in res.vehicles if v.violator}
+    return seen
+
+
+def test_an_id_break_is_one_event_when_close_in_time_lane_and_place():
+    r = rules()
+    assert two_tracks(r, gap_frames=10, x2=410) == {"K_1"}                          # 10 frames = 0.33 s, 10 px apart, same lane
+    second = [c for c in r.stop_line_rule.crossings if c["id"] == "K_2"][0]
+    assert not second["violation"] and second["merged_into"] == "K_1" and "same event" in second["why"]
+
+
+def test_crossings_far_apart_in_time_or_place_or_in_another_lane_are_separate_events():
+    assert two_tracks(rules(), gap_frames=40) == {"K_1", "K_2"}                      # 1.33 s apart: not merged
+    assert two_tracks(rules(), gap_frames=5, x2=450) == {"K_1", "K_2"}               # 50 px apart: not merged
+    cam = camera([Lane("a", [[300, 100], [420, 100], [420, 500], [300, 500]], "roi"), Lane("b", [[420, 100], [500, 100], [500, 500], [420, 500]], "roi")])
+    assert two_tracks(rules(cam), gap_frames=5, x1=400, x2=430) == {"K_1", "K_2"}    # 30 px apart but in different lanes
+    assert two_tracks(rules(cam), gap_frames=5, x1=400, x2=410) == {"K_1"}           # same lane
+    assert two_tracks(rules(merge_s=0.0), gap_frames=5, x2=410) == {"K_1", "K_2"}    # merging switched off
+
+
+def test_merge_and_link_parameters_are_in_seconds_and_pixels_and_validated():
+    cfg = load_pipeline_config().rules.red_light
+    assert (cfg.merge_s, cfg.merge_px, cfg.link_iou) == (1.0, 40.0, 0.3)
+    r10 = rules(fps=10)
+    assert r10.stop_line_rule._merge == 10                                           # 1 s at 10 FPS
+    for bad in ({"merge_s": -1}, {"merge_px": -1}, {"link_iou": 2}):
+        c = load_pipeline_config()
+        for k, v in bad.items():
+            setattr(c.rules.red_light, k, v)
+        with pytest.raises(ValueError):
+            c.validate()

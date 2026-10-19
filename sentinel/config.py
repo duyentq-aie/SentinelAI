@@ -70,6 +70,9 @@ class RedLightRule:
                                        # "legacy_zone": the v0 rule (bottom-centre inside violation_zone while RED: also flags stopped vehicles, knows no lanes)
     jitter_px: float = 4.0             # stop_line_crossing: dead zone of +-jitter_px around the line (detector jitter is not a crossing)
     hold_s: float = 1.0                # stop_line_crossing: the verdict is held this long after a crossing so the recorder opens an event with evidence
+    merge_s: float = 1.0               # stop_line_crossing: two reportable crossings in the same lane less than merge_s apart ...
+    merge_px: float = 40.0             # ... and whose crossing points are less than merge_px apart are ONE event (a track that broke in two: ID switch)
+    link_iou: float = 0.3              # stop_line_crossing: a red-light track K_ is linked to a helmet-model track M_ when their boxes overlap with IoU >= link_iou, or one box centre lies inside the other box
 
 
 @dataclass
@@ -177,6 +180,8 @@ class PipelineConfig:
             raise ValueError("rules.red_light.mode must be 'stop_line_crossing' or 'legacy_zone'")
         if r.red_light.jitter_px < 0 or r.red_light.hold_s <= 0:
             raise ValueError("rules.red_light: jitter_px >= 0 and hold_s > 0")
+        if r.red_light.merge_s < 0 or r.red_light.merge_px < 0 or not 0 <= r.red_light.link_iou <= 1:
+            raise ValueError("rules.red_light: merge_s >= 0, merge_px >= 0 and 0 <= link_iou <= 1")
         ww = r.wrong_way
         hist, minh = seconds_of(ww.history_s, ww.history_len), seconds_of(ww.min_history_s, ww.min_history)
         if not 0 < minh <= hist:
