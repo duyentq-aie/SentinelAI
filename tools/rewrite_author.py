@@ -4,7 +4,8 @@
 
 Without --yes it only prints what would change. With --yes it first writes a git bundle of the whole old history next to the repo
 (`<repo>.before-author-rewrite.bundle`; nothing is deleted), then runs `git filter-branch`
-over all branches and tags. Run from a clean working tree; the old e-mail addresses found in history are all replaced.
+over all branches and tags, then removes the `refs/original/*` backup refs that filter-branch leaves behind (the bundle is the backup). Run from a clean working tree;
+the old e-mail addresses found in history are all replaced.
 """
 import argparse
 import os
@@ -20,6 +21,15 @@ def git(*args, cwd, env=None):
 def old_identities(cwd):
     out = git("log", "--all", "--format=%an <%ae>%n%cn <%ce>", cwd=cwd).stdout
     return sorted({line for line in out.splitlines() if line})
+
+
+def drop_backup_refs(repo):
+    """git filter-branch keeps the pre-rewrite history under refs/original/*, which would keep the old identities reachable (and pushable with --all).
+    The backup bundle written before the rewrite is the real backup, so these refs are removed. Only refs are deleted, no objects (no gc, reflog untouched)."""
+    refs = git("for-each-ref", "--format=%(refname)", "refs/original/", cwd=repo).stdout.split()
+    for ref in refs:
+        git("update-ref", "-d", ref, cwd=repo)
+    return refs
 
 
 def main():
@@ -49,6 +59,8 @@ def main():
               'if [ -n "$NEW_NAME" ]; then export GIT_AUTHOR_NAME="$NEW_NAME" GIT_COMMITTER_NAME="$NEW_NAME"; fi')
     r = git("filter-branch", "-f", "--env-filter", script, "--", "--all", cwd=repo, env=env)
     print(r.stdout[-500:], r.stderr[-500:])
+    if r.returncode == 0:
+        print("removed backup refs:", drop_backup_refs(repo) or "none")
     print("after:", *old_identities(repo), sep="\n  ")
     sys.exit(r.returncode)
 

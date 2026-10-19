@@ -45,3 +45,12 @@ def test_dry_run_changes_nothing_and_yes_rewrites_everything_with_a_backup(tmp_p
     run(tmp_path.parent, "clone", "-q", str(bundle), str(clone))
     assert "old@example.invalid" in run(clone, "log", "--format=%ae")                                    # the old history is kept in the bundle
     assert run(tmp_path, "rev-list", "--count", "HEAD").strip() == "2"
+
+
+def test_backup_refs_left_by_filter_branch_are_removed_so_no_old_identity_stays_reachable(tmp_path):
+    make(tmp_path)
+    r = tool(tmp_path, "--email", "me@users.noreply.github.com", "--yes")
+    assert r.returncode == 0, r.stderr
+    assert run(tmp_path, "for-each-ref", "refs/original/").strip() == ""                       # none left
+    assert set(run(tmp_path, "log", "--all", "--format=%ae%n%ce").split()) == {"me@users.noreply.github.com"}      # nothing reachable carries the old address
+    assert "removed backup refs" in r.stdout

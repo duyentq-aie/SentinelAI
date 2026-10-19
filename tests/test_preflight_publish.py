@@ -34,7 +34,7 @@ def test_text_scan_finds_secrets_personal_paths_emails_and_identifiers():
         "token = 'abcd1234efgh5678'",  # preflight-ignore
         "-----BEGIN RSA PRIVATE KEY-----",  # preflight-ignore
         "key ghp_" + "a" * 36,
-        r"path <HOME>\work\data and <REPO>\x",
+        "path " + "C:" + "\\Users\\Alice\\work\\data and " + "Q:" + "\\SentinelAI\\x",      # built at run time: the literals must not appear in the repository
         "mail bob@corp.org and noreply@anthropic.com",
         "dataset tranquangduyenk17ct/helmet",
     ])
