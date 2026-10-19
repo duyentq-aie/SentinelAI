@@ -147,14 +147,22 @@ def evaluate(gt_by_image, pred_by_image, roi, classes, pr_conf=0.25):
     return res
 
 
+def common_classes(model_names, classes):
+    """The configured classes a model can predict, in the configured order: a 3-class model is evaluated on the 3 shared classes, a 4-class model on all 4."""
+    names = set(model_names.values() if isinstance(model_names, dict) else model_names)
+    return [c for c in classes if c in names]
+
+
 def predict_dir(model_path, images_dir, classes, conf=0.001, imgsz=640):
+    """-> ({image stem: [(class name, conf, box)]}, classes evaluated for this model). Class names come from the model itself (never from an index list)."""
     from ultralytics import YOLO
     m = YOLO(str(REPO / model_path) if not Path(model_path).is_absolute() else model_path)
+    use = common_classes(m.names, classes)
     out = {}
     for p in sorted(Path(images_dir).glob("*.png")):
         r = m.predict(str(p), imgsz=imgsz, conf=conf, iou=0.7, max_det=300, verbose=False)[0]
-        out[p.stem] = [(classes[int(c)], float(s), b) for c, s, b in zip(r.boxes.cls.tolist(), r.boxes.conf.tolist(), r.boxes.xyxy.tolist()) if int(c) < len(classes)]
-    return out
+        out[p.stem] = [(m.names[int(c)], float(s), b) for c, s, b in zip(r.boxes.cls.tolist(), r.boxes.conf.tolist(), r.boxes.xyxy.tolist()) if m.names[int(c)] in use]
+    return out, use
 
 
 def format_table(model, res, roi):
@@ -190,10 +198,12 @@ def main():
     print(f"{len(sizes)} images, ground-truth boxes inside the ROI: {dict(n_gt_all)}")
     report = {"roi": cfg["roi"], "images": len(sizes), "gt_boxes_in_roi": dict(n_gt_all), "warnings": warnings, "models": {}}
     for name, path in cfg["models"].items():
-        if not (REPO / path).exists():
+        if not (REPO / (path["weights"] if isinstance(path, dict) else path)).exists():
             print(f"skipping {name}: {path} not found")
             continue
-        res = evaluate(gt, predict_dir(path, images_dir, cfg["classes"]), cfg["roi"], cfg["classes"])
+        path = path["weights"] if isinstance(path, dict) else path
+        preds, use = predict_dir(path, images_dir, cfg["classes"])
+        res = evaluate(gt, preds, cfg["roi"], use)
         report["models"][name] = res
         print(format_table(name, res, cfg["roi"]))
     if a.json:

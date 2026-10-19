@@ -82,3 +82,41 @@ def test_merge_nms_keeps_the_most_confident_box_per_class_and_never_merges_acros
     kept = mo.merge_nms(d, 0.5)
     assert [(k[0], k[3]) for k in kept] == [(0, "new"), (0, "old"), (2, "old")] and len(kept) == 3
     assert mo.in_roi([0, 200, 100, 300], [0, 240, 1280, 720]) is True and mo.in_roi([0, 0, 100, 100], [0, 240, 1280, 720]) is False
+
+
+# ---- 4-class support
+def test_a_three_class_model_is_scored_on_the_shared_classes_and_a_four_class_model_on_all_four():
+    cfg = ["helmet", "motorcycle", "no-helmet", "plate"]
+    assert eo.common_classes({0: "helmet", 1: "motorcycle", 2: "no-helmet"}, cfg) == ["helmet", "motorcycle", "no-helmet"]
+    assert eo.common_classes({0: "helmet", 1: "motorcycle", 2: "no-helmet", 3: "plate"}, cfg) == cfg
+    assert eo.common_classes({0: "0"}, cfg) == []                                                    # a model with unknown names scores nothing, silently nothing wrong
+
+
+def test_plate_boxes_are_scored_like_any_other_class_and_never_count_for_models_without_the_class():
+    cfg = ["helmet", "motorcycle", "no-helmet", "plate"]
+    g = {"img1": [("helmet", A), ("plate", C)]}
+    four = eo.evaluate(g, {"img1": [("helmet", 0.9, A), ("plate", 0.8, C)]}, ROI, cfg)
+    assert four["plate"]["n_gt"] == 1 and four["plate"]["ap50"] == CEIL and four["all"]["classes_with_gt"] == 2
+    three = eo.evaluate(g, {"img1": [("helmet", 0.9, A)]}, ROI, eo.common_classes(["helmet", "motorcycle", "no-helmet"], cfg))
+    assert "plate" not in three and three["all"]["classes_with_gt"] == 1 and three["all"]["ap50"] == CEIL        # the missing plate class does not drag the 3-class model down
+
+
+def test_labels_with_plate_are_read_when_the_class_is_wanted_and_dropped_when_not(tmp_path):
+    lab = tmp_path / "labels"
+    lab.mkdir()
+    (tmp_path / "data.yaml").write_text("names: ['helmet', 'motorcycle', 'no-helmet', 'plate']\n", encoding="utf-8")
+    (lab / "a.txt").write_text("0 0.5 0.5 0.2 0.2\n3 0.3 0.3 0.1 0.1\n", encoding="utf-8")
+    four, _ = eo.read_labels(tmp_path, {"a": (100, 100)}, ["helmet", "motorcycle", "no-helmet", "plate"])
+    three, _ = eo.read_labels(tmp_path, {"a": (100, 100)}, ["helmet", "motorcycle", "no-helmet"])
+    assert [k for k, _ in four["a"]] == ["helmet", "plate"] and [k for k, _ in three["a"]] == ["helmet"]
+
+
+def test_four_class_prelabels_take_plates_only_from_the_four_class_model_and_keep_roi_boxes_only():
+    roi = [0, 240, 1280, 720]
+    dets = [(0, 0.9, [10, 300, 60, 380], "old"), (0, 0.8, [12, 302, 62, 382], "exp016"),         # same helmet from two models: NMS keeps the 0.9 one
+            (3, 0.7, [100, 500, 140, 520], "exp016"), (3, 0.9, [300, 500, 340, 520], "old"),          # a (hypothetical) plate from another model is ignored
+            (3, 0.6, [100, 100, 140, 120], "exp016"),                                                  # plate outside the ROI
+            (2, 0.5, [500, 400, 560, 470], "exp015")]
+    kept = mo.merge_4cls(dets, "exp016", roi)
+    assert sorted((d[0], d[3]) for d in kept) == [(0, "old"), (2, "exp015"), (3, "exp016")]
+    assert [d[1] for d in kept if d[0] == 3] == [0.7]

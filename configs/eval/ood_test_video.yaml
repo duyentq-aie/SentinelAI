@@ -9,8 +9,12 @@ images_dir: data/ood_test_video/images         # gitignored (people, plates)
 # whose helmets cannot be judged by eye. Chosen from the pre-label detections of both models (EXP-018 README), not from any ground truth.
 roi: [0, 240, 1280, 720]
 
-models:                                        # evaluated side by side (weights are gitignored)
+models:                                        # evaluated side by side (weights are gitignored); each model is scored on the classes it has
   old_helmet_best: helmet_best.pt
   exp015_grouped_3cls: experiments/EXP-015-helmet-grouped-3cls/weights/best.pt
-nms_iou: 0.5                                   # merge of the two models' pre-labels (class-wise)
-classes: [helmet, motorcycle, no-helmet]
+  exp016_grouped_4cls: experiments/EXP-016-helmet-grouped-4cls/weights/best.pt
+nms_iou: 0.5                                   # merge of the models' pre-labels (class-wise)
+classes: [helmet, motorcycle, no-helmet, plate]   # 3-class models are evaluated on the first three (the classes they share with the 4-class model)
+prelabel_models: [old_helmet_best, exp015_grouped_3cls]       # `make_ood_set.py prelabel`: the original 3-class suggestions (ood_prelabels.zip)
+prelabel4_models: [old_helmet_best, exp015_grouped_3cls, exp016_grouped_4cls]   # `prelabel4`: helmet / motorcycle / no-helmet merged from these three ...
+prelabel4_plate_model: exp016_grouped_4cls     # ... and plate from this one model only (the other models cannot predict plates)
