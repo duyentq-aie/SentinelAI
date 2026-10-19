@@ -35,3 +35,4 @@ experiments/EXP-015-helmet-grouped-3cls/box_consistency/gallery/
 experiments/EXP-017-field-inventory/*.jpg
 experiments/EXP-016-helmet-grouped-4cls/**/*batch*.jpg
 experiments/EXP-016-helmet-grouped-4cls/**/labels.jpg
+experiments/EXP-022-light-roi/*.jpg
