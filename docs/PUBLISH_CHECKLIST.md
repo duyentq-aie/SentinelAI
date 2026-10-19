@@ -26,3 +26,10 @@ Không có lệnh push nào đã được chạy; remote chưa được cấu h�
 - **Đường dẫn home:** đã thay bằng `<HOME>` trong mọi `env.json` đang được theo dõi; `benchmark_pipeline.py` tự thay từ nay. Còn lại 2 chỗ trong `tests/test_preflight_publish.py` là dữ liệu thử cố ý.
 - **Email tác giả:** `tools/rewrite_author.py --email <USER>@users.noreply.github.com [--name ...]` (dry-run mặc định; `--yes` mới viết lại; tự tạo bundle sao lưu lịch sử cũ ngoài repo; từ chối chuỗi giữ chỗ `<USER>`). **CHƯA chạy** vì cần tên GitHub thật của bạn. Nó đổi toàn bộ hash commit: chạy một lần, trước khi push. Cần xóa luôn commit cũ trong reflog/bundle nếu muốn email cũ biến mất hẳn khỏi máy.
 - Vẫn chưa push.
+
+## Kết quả lần chạy 2026-10-19 (sau khi rewrite)
+- Metadata: 41 commit, một danh tính duy nhất (email noreply của GitHub); không còn email cũ hay tên cũ trong tên, email, commit message.
+- Nội dung mọi revision: `<gmail>`, `<HOME>`, `<REPO>`, `<author>` thay cho email cá nhân, thư mục home, đường dẫn dự án và tên tác giả cũ; grep bốn loại chuỗi đó (email Gmail, đường dẫn home, đường dẫn dự án, tên tác giả cũ) trên mọi revision = 0 kết quả.
+- Backup (ngoài repo, chứa dữ liệu cũ, không đăng): `SentinelAI.before-author-rewrite.bundle` (trước rewrite danh tính), `SentinelAI.before-content-rewrite.bundle` (trước rewrite nội dung). Reflog cục bộ vẫn giữ commit cũ (không gc).
+- Giữ nguyên theo quyết định chủ repo: tên tài khoản Kaggle (nguồn gốc dữ liệu). Weights/ONNX cục bộ có tên này nhưng không được track.
+- Chưa cấu hình remote, chưa push.
