@@ -1,0 +1,710 @@
+{
+ "versions": [
+  "v0",
+  "current+old model",
+  "EXP-015 3cls",
+  "EXP-016 4cls",
+  "current+old model @10FPS"
+ ],
+ "rows": [
+  {
+   "n": 1,
+   "time_s": 0.77,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_1",
+     "frame": 23
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 2,
+   "time_s": 1.17,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_77",
+     "frame": 35
+    },
+    "current+old model": {
+     "track": "M_77",
+     "frame": 35,
+     "frames": [
+      35,
+      89
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_69",
+     "frame": 36,
+     "frames": [
+      36,
+      87
+     ]
+    }
+   }
+  },
+  {
+   "n": 3,
+   "time_s": 2.37,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_128",
+     "frame": 71
+    },
+    "current+old model": {
+     "track": "M_129",
+     "frame": 71,
+     "frames": [
+      71,
+      146
+     ]
+    },
+    "EXP-015 3cls": {
+     "track": "M_130",
+     "frame": 72,
+     "frames": [
+      72,
+      119
+     ]
+    },
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 4,
+   "time_s": 3.3,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_152",
+     "frame": 103
+    },
+    "current+old model": {
+     "track": "M_153",
+     "frame": 104,
+     "frames": [
+      104,
+      118
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_127",
+     "frame": 99,
+     "frames": [
+      99,
+      135
+     ]
+    }
+   }
+  },
+  {
+   "n": 5,
+   "time_s": 3.73,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": {
+     "track": "M_175",
+     "frame": 112,
+     "frames": [
+      112,
+      117
+     ]
+    },
+    "EXP-015 3cls": {
+     "track": "M_174",
+     "frame": 112,
+     "frames": [
+      112,
+      123
+     ]
+    },
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 6,
+   "time_s": 5.37,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_221",
+     "frame": 161
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 7,
+   "time_s": 7.8,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_259",
+     "frame": 234
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 8,
+   "time_s": 9.67,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_297",
+     "frame": 291
+    },
+    "current+old model": {
+     "track": "M_299",
+     "frame": 290,
+     "frames": [
+      290,
+      333
+     ]
+    },
+    "EXP-015 3cls": {
+     "track": "M_311",
+     "frame": 292,
+     "frames": [
+      292,
+      321
+     ]
+    },
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 25,
+   "time_s": 10.2,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": {
+     "track": "M_332",
+     "frame": 314,
+     "frames": [
+      314,
+      395
+     ]
+    },
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_392",
+     "frame": 306,
+     "frames": [
+      306,
+      333
+     ]
+    }
+   }
+  },
+  {
+   "n": 9,
+   "time_s": 10.8,
+   "type": "overload",
+   "versions": {
+    "v0": {
+     "track": "M_348",
+     "frame": 324
+    },
+    "current+old model": {
+     "track": "M_350",
+     "frame": 328,
+     "frames": [
+      328,
+      337
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_468",
+     "frame": 330,
+     "frames": [
+      330,
+      330
+     ]
+    }
+   }
+  },
+  {
+   "n": 10,
+   "time_s": 12.4,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_379",
+     "frame": 372
+    },
+    "current+old model": {
+     "track": "M_380",
+     "frame": 374,
+     "frames": [
+      374,
+      424
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_505",
+     "frame": 375,
+     "frames": [
+      375,
+      423
+     ]
+    }
+   }
+  },
+  {
+   "n": 29,
+   "time_s": 14.2,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_372",
+     "frame": 426,
+     "frames": [
+      426,
+      456
+     ]
+    }
+   }
+  },
+  {
+   "n": 26,
+   "time_s": 14.4,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": {
+     "track": "M_500",
+     "frame": 432,
+     "frames": [
+      432,
+      459
+     ]
+    },
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 11,
+   "time_s": 14.67,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_3",
+     "frame": 440
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 12,
+   "time_s": 15.03,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_519",
+     "frame": 451
+    },
+    "current+old model": {
+     "track": "M_523",
+     "frame": 451,
+     "frames": [
+      451,
+      484
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": {
+     "track": "M_572",
+     "frame": 466,
+     "frames": [
+      466,
+      484
+     ]
+    },
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 27,
+   "time_s": 15.27,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": {
+     "track": "M_394",
+     "frame": 458,
+     "frames": [
+      458,
+      480
+     ]
+    },
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 13,
+   "time_s": 15.6,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_475",
+     "frame": 468
+    },
+    "current+old model": {
+     "track": "M_482",
+     "frame": 471,
+     "frames": [
+      471,
+      474
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_659",
+     "frame": 471,
+     "frames": [
+      471,
+      483
+     ]
+    }
+   }
+  },
+  {
+   "n": 14,
+   "time_s": 15.8,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_565",
+     "frame": 474
+    },
+    "current+old model": {
+     "track": "M_573",
+     "frame": 474,
+     "frames": [
+      474,
+      496
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 30,
+   "time_s": 15.8,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_620",
+     "frame": 474,
+     "frames": [
+      474,
+      474
+     ]
+    }
+   }
+  },
+  {
+   "n": 15,
+   "time_s": 16.6,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_592",
+     "frame": 498
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 31,
+   "time_s": 16.6,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": {
+     "track": "M_725",
+     "frame": 498,
+     "frames": [
+      498,
+      534
+     ]
+    }
+   }
+  },
+  {
+   "n": 16,
+   "time_s": 17.6,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_677",
+     "frame": 528
+    },
+    "current+old model": {
+     "track": "M_681",
+     "frame": 528,
+     "frames": [
+      528,
+      570
+     ]
+    },
+    "EXP-015 3cls": {
+     "track": "M_684",
+     "frame": 529,
+     "frames": [
+      529,
+      580
+     ]
+    },
+    "EXP-016 4cls": {
+     "track": "M_736",
+     "frame": 533,
+     "frames": [
+      533,
+      547
+     ]
+    },
+    "current+old model @10FPS": {
+     "track": "M_869",
+     "frame": 531,
+     "frames": [
+      531,
+      570
+     ]
+    }
+   }
+  },
+  {
+   "n": 17,
+   "time_s": 17.77,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_625",
+     "frame": 537
+    },
+    "current+old model": {
+     "track": "M_634",
+     "frame": 533,
+     "frames": [
+      533,
+      588
+     ]
+    },
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 19,
+   "time_s": 17.93,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": {
+     "track": "M_707",
+     "frame": 554,
+     "frames": [
+      554,
+      622
+     ]
+    },
+    "EXP-015 3cls": {
+     "track": "M_699",
+     "frame": 538,
+     "frames": [
+      538,
+      588
+     ]
+    },
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 18,
+   "time_s": 18.33,
+   "type": "overload",
+   "versions": {
+    "v0": {
+     "track": "M_677",
+     "frame": 550
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 20,
+   "time_s": 19.1,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_735",
+     "frame": 573
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 21,
+   "time_s": 19.4,
+   "type": "no_helmet",
+   "versions": {
+    "v0": {
+     "track": "M_773",
+     "frame": 582
+    },
+    "current+old model": {
+     "track": "M_782",
+     "frame": 582,
+     "frames": [
+      582,
+      595
+     ]
+    },
+    "EXP-015 3cls": {
+     "track": "M_775",
+     "frame": 592,
+     "frames": [
+      592,
+      612
+     ]
+    },
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 22,
+   "time_s": 21.3,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_874",
+     "frame": 639
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 23,
+   "time_s": 21.9,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_890",
+     "frame": 657
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 28,
+   "time_s": 25.37,
+   "type": "no_helmet",
+   "versions": {
+    "v0": null,
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": {
+     "track": "M_1174",
+     "frame": 761,
+     "frames": [
+      761,
+      781
+     ]
+    },
+    "current+old model @10FPS": null
+   }
+  },
+  {
+   "n": 24,
+   "time_s": 25.93,
+   "type": "wrong_way",
+   "versions": {
+    "v0": {
+     "track": "C_1090",
+     "frame": 778
+    },
+    "current+old model": null,
+    "EXP-015 3cls": null,
+    "EXP-016 4cls": null,
+    "current+old model @10FPS": null
+   }
+  }
+ ],
+ "pages": [
+  "contact5_1.jpg",
+  "contact5_2.jpg",
+  "contact5_3.jpg",
+  "contact5_4.jpg",
+  "contact5_5.jpg",
+  "contact5_6.jpg",
+  "contact5_7.jpg"
+ ]
+}

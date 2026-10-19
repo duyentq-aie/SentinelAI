@@ -4,8 +4,9 @@
       --rows outputs/regression_diag/event_rows.json --v0 outputs/regression_diag/v0/labels.json \\
       --run "current + old model=outputs/review_A" --run "EXP-015 3cls=outputs/review_B" --run "EXP-016 4cls=outputs/review_C_4cls"
 
-`--rows` (optional) = the rows of an earlier sheet (event_rows.json): their numbers are kept so a grade given earlier stays valid; events no earlier row explains get
-the next numbers. The first column is the original v0 code (labels.json from the one-pass hook run); every `--run` is a tools/review_run.py output folder.
+`--rows` (optional) = the rows of an earlier sheet (event_rows.json of the two-version sheet, or <prefix>_rows.json of a multi-version sheet): their numbers are kept so a
+grade given earlier stays valid; events no earlier row explains get the next numbers. A run given as "label=folder@3" was processed on every 3rd frame: its frame
+indices (trigger_frame) are multiplied by 3 to be original video frames. The first column is the original v0 code (labels.json from the one-pass hook run); every `--run` is a tools/review_run.py output folder.
 Writes <prefix>_<page>.jpg (5 rows per page, gitignored folder: people are visible), <prefix>_rows.json and <prefix>_grading.csv (empty verdict columns).
 """
 import argparse
@@ -55,13 +56,13 @@ def load_v0(path):
     return out
 
 
-def load_run(folder):
+def load_run(folder, scale=1):
     last = {}
     for line in (Path(folder) / "evidence" / "events.jsonl").read_text(encoding="utf-8").splitlines():
         if line.strip():
             r = json.loads(line)
             last[r["id"]] = r
-    return [{"track": r["track_id"], "type": r["type"], "frame": r["trigger_frame"], "box": r["key_box"], "start": r["frame_start"], "end": r["frame_end"]}
+    return [{"track": r["track_id"], "type": r["type"], "frame": r["trigger_frame"] * scale, "box": r["key_box"], "start": r["frame_start"] * scale, "end": r["frame_end"] * scale}
             for r in last.values() if r.get("status") != "evicted"]
 
 
@@ -78,12 +79,24 @@ def main():
     versions = {"v0": load_v0(a.v0)}
     for spec in a.run:
         label, folder = spec.split("=", 1)
-        versions[label] = load_run(folder)
+        scale = 1
+        if "@" in folder:
+            folder, scale = folder.rsplit("@", 1)
+            scale = int(scale)
+        versions[label] = load_run(folder, scale)
     names = list(versions)
 
     rows = []                                              # {"n", "type", "frame", "box", "ev": {version: event or None}}
-    if a.rows:
-        old = json.loads(Path(a.rows).read_text(encoding="utf-8"))
+    old = json.loads(Path(a.rows).read_text(encoding="utf-8")) if a.rows else None
+    if old is not None and isinstance(old, dict) and "rows" in old:       # a multi-version sheet: look every earlier event up again by (version, track, type)
+        by = {n: {(e["track"], e["type"]): e for e in versions[n]} for n in names}
+        for r in old["rows"]:
+            ev = {n: None for n in names}
+            for n, e in r["versions"].items():
+                if e and n in by:
+                    ev[n] = by[n].get((e["track"], r["type"]))
+            rows.append({"n": r["n"], "type": r["type"], "ev": ev})
+    elif old is not None:
         v0_by = {(e["track"], e["type"]): e for e in versions["v0"]}
         for r in old:
             ev = {n: None for n in names}
