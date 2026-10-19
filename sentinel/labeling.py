@@ -1,6 +1,9 @@
 """Ground-truth event labels (eval_sets/events/<video_id>.json) and the logic behind tools/label_events.py (no GUI here, so it is testable).
 
 Schema = PLAN section 3.1 / docs/EVIDENCE.md (GT fields): a labels file describes one video; each event is one violation type on one vehicle.
+`ambiguous` (bool, default false, event level): the annotator could not tell whether the violation really happened (head blurred, occluded, too far).
+The event keeps the usual track / frame interval / key_box so that predictions can still be matched to it; the evaluator then neither rewards nor
+penalises a prediction that matches it (see sentinel/evaluation.py). Files written before the field existed are read as ambiguous = false.
 """
 import hashlib
 import json
@@ -73,6 +76,8 @@ def validate(labels):
             p.append(f"{eid}: plate_text {pt!r} must be 5-12 capital letters/digits without separators (or null)")
         if e.get("difficulty") not in DIFFICULTIES:
             p.append(f"{eid}: difficulty must be one of {DIFFICULTIES}")
+        if "ambiguous" in e and not isinstance(e["ambiguous"], bool):
+            p.append(f"{eid}: ambiguous must be true or false")
         if labels["annotated_ranges"] and not any(a <= kf <= b for a, b in labels["annotated_ranges"]):
             p.append(f"{eid}: key_frame {kf} is outside every annotated range (false positives are only counted inside them)")
     return p
@@ -107,6 +112,7 @@ class LabelSession:
         self.type_idx = 0
         self.draft = {}
         self._range_open = None
+        self.ambiguous = False             # applies to the next committed event (toggle_ambiguous), reset after commit
 
     @property
     def type(self):
@@ -115,6 +121,10 @@ class LabelSession:
     def cycle_type(self):
         self.type_idx = (self.type_idx + 1) % len(EVENT_TYPES)
         return self.type
+
+    def toggle_ambiguous(self):
+        self.ambiguous = not self.ambiguous
+        return self.ambiguous
 
     def mark_start(self, frame):
         self.draft["frame_start"] = int(frame)
@@ -134,19 +144,22 @@ class LabelSession:
         n = 1 + max([int(re.sub(r"\D", "", e["id"]) or 0) for e in self.labels["events"]] + [0])
         return f"e{n:03d}"
 
-    def commit(self, plate_text=None, difficulty="normal", notes=""):
+    def commit(self, plate_text=None, difficulty="normal", notes="", ambiguous=None):
+        """`ambiguous=None` uses the session toggle (key `a` in tools/label_events.py)."""
         if not self.ready():
             raise ValueError("set start, end and key frame + box first")
         d = self.draft
         ev = {"id": self.next_id(), "type": self.type, "frame_start": min(d["frame_start"], d["key_frame"], d["frame_end"]),
               "frame_end": max(d["frame_end"], d["key_frame"], d["frame_start"]), "key_frame": d["key_frame"], "key_box": d["key_box"],
-              "plate_text": normalize_plate_text(plate_text), "difficulty": difficulty, "notes": notes}
+              "plate_text": normalize_plate_text(plate_text), "difficulty": difficulty, "ambiguous": bool(self.ambiguous if ambiguous is None else ambiguous),
+              "notes": notes}
         self.labels["events"].append(ev)
         problems = validate(self.labels)
         if problems:
             self.labels["events"].pop()
             raise ValueError("; ".join(problems))
         self.draft = {}
+        self.ambiguous = False
         return ev
 
     def undo(self):

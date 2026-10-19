@@ -5,6 +5,8 @@
 Prediction frames must be frame indices of the SAME video (run the pipeline on each labelled video from its first frame, every frame).
 Evaluate the `test` split only once, with the configuration frozen on `dev` (see docs/LABELING_GUIDE.md); the tool warns when splits are mixed.
 Definitions: sentinel/evaluation.py (docstring) and PLAN section 3.3-3.4.
+Ground-truth events with `ambiguous: true` are matched like the others but neither rewarded nor penalised (like VOC `difficult` / COCO `iscrowd`);
+the report shows `n_ambiguous_matched / n_ambiguous_total`.
 """
 import argparse
 import glob

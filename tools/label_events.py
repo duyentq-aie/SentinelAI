@@ -6,6 +6,7 @@ Keys (video window):
   space play/pause     j / l  step -1 / +1 frame      J / L  step -30 / +30 frames
   s mark event START   e mark event END               left-drag draw the vehicle box, then  k  = key frame (current frame) + that box
   t cycle type (no_helmet, overload, red_light)       h  next event is 'hard'      Enter  commit event (asks plate text in the terminal)
+  a next event is AMBIGUOUS (cannot tell whether the violation happened: blurred / occluded / too far; kept for matching, not scored)
   u undo last event    [  open / close an ANNOTATED RANGE (frames you labelled completely: false positives are counted only inside them)
   w save               q  save and quit
 Existing events are shown as boxes while the current frame is inside their [start, end].
@@ -23,7 +24,7 @@ from sentinel import labeling  # noqa: E402
 
 def hud(img, session, idx, n, fps, playing, hard):
     d = session.draft
-    lines = [f"frame {idx}/{n - 1}  t={idx / fps:7.2f}s  {'PLAY' if playing else 'pause'}   type: {session.type}   next hard: {hard}",
+    lines = [f"frame {idx}/{n - 1}  t={idx / fps:7.2f}s  {'PLAY' if playing else 'pause'}   type: {session.type}   next hard: {hard}   next ambiguous: {session.ambiguous}",
              f"draft: start={d.get('frame_start')} end={d.get('frame_end')} key={d.get('key_frame')} box={d.get('key_box')}",
              f"events: {len(session.labels['events'])}   ranges: {session.labels['annotated_ranges']}"]
     for i, t in enumerate(lines):
@@ -31,8 +32,9 @@ def hud(img, session, idx, n, fps, playing, hard):
     for e in session.labels["events"]:
         if e["frame_start"] <= idx <= e["frame_end"]:
             x1, y1, x2, y2 = e["key_box"]
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 200, 0), 2)
-            cv2.putText(img, f"{e['id']} {e['type']}", (x1, max(14, y1 - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 0), 2)
+            col = (0, 165, 255) if e.get("ambiguous") else (0, 200, 0)           # orange = ambiguous
+            cv2.rectangle(img, (x1, y1), (x2, y2), col, 2)
+            cv2.putText(img, f"{e['id']} {e['type']}{' AMBIGUOUS' if e.get('ambiguous') else ''}", (x1, max(14, y1 - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, col, 2)
     return img
 
 
@@ -103,6 +105,8 @@ def main():
             session.cycle_type()
         elif k == ord("h"):
             state["hard"] = not state["hard"]
+        elif k == ord("a"):
+            print("next event ambiguous:", session.toggle_ambiguous())
         elif k == ord("["):
             r = session.toggle_range(state["idx"])
             print("annotated range", r if r else "opened at frame %d" % state["idx"])

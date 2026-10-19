@@ -100,3 +100,24 @@ def test_a_labels_file_without_annotated_ranges_accepts_events_anywhere():
     labels = labeling.new_labels("c", 30, 1280, 720)                       # no ranges declared yet
     s = labeling.LabelSession(labels)
     assert commit(s)["id"] == "e001"
+
+
+def test_ambiguous_flag_defaults_to_false_toggles_for_the_next_event_only_and_is_validated():
+    s = labeling.LabelSession(fresh())
+    assert commit(s)["ambiguous"] is False
+    assert s.toggle_ambiguous() is True
+    b = commit(s, start=100, end=140, key=120)
+    assert b["ambiguous"] is True and s.ambiguous is False                      # the toggle applies to one event
+    c = (s.mark_start(200), s.mark_end(240), s.set_key(220, (10, 10, 50, 50)), s.commit(ambiguous=True))[-1]
+    assert c["ambiguous"] is True                                                # explicit argument works too
+    s.labels["events"][0]["ambiguous"] = "yes"
+    assert any("ambiguous must be true or false" in p for p in labeling.validate(s.labels))
+
+
+def test_files_written_before_the_field_existed_still_load(tmp_path):
+    s = labeling.LabelSession(fresh())
+    commit(s)
+    old = dict(s.labels, events=[{k: v for k, v in e.items() if k != "ambiguous"} for e in s.labels["events"]])
+    f = tmp_path / "old.json"
+    f.write_text(json.dumps(old), encoding="utf-8")
+    assert "ambiguous" not in labeling.load(f)["events"][0]

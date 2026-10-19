@@ -173,3 +173,61 @@ def test_mixed_splits_trigger_a_warning_and_split_filter_works():
 
 def test_levenshtein():
     assert ev.lev("29B112345", "29B112345") == 0 and ev.lev("29B112345", "29B11234") == 1 and ev.lev("", "abc") == 3 and ev.lev("kitten", "sitting") == 3
+
+
+# ---- ambiguous ground truth: one normal event N (frames 100-160) and one ambiguous event A (frames 1000-1060), same type, different places and times
+N = gt(1)
+A = dict(gt(2, start=1000, end=1060, key=1030, box=(100, 100, 300, 400)), ambiguous=True)
+P_N = pred(1)                                                         # hits N
+P_A = pred(2, trigger=1010, box_small=(67, 67, 200, 267), end=1070)   # hits A
+P_X = pred(3, trigger=4000, box_small=(10, 10, 90, 90), end=4100)     # hits nothing
+
+
+def amb_summary(preds):
+    r = run(labels([N, A]), preds)
+    return r, ev.summarize([r], n_boot=5)["types"]["no_helmet"]
+
+
+def test_ambiguous_case_1_prediction_hits_the_ambiguous_event_it_is_neither_tp_nor_fp():
+    r, t = amb_summary([P_N, P_A])
+    assert (counts(r)["tp"], counts(r)["fp"], counts(r)["fn"]) == (1, 0, 0)
+    assert (t["precision"], t["recall"], t["f1"]) == (1.0, 1.0, 1.0)             # by hand: TP 1, FP 0, FN 0
+    assert (t["n_ambiguous_matched"], t["n_ambiguous_total"], t["predictions_dropped_for_ambiguous"]) == (1, 1, 1)
+    assert [m["gt"] for m in r.matches] == ["e001"] and len(r.latencies) == 1    # only the normal event produces a match / latency
+
+
+def test_ambiguous_case_2_missing_the_ambiguous_event_costs_nothing():
+    r, t = amb_summary([P_N])
+    assert (counts(r)["tp"], counts(r)["fp"], counts(r)["fn"]) == (1, 0, 0)       # not a false negative
+    assert (t["precision"], t["recall"], t["f1"]) == (1.0, 1.0, 1.0)
+    assert (t["n_ambiguous_matched"], t["n_ambiguous_total"]) == (0, 1)
+
+
+def test_ambiguous_case_3_hitting_the_normal_event_is_scored_as_usual_with_a_false_positive_mixed_in():
+    r, t = amb_summary([P_N, P_X])
+    assert (counts(r)["tp"], counts(r)["fp"], counts(r)["fn"]) == (1, 1, 0)
+    assert t["precision"] == 0.5 and t["recall"] == 1.0 and t["f1"] == pytest.approx(0.6667, abs=1e-4)      # by hand: P 1/2, R 1/1, F1 2*.5*1/1.5
+    assert (t["n_ambiguous_matched"], t["n_ambiguous_total"]) == (0, 1)
+
+
+def test_ambiguous_hit_does_not_rescue_a_missed_normal_event():
+    r, t = amb_summary([P_A])                                                    # only the ambiguous event is hit
+    assert (counts(r)["tp"], counts(r)["fp"], counts(r)["fn"]) == (0, 0, 1)
+    assert t["precision"] is None and t["recall"] == 0.0 and t["f1"] is None     # TP 0, FP 0, FN 1: precision undefined, recall 0
+
+
+def test_ambiguous_event_never_steals_a_prediction_from_a_normal_event_and_duplicates_are_not_fp():
+    amb_overlap = dict(gt(2, start=100, end=160, key=130, box=(610, 310, 810, 710)), ambiguous=True)      # same place and time as N, slightly shifted
+    r = run(labels([N, amb_overlap]), [P_N])
+    assert (counts(r)["tp"], counts(r)["fp"], counts(r)["fn"]) == (1, 0, 0) and [m["gt"] for m in r.matches] == ["e001"]
+    both = run(labels([N, amb_overlap]), [P_N, pred(2, trigger=108)])            # two predictions for two overlapping events: one TP, one ambiguous match
+    assert (counts(both)["tp"], counts(both)["fp"]) == (1, 0) and counts(both)["amb_matched"] == 1
+    dup = run(labels([A]), [P_A, pred(5, trigger=1012, box_small=(67, 67, 200, 267), end=1070)])           # a second prediction for the ambiguous event
+    assert (counts(dup)["fp"], counts(dup)["tp"], counts(dup)["amb_excluded_pred"]) == (0, 0, 2)                  # the matched prediction and its duplicate are both dropped
+
+
+def test_ambiguous_counts_appear_in_the_report_text_and_overall_row():
+    rep = ev.evaluate({"v1": labels([N, A])}, {"v1": [P_N, P_A]}, n_boot=5)
+    assert rep["overall"]["types"]["all"]["n_ambiguous_matched"] == 1 and rep["overall"]["types"]["all"]["n_ambiguous_total"] == 1
+    assert "ambiguous ground truth (not scored): 1 of 1 matched" in ev.format_report(rep)
+    assert "ambiguous" not in ev.format_report(ev.evaluate({"v1": labels([N])}, {"v1": [P_N]}, n_boot=5))        # no line when there is none

@@ -12,6 +12,12 @@ Matching, per video and per violation type (never across types):
 Metrics: P / R / F1 per type and micro-averaged, FP per annotated hour, detection latency of TPs, plate exact-match / CER of TPs that have a labelled plate,
 bootstrap 95% CI resampling VIDEOS (the unit that is independent), and breakdowns by conditions (day/night ...) and with/without `hard` events.
 Pred boxes are rescaled from the pipeline's frame_size to the native video size of the labels.
+
+Ambiguous ground truth (`ambiguous: true` on an event, set when the annotator could not tell whether the violation happened): the event is matched with the
+SAME criteria (time tolerance + IoU), but only AFTER the normal events have taken their predictions (an ambiguous event never steals a TP). A prediction that
+matches an ambiguous event is dropped from the score: neither TP nor FP (its extra duplicates too). An ambiguous event without a matching prediction is not a FN.
+The counts `n_ambiguous_matched` / `n_ambiguous_total` are reported next to the metrics. This is the same idea as the `difficult` flag of PASCAL VOC and
+`iscrowd` of COCO: detections on such objects are ignored instead of rewarded or punished.
 """
 import json
 import random
@@ -143,6 +149,7 @@ def evaluate_video(labels, preds, tau=1.0, iou_thr=0.3, relaxed_iou=0.1, include
         G = [e for e in labels["events"] if e["type"] == typ]
         P = [e for e in preds if e["type"] == typ]
         PB = [pred_boxes(p, wh) for p in P]
+        amb = [i for i, g in enumerate(G) if g.get("ambiguous")]
         cost = np.full((len(G), len(P)), BIG)
         info = {}
         for i, g in enumerate(G):
@@ -151,13 +158,21 @@ def evaluate_video(labels, preds, tau=1.0, iou_thr=0.3, relaxed_iou=0.1, include
                 if sc:
                     cost[i, j] = 1.0 - sc[0]
                     info[(i, j)] = sc
-        pairs = []
-        if len(G) and len(P):
-            for i, j in zip(*linear_sum_assignment(cost)):
-                if cost[i, j] < BIG:
-                    pairs.append((i, j))
+        def assign(rows, cols):
+            """Hungarian assignment restricted to the given ground-truth rows and prediction columns -> [(i, j)] of candidate pairs."""
+            if not rows or not cols:
+                return []
+            sub = cost[np.ix_(rows, cols)]
+            return [(rows[a], cols[b]) for a, b in zip(*linear_sum_assignment(sub)) if sub[a, b] < BIG]
+
+        normal = [i for i in range(len(G)) if i not in amb]
+        pairs = assign(normal, list(range(len(P))))                                  # normal events first ...
+        free = [j for j in range(len(P)) if j not in {j for _, j in pairs}]
+        amb_pairs = assign(amb, free)                                                 # ... ambiguous ones only get the leftovers
         matched_g, matched_p = {i for i, _ in pairs}, {j for _, j in pairs}
-        c = {"tp": 0, "fp": 0, "fn": 0, "dup": 0, "relaxed": 0, "excluded_fp": 0, "hard_excluded": 0}
+        amb_matched = {i for i, _ in amb_pairs}
+        amb_preds = {j for _, j in amb_pairs}
+        c = {"tp": 0, "fp": 0, "fn": 0, "dup": 0, "relaxed": 0, "excluded_fp": 0, "hard_excluded": 0, "amb_matched": len(amb_matched), "amb_total": len(amb), "amb_excluded_pred": 0}
         for i, j in pairs:
             g, p = G[i], P[j]
             if not include_hard and g.get("difficulty") == "hard":
@@ -172,13 +187,16 @@ def evaluate_video(labels, preds, tau=1.0, iou_thr=0.3, relaxed_iou=0.1, include
                 pp = p.get("plate_pred") or {}
                 res.plate.append((g["plate_text"], pp.get("text")))
         for i, g in enumerate(G):
-            if i not in matched_g:
+            if i not in matched_g and i not in amb:                  # an unmatched ambiguous event is not a missed detection
                 if not include_hard and g.get("difficulty") == "hard":
                     c["hard_excluded"] += 1
                 else:
                     c["fn"] += 1
         for j, p in enumerate(P):
             if j in matched_p:
+                continue
+            if j in amb_preds or any((i, j) in info for i in amb):        # matches an ambiguous event (or duplicates a prediction that did): not scored
+                c["amb_excluded_pred"] += 1
                 continue
             kc = scale_box(p["key_box"], p.get("frame_size"), wh)
             centre = ((kc[0] + kc[2]) / 2, (kc[1] + kc[3]) / 2)
@@ -205,7 +223,7 @@ def prf(tp, fp, fn):
 
 
 def total(results, typ=None):
-    t = {"tp": 0, "fp": 0, "fn": 0, "dup": 0, "relaxed": 0, "excluded_fp": 0, "hard_excluded": 0}
+    t = {"tp": 0, "fp": 0, "fn": 0, "dup": 0, "relaxed": 0, "excluded_fp": 0, "hard_excluded": 0, "amb_matched": 0, "amb_total": 0, "amb_excluded_pred": 0}
     for r in results:
         for k, c in r.counts.items():
             if typ in (None, k):
@@ -250,7 +268,8 @@ def summarize(results, n_boot=1000, seed=0):
     for typ in list(labeling.EVENT_TYPES) + [None]:
         t = total(results, typ)
         row = prf(t["tp"], t["fp"], t["fn"]) | {"duplicates": t["dup"], "relaxed_matches": t["relaxed"], "fp_excluded_outside_annotated_or_ignored": t["excluded_fp"],
-                                                 "hard_not_scored": t["hard_excluded"]}
+                                                 "hard_not_scored": t["hard_excluded"], "n_ambiguous_matched": t["amb_matched"], "n_ambiguous_total": t["amb_total"],
+                                                 "predictions_dropped_for_ambiguous": t["amb_excluded_pred"]}
         h = out["annotated_hours"]
         row["fp_per_hour"] = round(t["fp"] / h, 2) if h > 0 else None
         row["duplicate_rate"] = round(t["dup"] / (t["tp"] + t["fp"]), 4) if t["tp"] + t["fp"] else None
@@ -298,6 +317,10 @@ def format_report(rep):
             ci = (r["ci95_bootstrap_by_video"] or {}).get("f1")
             out.append("%-10s %4d %4d %4d  %s %s %s  %8s %6d  %s" % (typ, r["tp"], r["fp"], r["fn"], f(r["precision"]), f(r["recall"]), f(r["f1"]),
                        "n/a" if r["fp_per_hour"] is None else f"{r['fp_per_hour']:.1f}", r["duplicates"], f"[{ci[0]:.2f}, {ci[1]:.2f}]" if ci else "n/a (< 2 videos or degenerate)"))
+        a = s["types"]["all"]
+        if a["n_ambiguous_total"]:
+            out.append(f"ambiguous ground truth (not scored): {a['n_ambiguous_matched']} of {a['n_ambiguous_total']} matched by a prediction; "
+                       f"{a['predictions_dropped_for_ambiguous']} prediction(s) dropped from FP/TP because of them")
         if s["detection_latency_s"]:
             d = s["detection_latency_s"]
             out.append(f"detection latency (trigger - frame_start) over {d['n']} TPs: mean {d['mean']} s, median {d['median']} s, range [{d['min']}, {d['max']}]")
