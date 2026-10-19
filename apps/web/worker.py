@@ -17,7 +17,7 @@ from sentinel.source import VideoSource
 
 class InferenceWorker:
     def __init__(self, pipeline, source, source_factory=VideoSource, idle_after=5.0,
-                 open_retry=1.0, read_retry=0.05, reopen_after_failures=100, encode=None, jpeg_quality=80, clock=time.monotonic, backend=None):
+                 open_retry=1.0, read_retry=0.05, reopen_after_failures=100, encode=None, jpeg_quality=90, clock=time.monotonic, backend=None):
         self.pipeline = pipeline
         self._factory = source_factory
         self._pending = source              # source spec waiting to be (re)opened by the worker thread
@@ -54,7 +54,8 @@ class InferenceWorker:
                 "frames_processed": self.frames_processed, "loops": self.loops,
                 "fps": round(fps, 1) if fps else None,                                   # processing rate over the last <= 60 frames
                 "latency_ms": round(1000 * sum(d for _, d in t) / len(t), 1) if t else None,   # mean time inside pipeline.process
-                "backend": self.backend, "jpeg_quality": self.jpeg_quality}
+                "backend": self.backend, "jpeg_quality": self.jpeg_quality,
+                "run": getattr(getattr(self.pipeline, "recorder", None), "run", None)}      # evidence run number = pass over the video since the source was opened
 
     def stop(self):
         self._stop.set()

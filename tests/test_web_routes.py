@@ -131,3 +131,34 @@ def test_index_page_has_the_panels_and_never_injects_server_data_as_html():
     for needle in ('id="camera_input"', 'id="video_upload"', 'id="events"', 'id="hud"', "/api/events", "/api/status", "/update_camera", "/upload_video"):
         assert needle in html, needle
     assert "innerHTML" not in html                       # event fields are rendered with textContent only
+
+
+# ---- events panel: the current run by default, every run on request; the run number is shown
+def write_events(root, records):
+    d = root / "static" / "violations"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "events.jsonl").write_text("\n".join(json.dumps(r) for r in records), encoding="utf-8")
+
+
+def test_events_default_to_the_current_run_and_all_runs_on_request(env):
+    c, worker, root = env
+    worker.status = lambda: {"running": True, "source": "x", "frames_processed": 5, "loops": 2, "run": 3}
+    write_events(root, [{"id": f"e{i}", "run": run, "status": "closed", "type": "no_helmet", "track_id": f"M_{i}"} for i, run in enumerate([1, 1, 2, 3, 3, 3])])
+    cur = c.get("/api/events").json()
+    assert cur["scope"] == "current" and cur["current_run"] == 3 and [e["id"] for e in cur["events"]] == ["e5", "e4", "e3"]
+    allr = c.get("/api/events?scope=all").json()
+    assert allr["scope"] == "all" and len(allr["events"]) == 6 and {e["run"] for e in allr["events"]} == {1, 2, 3}
+    assert all("run" in e for e in allr["events"])
+
+
+def test_without_a_known_run_every_event_is_listed(env):
+    c, worker, root = env
+    write_events(root, [{"id": "a", "run": 1, "status": "closed"}, {"id": "b", "run": 2, "status": "closed"}])
+    assert len(c.get("/api/events").json()["events"]) == 2                       # FakeWorker.status() has no 'run': nothing to filter by
+
+
+def test_the_page_shows_run_numbers_with_a_show_all_button_and_does_not_smooth_small_crops():
+    html = (Path(__file__).resolve().parent.parent / "templates" / "index.html").read_text(encoding="utf-8")
+    assert "scope=" in html and "toggleEventScope" in html and "show all runs" in html and "'run ' +" in html
+    assert "image-rendering: pixelated" in html and "plate-thumb" in html and "object-fit: contain" in html
+    assert "/video_feed" in html and "api/events" in html                           # evidence thumbnails come from the saved files, the stream only feeds the video element

@@ -47,8 +47,8 @@ def with_urls(events, prefix):
     return events
 
 
-def read_events(evidence_dir, limit=30):
-    """Last record per event id from events.jsonl, newest first, evicted events dropped."""
+def read_events(evidence_dir, limit=30, run=None):
+    """Last record per event id from events.jsonl, newest first, evicted events dropped. `run` keeps only the events of that run (pass over the video)."""
     f = Path(evidence_dir) / "events.jsonl"
     if not f.exists():
         return []
@@ -61,7 +61,7 @@ def read_events(evidence_dir, limit=30):
         if r["id"] not in last:
             order.append(r["id"])
         last[r["id"]] = r
-    evs = [last[i] for i in order if last[i].get("status") != "evicted"]
+    evs = [last[i] for i in order if last[i].get("status") != "evicted" and (run is None or last[i].get("run") == run)]
     return list(reversed(evs))[:limit]
 
 
@@ -124,7 +124,10 @@ def create_app(ctx: Context) -> FastAPI:
         return ctx.worker.status()
 
     @app.get("/api/events")
-    async def get_events(limit: int = 30):
-        return {"events": with_urls(read_events(ctx.evidence_dir, max(1, min(limit, 200))), ctx.evidence_url)}
+    async def get_events(limit: int = 30, scope: str = "current"):
+        """scope=current (default): only the events of the run in progress (the current pass over the video); scope=all: every run, newest first."""
+        run = ctx.worker.status().get("run") if scope != "all" else None
+        evs = read_events(ctx.evidence_dir, max(1, min(limit, 200)), run)
+        return {"events": with_urls(evs, ctx.evidence_url), "scope": "all" if run is None else "current", "current_run": ctx.worker.status().get("run")}
 
     return app

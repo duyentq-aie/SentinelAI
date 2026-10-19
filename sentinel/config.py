@@ -128,7 +128,7 @@ class WebCfg:
     allowed_source_dirs: List[str] = field(default_factory=lambda: ["static/uploads", "."])   # "." = repo root (test_video.mp4)
     allow_rtsp: bool = False
     allow_camera_index: bool = False
-    jpeg_quality: int = 80        # MJPEG stream quality (cv2 default is 95; lower = less encode time and bandwidth)
+    jpeg_quality: int = 90        # MJPEG stream quality only (cv2 default is 95); saved evidence is always >= 95 (evidence.jpeg_quality). 80/90/95: EXP-020
 
 
 @dataclass

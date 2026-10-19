@@ -1,0 +1,179 @@
+{
+ "v0 perception (overlay-contaminated, default tracker GMC on) || legacy": {
+  "no_helmet_tracks": 12,
+  "overload_tracks": 2,
+  "no_helmet_flagged_track_frames": 314,
+  "tracks": [
+   "M_1",
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_299",
+   "M_380",
+   "M_476",
+   "M_519",
+   "M_565",
+   "M_625",
+   "M_677",
+   "M_773"
+  ]
+ },
+ "v0 perception (overlay-contaminated, default tracker GMC on) || windowed (no hysteresis)": {
+  "no_helmet_tracks": 13,
+  "overload_tracks": 1,
+  "no_helmet_flagged_track_frames": 350,
+  "tracks": [
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_176",
+   "M_299",
+   "M_380",
+   "M_476",
+   "M_519",
+   "M_565",
+   "M_625",
+   "M_677",
+   "M_702",
+   "M_773"
+  ]
+ },
+ "v0 perception (overlay-contaminated, default tracker GMC on) || windowed + hysteresis 0.3 (current default)": {
+  "no_helmet_tracks": 13,
+  "overload_tracks": 1,
+  "no_helmet_flagged_track_frames": 389,
+  "tracks": [
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_176",
+   "M_299",
+   "M_380",
+   "M_476",
+   "M_519",
+   "M_565",
+   "M_625",
+   "M_677",
+   "M_702",
+   "M_773"
+  ]
+ },
+ "clean frames + GMC on (3.0b fix, default until 10-18) || legacy": {
+  "no_helmet_tracks": 12,
+  "overload_tracks": 2,
+  "no_helmet_flagged_track_frames": 314,
+  "tracks": [
+   "M_1",
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_299",
+   "M_380",
+   "M_476",
+   "M_519",
+   "M_565",
+   "M_625",
+   "M_677",
+   "M_773"
+  ]
+ },
+ "clean frames + GMC on (3.0b fix, default until 10-18) || windowed (no hysteresis)": {
+  "no_helmet_tracks": 13,
+  "overload_tracks": 1,
+  "no_helmet_flagged_track_frames": 350,
+  "tracks": [
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_176",
+   "M_299",
+   "M_380",
+   "M_476",
+   "M_519",
+   "M_565",
+   "M_625",
+   "M_677",
+   "M_702",
+   "M_773"
+  ]
+ },
+ "clean frames + GMC on (3.0b fix, default until 10-18) || windowed + hysteresis 0.3 (current default)": {
+  "no_helmet_tracks": 13,
+  "overload_tracks": 1,
+  "no_helmet_flagged_track_frames": 389,
+  "tracks": [
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_176",
+   "M_299",
+   "M_380",
+   "M_476",
+   "M_519",
+   "M_565",
+   "M_625",
+   "M_677",
+   "M_702",
+   "M_773"
+  ]
+ },
+ "current default (clean + GMC off) || legacy": {
+  "no_helmet_tracks": 12,
+  "overload_tracks": 2,
+  "no_helmet_flagged_track_frames": 314,
+  "tracks": [
+   "M_1",
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_300",
+   "M_380",
+   "M_481",
+   "M_521",
+   "M_571",
+   "M_632",
+   "M_679",
+   "M_780"
+  ]
+ },
+ "current default (clean + GMC off) || windowed (no hysteresis)": {
+  "no_helmet_tracks": 13,
+  "overload_tracks": 1,
+  "no_helmet_flagged_track_frames": 350,
+  "tracks": [
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_176",
+   "M_300",
+   "M_380",
+   "M_481",
+   "M_521",
+   "M_571",
+   "M_632",
+   "M_679",
+   "M_705",
+   "M_780"
+  ]
+ },
+ "current default (clean + GMC off) || windowed + hysteresis 0.3 (current default)": {
+  "no_helmet_tracks": 13,
+  "overload_tracks": 1,
+  "no_helmet_flagged_track_frames": 389,
+  "tracks": [
+   "M_77",
+   "M_129",
+   "M_153",
+   "M_176",
+   "M_300",
+   "M_380",
+   "M_481",
+   "M_521",
+   "M_571",
+   "M_632",
+   "M_679",
+   "M_705",
+   "M_780"
+  ]
+ }
+}

@@ -53,6 +53,9 @@
         .event-imgs { display: flex; gap: 6px; }
         .event-imgs a { flex: 1; min-width: 0; }
         .event-imgs img { width: 100%; height: 70px; object-fit: cover; border-radius: 3px; border: 1px solid #334155; background: #000; display: block; }
+        .event-imgs a.plate-thumb img { object-fit: contain; image-rendering: pixelated; }   /* the plate crop is small: show all of it, not a cropped enlargement */
+        .events-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+        .events-bar button { padding: 4px 10px; font-size: 12px; }
         .event-imgs .none { flex: 1; height: 70px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b; border: 1px dashed #334155; border-radius: 3px; }
         .plate-text { font: bold 15px Consolas, monospace; letter-spacing: 1px; color: #fde047; margin-top: 6px; }
         .plate-text small { font: 11px 'Segoe UI', sans-serif; letter-spacing: 0; color: #94a3b8; }
@@ -63,7 +66,7 @@
         .gallery-title { font-size: 1.2em; font-weight: bold; color: #ef4444; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #475569; padding-bottom: 10px; }
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .plate-card { background: #0f172a; border: 1px solid #ef4444; border-radius: 5px; padding: 5px; text-align: center; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); }
-        .plate-card img { width: 100%; height: auto; border-radius: 3px; }
+        .plate-card img { width: 100%; height: auto; border-radius: 3px; image-rendering: pixelated; }   /* small saved crops: no smoothing blur when enlarged */
         .plate-card p { margin: 5px 0 0 0; font-size: 12px; color: #ef4444; font-weight: bold; }
     </style>
 </head>
@@ -96,6 +99,7 @@
         <div class="side-column">
             <div class="events-container">
                 <div class="events-title">&#9888; VIOLATION EVENTS</div>
+                <div class="events-bar"><span id="events-scope">current run</span><button id="events-toggle" onclick="toggleEventScope()">show all runs</button></div>
                 <div id="events"><div class="empty">no events yet</div></div>
             </div>
             <div class="gallery-container">
@@ -172,7 +176,7 @@
         // Feature 4: event panel (type, time, frames, raw frame / vehicle / plate crops, OCR text)
         function thumb(url, label) {
             if (!url) return el('div', 'none', label + ': n/a');
-            const a = el('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.title = label;
+            const a = el('a', label === 'plate' ? 'plate-thumb' : null); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.title = label;
             const img = el('img'); img.src = url; img.alt = label; img.loading = 'lazy';
             a.appendChild(img);
             return a;
@@ -181,7 +185,7 @@
             const card = el('div', 'event-card');
             const head = el('div', 'event-head');
             const t = ['no_helmet', 'overload', 'red_light'].includes(e.type) ? e.type : 'other';
-            head.append(el('span', 'badge t-' + t, String(e.type || '?').replace('_', ' ')), el('span', 'event-meta', (e.status || '') + ' · ' + (e.track_id || '')));
+            head.append(el('span', 'badge t-' + t, String(e.type || '?').replace('_', ' ')), el('span', 'event-meta', 'run ' + (e.run != null ? e.run : '?') + ' · ' + (e.status || '') + ' · ' + (e.track_id || '')));
             const when = String(e.created_at || '').replace('T', ' ');
             const meta = el('div', 'event-meta', when + '  ·  frames ' + e.frame_start + '–' + e.frame_end + (e.light && e.light !== 'UNKNOWN' ? '  ·  light ' + e.light : ''));
             const imgs = el('div', 'event-imgs');
@@ -195,9 +199,16 @@
             card.append(head, meta, imgs, plate);
             return card;
         }
+        let showAllRuns = false;
+        function toggleEventScope() {
+            showAllRuns = !showAllRuns;
+            document.getElementById('events-toggle').textContent = showAllRuns ? 'current run only' : 'show all runs';
+            fetchEvents();
+        }
         async function fetchEvents() {
             try {
-                const data = await (await fetch('/api/events?limit=30')).json();
+                const data = await (await fetch('/api/events?limit=30&scope=' + (showAllRuns ? 'all' : 'current'))).json();
+                document.getElementById('events-scope').textContent = showAllRuns ? 'all runs (newest first)' : 'run ' + (data.current_run != null ? data.current_run : '?') + ' (this pass over the video)';
                 const box = document.getElementById('events');
                 box.replaceChildren();
                 if (!data.events.length) box.appendChild(el('div', 'empty', 'no events yet'));

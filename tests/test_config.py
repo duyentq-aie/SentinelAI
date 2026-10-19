@@ -95,7 +95,7 @@ def test_default_tracker_is_botsort_without_gmc_and_marked_temporary():
 
 def test_saved_evidence_is_never_stored_at_stream_quality(tmp_path):
     c = load_pipeline_config()
-    assert c.evidence.jpeg_quality >= 95 and c.web.jpeg_quality == 80 and c.evidence.jpeg_quality > c.web.jpeg_quality
+    assert c.evidence.jpeg_quality >= 95 and c.web.jpeg_quality == 90 and c.evidence.jpeg_quality > c.web.jpeg_quality
     f = tmp_path / "low.yaml"
     f.write_text("evidence:\n  jpeg_quality: 90\n", encoding="utf-8")
     with pytest.raises(ValueError, match="95"):

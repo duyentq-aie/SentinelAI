@@ -1,0 +1,239 @@
+{
+ "n_frames": 12,
+ "method": "the 12 plate frames of the v0/current comparison (1280x720 raw frames), cv2.imencode quality 80/90/95, PSNR against the raw frame in the plate box and in the whole frame",
+ "median": {
+  "q80": {
+   "kb": 192.7,
+   "psnr_plate_db": 35.2,
+   "psnr_frame_db": 36.5
+  },
+  "q90": {
+   "kb": 270.3,
+   "psnr_plate_db": 38.9,
+   "psnr_frame_db": 39.4
+  },
+  "q95": {
+   "kb": 374.0,
+   "psnr_plate_db": 42.4,
+   "psnr_frame_db": 41.8
+  }
+ },
+ "per_frame": [
+  {
+   "pair": 2,
+   "q80": {
+    "kb": 215.6,
+    "psnr_plate_db": 34.6,
+    "psnr_frame_db": 35.86
+   },
+   "q90": {
+    "kb": 297.8,
+    "psnr_plate_db": 39.03,
+    "psnr_frame_db": 39.06
+   },
+   "q95": {
+    "kb": 406.0,
+    "psnr_plate_db": 42.43,
+    "psnr_frame_db": 41.64
+   }
+  },
+  {
+   "pair": 3,
+   "q80": {
+    "kb": 217.8,
+    "psnr_plate_db": 35.52,
+    "psnr_frame_db": 35.71
+   },
+   "q90": {
+    "kb": 302.5,
+    "psnr_plate_db": 38.76,
+    "psnr_frame_db": 38.88
+   },
+   "q95": {
+    "kb": 413.6,
+    "psnr_plate_db": 42.48,
+    "psnr_frame_db": 41.46
+   }
+  },
+  {
+   "pair": 4,
+   "q80": {
+    "kb": 212.1,
+    "psnr_plate_db": 33.69,
+    "psnr_frame_db": 35.85
+   },
+   "q90": {
+    "kb": 295.0,
+    "psnr_plate_db": 37.16,
+    "psnr_frame_db": 38.93
+   },
+   "q95": {
+    "kb": 405.0,
+    "psnr_plate_db": 40.42,
+    "psnr_frame_db": 41.49
+   }
+  },
+  {
+   "pair": 8,
+   "q80": {
+    "kb": 214.9,
+    "psnr_plate_db": 34.82,
+    "psnr_frame_db": 35.72
+   },
+   "q90": {
+    "kb": 299.3,
+    "psnr_plate_db": 38.39,
+    "psnr_frame_db": 38.76
+   },
+   "q95": {
+    "kb": 411.3,
+    "psnr_plate_db": 42.32,
+    "psnr_frame_db": 41.27
+   }
+  },
+  {
+   "pair": 9,
+   "q80": {
+    "kb": 209.1,
+    "psnr_plate_db": 37.09,
+    "psnr_frame_db": 35.95
+   },
+   "q90": {
+    "kb": 291.6,
+    "psnr_plate_db": 39.77,
+    "psnr_frame_db": 39.02
+   },
+   "q95": {
+    "kb": 400.6,
+    "psnr_plate_db": 43.14,
+    "psnr_frame_db": 41.52
+   }
+  },
+  {
+   "pair": 10,
+   "q80": {
+    "kb": 192.0,
+    "psnr_plate_db": 34.36,
+    "psnr_frame_db": 36.6
+   },
+   "q90": {
+    "kb": 268.2,
+    "psnr_plate_db": 38.24,
+    "psnr_frame_db": 39.54
+   },
+   "q95": {
+    "kb": 369.8,
+    "psnr_plate_db": 42.62,
+    "psnr_frame_db": 41.95
+   }
+  },
+  {
+   "pair": 12,
+   "q80": {
+    "kb": 184.1,
+    "psnr_plate_db": 35.19,
+    "psnr_frame_db": 36.8
+   },
+   "q90": {
+    "kb": 257.5,
+    "psnr_plate_db": 37.82,
+    "psnr_frame_db": 39.68
+   },
+   "q95": {
+    "kb": 355.7,
+    "psnr_plate_db": 40.47,
+    "psnr_frame_db": 42.06
+   }
+  },
+  {
+   "pair": 13,
+   "q80": {
+    "kb": 192.0,
+    "psnr_plate_db": 34.62,
+    "psnr_frame_db": 36.48
+   },
+   "q90": {
+    "kb": 269.2,
+    "psnr_plate_db": 37.82,
+    "psnr_frame_db": 39.42
+   },
+   "q95": {
+    "kb": 372.6,
+    "psnr_plate_db": 42.34,
+    "psnr_frame_db": 41.85
+   }
+  },
+  {
+   "pair": 14,
+   "q80": {
+    "kb": 193.3,
+    "psnr_plate_db": 36.63,
+    "psnr_frame_db": 36.44
+   },
+   "q90": {
+    "kb": 271.4,
+    "psnr_plate_db": 39.74,
+    "psnr_frame_db": 39.36
+   },
+   "q95": {
+    "kb": 375.4,
+    "psnr_plate_db": 42.19,
+    "psnr_frame_db": 41.79
+   }
+  },
+  {
+   "pair": 16,
+   "q80": {
+    "kb": 187.6,
+    "psnr_plate_db": 37.26,
+    "psnr_frame_db": 36.67
+   },
+   "q90": {
+    "kb": 263.6,
+    "psnr_plate_db": 39.95,
+    "psnr_frame_db": 39.58
+   },
+   "q95": {
+    "kb": 364.9,
+    "psnr_plate_db": 42.92,
+    "psnr_frame_db": 41.98
+   }
+  },
+  {
+   "pair": 17,
+   "q80": {
+    "kb": 186.4,
+    "psnr_plate_db": 35.14,
+    "psnr_frame_db": 36.68
+   },
+   "q90": {
+    "kb": 262.2,
+    "psnr_plate_db": 39.45,
+    "psnr_frame_db": 39.58
+   },
+   "q95": {
+    "kb": 363.4,
+    "psnr_plate_db": 42.18,
+    "psnr_frame_db": 42.02
+   }
+  },
+  {
+   "pair": 21,
+   "q80": {
+    "kb": 189.7,
+    "psnr_plate_db": 37.41,
+    "psnr_frame_db": 36.68
+   },
+   "q90": {
+    "kb": 265.9,
+    "psnr_plate_db": 40.23,
+    "psnr_frame_db": 39.6
+   },
+   "q95": {
+    "kb": 368.0,
+    "psnr_plate_db": 43.63,
+    "psnr_frame_db": 42.04
+   }
+  }
+ ]
+}

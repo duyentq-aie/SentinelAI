@@ -62,7 +62,7 @@ web:                          # demo server (apps/web); restrictive defaults
   allowed_source_dirs: [static/uploads, .]   # video files must live in one of these (relative to the repo root); "." = repo root
   allow_rtsp: false           # rtsp:// URLs are rejected unless this is true
   allow_camera_index: false   # "0", "1" ... (local cameras) are rejected unless this is true
-  jpeg_quality: 80            # MJPEG stream quality (cv2 default 95)
+  jpeg_quality: 90            # MJPEG stream quality only (cv2 default 95); the saved evidence images are >= 95
 
 render:
   blend: roi                  # roi = blend only the label tag (same picture as full up to +-1 rounding noise, faster); full = v0 whole-frame blend (A/B reference)

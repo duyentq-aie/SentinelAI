@@ -169,5 +169,5 @@ def test_status_reports_rolling_fps_latency_and_backend():
         last = w.next_jpeg(last, timeout=2)[0]
     st = w.status()
     w.stop()
-    assert st["backend"] == {"runtime": "pytorch", "device": "cpu"} and st["jpeg_quality"] == 80
+    assert st["backend"] == {"runtime": "pytorch", "device": "cpu"} and st["jpeg_quality"] == 90
     assert 5 < st["fps"] < 120 and 8 <= st["latency_ms"] < 100              # ~10 ms of fake processing per frame

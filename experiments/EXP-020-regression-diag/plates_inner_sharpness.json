@@ -1,0 +1,167 @@
+[
+ {
+  "n": 3,
+  "v0_inner_lap": 4124.4,
+  "cur_inner_lap": 3898.1,
+  "v0_inner_ten": 34254.7,
+  "cur_inner_ten": 55557.0,
+  "v0_inner_wh": [
+   23,
+   17
+  ],
+  "cur_inner_wh": [
+   24,
+   21
+  ]
+ },
+ {
+  "n": 4,
+  "v0_inner_lap": 3694.4,
+  "cur_inner_lap": 3731.7,
+  "v0_inner_ten": 34019.2,
+  "cur_inner_ten": 34153.0,
+  "v0_inner_wh": [
+   18,
+   14
+  ],
+  "cur_inner_wh": [
+   18,
+   14
+  ]
+ },
+ {
+  "n": 8,
+  "v0_inner_lap": 4874.7,
+  "cur_inner_lap": 3915.9,
+  "v0_inner_ten": 47308.7,
+  "cur_inner_ten": 43913.4,
+  "v0_inner_wh": [
+   21,
+   19
+  ],
+  "cur_inner_wh": [
+   22,
+   20
+  ]
+ },
+ {
+  "n": 9,
+  "v0_inner_lap": 1473.1,
+  "cur_inner_lap": 9695.2,
+  "v0_inner_ten": 20000.3,
+  "cur_inner_ten": 46011.5,
+  "v0_inner_wh": [
+   23,
+   7
+  ],
+  "cur_inner_wh": [
+   16,
+   15
+  ]
+ },
+ {
+  "n": 10,
+  "v0_inner_lap": 3077.8,
+  "cur_inner_lap": 3369.2,
+  "v0_inner_ten": 20791.8,
+  "cur_inner_ten": 21490.2,
+  "v0_inner_wh": [
+   15,
+   14
+  ],
+  "cur_inner_wh": [
+   15,
+   13
+  ]
+ },
+ {
+  "n": 12,
+  "v0_inner_lap": 2264.2,
+  "cur_inner_lap": 1933.7,
+  "v0_inner_ten": 19997.2,
+  "cur_inner_ten": 19511.9,
+  "v0_inner_wh": [
+   21,
+   18
+  ],
+  "cur_inner_wh": [
+   23,
+   20
+  ]
+ },
+ {
+  "n": 13,
+  "v0_inner_lap": 3354.4,
+  "cur_inner_lap": 2104.5,
+  "v0_inner_ten": 23335.4,
+  "cur_inner_ten": 23718.4,
+  "v0_inner_wh": [
+   7,
+   5
+  ],
+  "cur_inner_wh": [
+   7,
+   5
+  ]
+ },
+ {
+  "n": 14,
+  "v0_inner_lap": 1876.0,
+  "cur_inner_lap": 1869.8,
+  "v0_inner_ten": 15474.9,
+  "cur_inner_ten": 15517.3,
+  "v0_inner_wh": [
+   20,
+   15
+  ],
+  "cur_inner_wh": [
+   20,
+   15
+  ]
+ },
+ {
+  "n": 16,
+  "v0_inner_lap": 1313.4,
+  "cur_inner_lap": 1301.0,
+  "v0_inner_ten": 40872.8,
+  "cur_inner_ten": 36870.8,
+  "v0_inner_wh": [
+   24,
+   15
+  ],
+  "cur_inner_wh": [
+   25,
+   19
+  ]
+ },
+ {
+  "n": 17,
+  "v0_inner_lap": 967.0,
+  "cur_inner_lap": 2961.6,
+  "v0_inner_ten": 14582.8,
+  "cur_inner_ten": 28884.6,
+  "v0_inner_wh": [
+   9,
+   10
+  ],
+  "cur_inner_wh": [
+   14,
+   10
+  ]
+ },
+ {
+  "n": 21,
+  "v0_inner_lap": 1598.2,
+  "cur_inner_lap": 1506.4,
+  "v0_inner_ten": 22319.6,
+  "cur_inner_ten": 21996.4,
+  "v0_inner_wh": [
+   22,
+   16
+  ],
+  "cur_inner_wh": [
+   22,
+   17
+  ]
+ }
+]
