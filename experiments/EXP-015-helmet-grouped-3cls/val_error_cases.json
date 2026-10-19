@@ -1,0 +1,1058 @@
+[
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "train/images/frame_10_572_jpg.rf.bbab8dc98995f9c0a3504397e040e678.jpg",
+  "video": "frame_10",
+  "gt": null,
+  "pred": [
+   1130.69482421875,
+   0.0,
+   1241.684326171875,
+   127.12637329101562
+  ],
+  "conf": 0.401,
+  "iou": 0.0,
+  "overlaps_gt_class": null,
+  "id": "E00",
+  "tag": "nhãn thiếu",
+  "why": "người đội mũ bảo hiểm rõ nhưng KHÔNG có hộp GT helmet; model còn đoán no-helmet nên cũng là lỗi model"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "test/images/frame_10_576_jpg.rf.7c10796ddfdd32efaacdef5e1f07fb9d.jpg",
+  "video": "frame_10",
+  "gt": null,
+  "pred": [
+   1148.78125,
+   722.147216796875,
+   1281.0875244140625,
+   919.3636474609375
+  ],
+  "conf": 0.304,
+  "iou": 0.1,
+  "overlaps_gt_class": null,
+  "id": "E01",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_581_jpg.rf.fc383f0272cedcf68468dbfaea634e9d.jpg",
+  "video": "frame_10",
+  "gt": [
+   1123.4050000000002,
+   366.445,
+   1244.635,
+   557.275
+  ],
+  "pred": [
+   1115.895751953125,
+   368.6001892089844,
+   1254.1572265625,
+   560.9949951171875
+  ],
+  "conf": 0.408,
+  "iou": 0.85,
+  "id": "E02",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_582_jpg.rf.763405bbb84a9bf2d482a8c4704c2c84.jpg",
+  "video": "frame_10",
+  "gt": [
+   1126.675,
+   325.78499999999997,
+   1262.4250000000002,
+   530.555
+  ],
+  "pred": [
+   1123.538818359375,
+   328.72320556640625,
+   1255.2293701171875,
+   514.5236206054688
+  ],
+  "conf": 0.326,
+  "iou": 0.84,
+  "id": "E03",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_584_jpg.rf.07931aca828c44b228445757a5f6407c.jpg",
+  "video": "frame_10",
+  "gt": [
+   1152.0800000000002,
+   254.51000000000002,
+   1277.06,
+   445.37
+  ],
+  "pred": [
+   1142.130859375,
+   255.21469116210938,
+   1276.2535400390625,
+   428.0369567871094
+  ],
+  "conf": 0.535,
+  "iou": 0.84,
+  "id": "E04",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_587_jpg.rf.8e7199c07f4a4d50b1390d937da0d0ce.jpg",
+  "video": "frame_10",
+  "gt": [
+   1182.3500000000001,
+   133.335,
+   1298.53,
+   308.665
+  ],
+  "pred": [
+   1178.273193359375,
+   127.05619812011719,
+   1315.57861328125,
+   290.1548767089844
+  ],
+  "conf": 0.566,
+  "iou": 0.74,
+  "id": "E05",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_588_jpg.rf.30196b632f5ef2decc2f963413bc7781.jpg",
+  "video": "frame_10",
+  "gt": [
+   1193.655,
+   102.20000000000003,
+   1303.525,
+   269.34
+  ],
+  "pred": [
+   1182.6917724609375,
+   98.5997543334961,
+   1306.784912109375,
+   265.3648376464844
+  ],
+  "conf": 0.73,
+  "iou": 0.85,
+  "id": "E06",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "test/images/frame_10_588_jpg.rf.30196b632f5ef2decc2f963413bc7781.jpg",
+  "video": "frame_10",
+  "gt": null,
+  "pred": [
+   1609.139892578125,
+   6.085807800292969,
+   1704.530029296875,
+   124.3275375366211
+  ],
+  "conf": 0.554,
+  "iou": 0.0,
+  "overlaps_gt_class": null,
+  "id": "E07",
+  "tag": "lỗi model",
+  "why": "đèn hậu ô tô bị đoán no-helmet"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "test/images/frame_10_588_jpg.rf.30196b632f5ef2decc2f963413bc7781.jpg",
+  "video": "frame_10",
+  "gt": null,
+  "pred": [
+   2034.978759765625,
+   7.256017684936523,
+   2116.206787109375,
+   111.85121154785156
+  ],
+  "conf": 0.263,
+  "iou": 0.0,
+  "overlaps_gt_class": null,
+  "id": "E08",
+  "tag": "lỗi model",
+  "why": "đèn hậu ô tô bị đoán no-helmet"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_589_jpg.rf.cac9b8aac4ea0d40a02854e790a82c28.jpg",
+  "video": "frame_10",
+  "gt": [
+   1197.1800000000003,
+   68.555,
+   1312.0800000000002,
+   241.60500000000002
+  ],
+  "pred": [
+   1191.7977294921875,
+   71.09799194335938,
+   1313.429931640625,
+   238.82395935058594
+  ],
+  "conf": 0.643,
+  "iou": 0.92,
+  "id": "E09",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "test/images/frame_10_592_jpg.rf.225bebadbe13fcaea4363e6f36c105fd.jpg",
+  "video": "frame_10",
+  "gt": [
+   1222.625,
+   0.0,
+   1329.895,
+   150.86
+  ],
+  "pred": [
+   1223.6986083984375,
+   0.0,
+   1338.617431640625,
+   140.2873992919922
+  ],
+  "conf": 0.69,
+  "iou": 0.86,
+  "id": "E10",
+  "tag": "không chắc",
+  "why": "người trùm mũ vải/hood, mũ bảo hiểm của người kia chồng trong cùng hộp; GT hợp lý nhưng hai đầu chồng nhau"
+ },
+ {
+  "kind": "b_gt_nohelmet_missed",
+  "img": "train/images/frame_14_169_jpg.rf.07dfcc8d5116f1ccf48bcab1ebbef9d0.jpg",
+  "video": "frame_14",
+  "gt": [
+   808.1400000000001,
+   1937.4799999999998,
+   1005.7800000000001,
+   2160.0
+  ],
+  "pred": null,
+  "conf": null,
+  "iou": 0.25,
+  "id": "E11",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, không có hộp đầu nào"
+ },
+ {
+  "kind": "b_gt_nohelmet_missed",
+  "img": "valid/images/frame_14_170_jpg.rf.40340b97badcbf49619bf9de2d1b31cf.jpg",
+  "video": "frame_14",
+  "gt": [
+   820.1949999999999,
+   1836.5299999999997,
+   1018.805,
+   2119.95
+  ],
+  "pred": null,
+  "conf": null,
+  "iou": 0.2,
+  "id": "E12",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, không có hộp đầu nào"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "valid/images/frame_14_171_jpg.rf.1f4f9185fd0538db853cdf88973e84c8.jpg",
+  "video": "frame_14",
+  "gt": null,
+  "pred": [
+   928.9932861328125,
+   1867.89794921875,
+   1167.8331298828125,
+   2143.867919921875
+  ],
+  "conf": 0.58,
+  "iou": 0.16,
+  "overlaps_gt_class": null,
+  "id": "E13",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_173_jpg.rf.67cb8a4b2d7337bb43ea8ec83007c75c.jpg",
+  "video": "frame_14",
+  "gt": [
+   877.65,
+   1550.02,
+   1055.05,
+   1836.32
+  ],
+  "pred": [
+   856.2169189453125,
+   1544.571533203125,
+   1078.6787109375,
+   1856.386962890625
+  ],
+  "conf": 0.707,
+  "iou": 0.73,
+  "id": "E14",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_174_jpg.rf.15da21ae8ab3bf7d04c949d3ac028515.jpg",
+  "video": "frame_14",
+  "gt": [
+   893.0799999999998,
+   1463.7300000000002,
+   1077.28,
+   1750.75
+  ],
+  "pred": [
+   875.9386596679688,
+   1466.003173828125,
+   1088.096435546875,
+   1763.68212890625
+  ],
+  "conf": 0.665,
+  "iou": 0.83,
+  "id": "E15",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_175_jpg.rf.b507eb0514a8b24e4ea552b211d1db70.jpg",
+  "video": "frame_14",
+  "gt": [
+   913.3149999999999,
+   1380.3750000000002,
+   1090.005,
+   1665.3850000000002
+  ],
+  "pred": [
+   897.2012329101562,
+   1384.572021484375,
+   1097.01171875,
+   1663.9918212890625
+  ],
+  "conf": 0.64,
+  "iou": 0.87,
+  "id": "E16",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_177_jpg.rf.e12947d45ff04c2db7e024d5cb12b3c3.jpg",
+  "video": "frame_14",
+  "gt": [
+   938.7549999999999,
+   1225.69,
+   1113.865,
+   1494.8499999999997
+  ],
+  "pred": [
+   939.7889404296875,
+   1226.45458984375,
+   1121.966064453125,
+   1500.20947265625
+  ],
+  "conf": 0.466,
+  "iou": 0.93,
+  "id": "E17",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_181_jpg.rf.cac8e8fbf7743122336d94edc95ff707.jpg",
+  "video": "frame_14",
+  "gt": [
+   1003.4849999999998,
+   955.0600000000001,
+   1152.115,
+   1207.9
+  ],
+  "pred": [
+   996.323486328125,
+   945.054931640625,
+   1163.5489501953125,
+   1195.771728515625
+  ],
+  "conf": 0.72,
+  "iou": 0.82,
+  "id": "E18",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_183_jpg.rf.3ed4467cdba0064758373e7ab55ade3a.jpg",
+  "video": "frame_14",
+  "gt": [
+   1027.13,
+   830.45,
+   1171.85,
+   1058.23
+  ],
+  "pred": [
+   1020.747802734375,
+   826.99658203125,
+   1180.8658447265625,
+   1063.9244384765625
+  ],
+  "conf": 0.306,
+  "iou": 0.87,
+  "id": "E19",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_185_jpg.rf.df4e64a401df02a5396b34dd15f0d1c4.jpg",
+  "video": "frame_14",
+  "gt": [
+   1052.7300000000002,
+   716.64,
+   1200.13,
+   951.1400000000001
+  ],
+  "pred": [
+   1048.2802734375,
+   714.3997192382812,
+   1200.134033203125,
+   944.7833862304688
+  ],
+  "conf": 0.371,
+  "iou": 0.94,
+  "id": "E20",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_189_jpg.rf.dfa231a8b64a7c72f165fe983a178780.jpg",
+  "video": "frame_14",
+  "gt": [
+   1095.9,
+   506.9600000000001,
+   1225.9600000000003,
+   723.9200000000001
+  ],
+  "pred": [
+   1088.4891357421875,
+   520.056884765625,
+   1225.0843505859375,
+   722.0809936523438
+  ],
+  "conf": 0.345,
+  "iou": 0.88,
+  "id": "E21",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_14_190_jpg.rf.50b1f74fbeb38ea6ac2c18e49fa7158a.jpg",
+  "video": "frame_14",
+  "gt": [
+   1100.7450000000001,
+   455.81500000000005,
+   1229.6950000000002,
+   684.345
+  ],
+  "pred": [
+   1103.809814453125,
+   467.79241943359375,
+   1237.576416015625,
+   658.144287109375
+  ],
+  "conf": 0.641,
+  "iou": 0.77,
+  "id": "E22",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_14_191_jpg.rf.cecb258c97862f5d9c24b1531e376e13.jpg",
+  "video": "frame_14",
+  "gt": [
+   1108.8300000000002,
+   413.225,
+   1241.59,
+   607.375
+  ],
+  "pred": [
+   1114.2421875,
+   416.9081726074219,
+   1246.4630126953125,
+   613.272705078125
+  ],
+  "conf": 0.733,
+  "iou": 0.88,
+  "id": "E23",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_14_192_jpg.rf.b3afd7ac0148b00e0a5bd10aca264ff8.jpg",
+  "video": "frame_14",
+  "gt": [
+   1109.97,
+   367.24499999999995,
+   1253.01,
+   563.435
+  ],
+  "pred": [
+   1119.829833984375,
+   356.9206237792969,
+   1262.173095703125,
+   556.0626220703125
+  ],
+  "conf": 0.768,
+  "iou": 0.8,
+  "id": "E24",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_14_195_jpg.rf.d5956d5fae6c34d85693e90d881142ae.jpg",
+  "video": "frame_14",
+  "gt": [
+   1152.99,
+   244.63000000000002,
+   1266.39,
+   433.61
+  ],
+  "pred": [
+   1145.667724609375,
+   242.282470703125,
+   1277.1239013671875,
+   424.7716369628906
+  ],
+  "conf": 0.633,
+  "iou": 0.82,
+  "id": "E25",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_196_jpg.rf.5ee89386c15219d579b337ef6e03ec5d.jpg",
+  "video": "frame_14",
+  "gt": [
+   1157.8100000000002,
+   198.49500000000003,
+   1271.49,
+   387.105
+  ],
+  "pred": [
+   1152.34814453125,
+   203.64102172851562,
+   1284.2174072265625,
+   389.5410461425781
+  ],
+  "conf": 0.621,
+  "iou": 0.83,
+  "id": "E26",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_197_jpg.rf.e2d9533cc8cc5c9686b2eeaf8641d529.jpg",
+  "video": "frame_14",
+  "gt": [
+   1165.985,
+   166.17000000000002,
+   1286.075,
+   340.93
+  ],
+  "pred": [
+   1164.15966796875,
+   158.2960968017578,
+   1303.8336181640625,
+   350.54541015625
+  ],
+  "conf": 0.725,
+  "iou": 0.78,
+  "id": "E27",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "valid/images/frame_14_197_jpg.rf.e2d9533cc8cc5c9686b2eeaf8641d529.jpg",
+  "video": "frame_14",
+  "gt": null,
+  "pred": [
+   1984.734375,
+   278.61767578125,
+   2122.55126953125,
+   473.67242431640625
+  ],
+  "conf": 0.36,
+  "iou": 0.94,
+  "overlaps_gt_class": "helmet",
+  "id": "E28",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_198_jpg.rf.976a1f2f9a9df9d3d7eff0477e1d90b5.jpg",
+  "video": "frame_14",
+  "gt": [
+   1171.29,
+   126.36999999999998,
+   1292.33,
+   300.96999999999997
+  ],
+  "pred": [
+   1178.8779296875,
+   110.85409545898438,
+   1309.2706298828125,
+   293.349853515625
+  ],
+  "conf": 0.609,
+  "iou": 0.73,
+  "id": "E29",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_14_199_jpg.rf.c95bd13a6ad27b06f166a7f78516ac9d.jpg",
+  "video": "frame_14",
+  "gt": [
+   1177.5,
+   88.97999999999998,
+   1293.96,
+   258.47999999999996
+  ],
+  "pred": [
+   1182.4102783203125,
+   83.54713439941406,
+   1307.966552734375,
+   257.25775146484375
+  ],
+  "conf": 0.785,
+  "iou": 0.82,
+  "id": "E30",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_200_jpg.rf.904db029b8b5575d52b10149de9b4010.jpg",
+  "video": "frame_14",
+  "gt": [
+   1187.695,
+   53.58499999999998,
+   1304.165,
+   226.615
+  ],
+  "pred": [
+   1190.2489013671875,
+   63.43702697753906,
+   1303.9705810546875,
+   218.6466522216797
+  ],
+  "conf": 0.66,
+  "iou": 0.88,
+  "id": "E31",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_201_jpg.rf.993754aa8890a3090671cbbc1ef3e998.jpg",
+  "video": "frame_14",
+  "gt": [
+   1200.0800000000002,
+   22.064999999999994,
+   1306.7400000000002,
+   180.59500000000003
+  ],
+  "pred": [
+   1202.74169921875,
+   19.444976806640625,
+   1309.728759765625,
+   186.5851593017578
+  ],
+  "conf": 0.733,
+  "iou": 0.9,
+  "id": "E32",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "valid/images/frame_14_202_jpg.rf.e2d3709920c2d4b0b025e25fe981b767.jpg",
+  "video": "frame_14",
+  "gt": [
+   1206.7450000000001,
+   -0.004999999999987792,
+   1321.5350000000003,
+   146.62500000000003
+  ],
+  "pred": [
+   1210.99658203125,
+   0.0,
+   1324.46826171875,
+   151.90689086914062
+  ],
+  "conf": 0.645,
+  "iou": 0.91,
+  "id": "E33",
+  "tag": "lỗi model",
+  "why": "đầu trần rõ, GT đúng (hộp GT dài gồm cả lưng); model đoán helmet vì mũ của người lái nằm chồng trong cùng hộp"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_689_jpg.rf.b76dd4f23496091d598094b5188a84aa.jpg",
+  "video": "frame_15",
+  "gt": [
+   1268.685,
+   221.755,
+   1389.4149999999997,
+   383.845
+  ],
+  "pred": [
+   1267.6142578125,
+   165.60617065429688,
+   1418.9256591796875,
+   368.64276123046875
+  ],
+  "conf": 0.656,
+  "iou": 0.54,
+  "id": "E34",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "train/images/frame_15_693_jpg.rf.5d5fd52e9c7e263e172ef173bf51537a.jpg",
+  "video": "frame_15",
+  "gt": null,
+  "pred": [
+   874.5743408203125,
+   331.7758483886719,
+   977.25732421875,
+   490.8218078613281
+  ],
+  "conf": 0.259,
+  "iou": 0.22,
+  "overlaps_gt_class": null,
+  "id": "E35",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "train/images/frame_15_698_jpg.rf.9c5cc2abbb927be02a618092262ec162.jpg",
+  "video": "frame_15",
+  "gt": null,
+  "pred": [
+   2699.2119140625,
+   1919.3173828125,
+   2921.781005859375,
+   2155.064208984375
+  ],
+  "conf": 0.363,
+  "iou": 0.25,
+  "overlaps_gt_class": null,
+  "id": "E36",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "train/images/frame_15_699_jpg.rf.abc4060ce5932136fa01cffe8624c32b.jpg",
+  "video": "frame_15",
+  "gt": null,
+  "pred": [
+   889.7272338867188,
+   40.056358337402344,
+   1013.518798828125,
+   247.25357055664062
+  ],
+  "conf": 0.283,
+  "iou": 0.59,
+  "overlaps_gt_class": "helmet",
+  "id": "E37",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_733_jpg.rf.9be3e0f9d9edfcdc37fe8fb7294efb60.jpg",
+  "video": "frame_15",
+  "gt": [
+   513.34,
+   1653.9750000000001,
+   705.36,
+   1947.245
+  ],
+  "pred": [
+   521.1869506835938,
+   1644.7921142578125,
+   733.5552368164062,
+   1934.120361328125
+  ],
+  "conf": 0.334,
+  "iou": 0.78,
+  "id": "E38",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_738_jpg.rf.9ee9c7e69fc2c6268cb1321f979dc7bc.jpg",
+  "video": "frame_15",
+  "gt": [
+   681.75,
+   1238.6,
+   869.8699999999999,
+   1498.14
+  ],
+  "pred": [
+   706.7794799804688,
+   1235.63232421875,
+   871.670654296875,
+   1456.7457275390625
+  ],
+  "conf": 0.461,
+  "iou": 0.72,
+  "id": "E39",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_739_jpg.rf.3f7fba75c96f3123c90a7e7abb6a8640.jpg",
+  "video": "frame_15",
+  "gt": [
+   718.6200000000001,
+   1169.6599999999999,
+   884.7800000000001,
+   1422.92
+  ],
+  "pred": [
+   734.8072509765625,
+   1159.681884765625,
+   903.6524047851562,
+   1389.1865234375
+  ],
+  "conf": 0.447,
+  "iou": 0.69,
+  "id": "E40",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_743_jpg.rf.d035bae4934c32de2508dc924f2487a8.jpg",
+  "video": "frame_15",
+  "gt": [
+   821.5450000000001,
+   902.225,
+   977.8550000000001,
+   1117.535
+  ],
+  "pred": [
+   843.2257690429688,
+   899.947265625,
+   995.8379516601562,
+   1088.0394287109375
+  ],
+  "conf": 0.341,
+  "iou": 0.67,
+  "id": "E41",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "b_gt_nohelmet_missed",
+  "img": "train/images/frame_15_756_jpg.rf.dcb7a4f2dd8f82ae6faa24a7756e7058.jpg",
+  "video": "frame_15",
+  "gt": [
+   1074.5900000000001,
+   277.00500000000005,
+   1191.39,
+   466.07500000000005
+  ],
+  "pred": null,
+  "conf": null,
+  "iou": 0,
+  "id": "E42",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu; model không thấy đầu nào"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_757_jpg.rf.b629c33e876042ab3d25bf653ab5e4dd.jpg",
+  "video": "frame_15",
+  "gt": [
+   1085.52,
+   240.655,
+   1201.9,
+   436.485
+  ],
+  "pred": [
+   1097.197998046875,
+   179.26382446289062,
+   1225.787353515625,
+   335.17529296875
+  ],
+  "conf": 0.495,
+  "iou": 0.3,
+  "note": "low iou",
+  "id": "E43",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_758_jpg.rf.23c0906e907a4158109f9863cb6ae76a.jpg",
+  "video": "frame_15",
+  "gt": [
+   1097.47,
+   199.95000000000002,
+   1219.23,
+   394.51000000000005
+  ],
+  "pred": [
+   1108.2579345703125,
+   153.71841430664062,
+   1234.3436279296875,
+   346.57305908203125
+  ],
+  "conf": 0.383,
+  "iou": 0.51,
+  "id": "E44",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "b_gt_nohelmet_missed",
+  "img": "train/images/frame_15_759_jpg.rf.356ae540156038509854fefbd8bda070.jpg",
+  "video": "frame_15",
+  "gt": [
+   1106.995,
+   166.195,
+   1229.025,
+   359.325
+  ],
+  "pred": null,
+  "conf": null,
+  "iou": 0.24,
+  "id": "E45",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu; model không thấy đầu nào"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "train/images/frame_15_759_jpg.rf.356ae540156038509854fefbd8bda070.jpg",
+  "video": "frame_15",
+  "gt": null,
+  "pred": [
+   1175.0980224609375,
+   243.01524353027344,
+   1263.3394775390625,
+   354.74462890625
+  ],
+  "conf": 0.258,
+  "iou": 0.22,
+  "overlaps_gt_class": null,
+  "id": "E46",
+  "tag": "lỗi model",
+  "why": "dự đoán no-helmet trên thân/lưng dưới một đầu đã có nhãn (thường là helmet): hộp trùng thân người"
+ },
+ {
+  "kind": "a_gt_nohelmet_pred_helmet",
+  "img": "train/images/frame_15_760_jpg.rf.07555d6d978166cf1d24e4f5887cc990.jpg",
+  "video": "frame_15",
+  "gt": [
+   1118.045,
+   129.23,
+   1247.7150000000001,
+   314.35
+  ],
+  "pred": [
+   1131.81103515625,
+   79.99024200439453,
+   1273.103515625,
+   275.9637145996094
+  ],
+  "conf": 0.348,
+  "iou": 0.49,
+  "note": "low iou",
+  "id": "E47",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "other",
+  "img": "train/images/frame_15_763_jpg.rf.8bac8c3833d40d7029f8ff046df48946.jpg",
+  "video": "frame_15",
+  "gt": [
+   1163.445,
+   30.349999999999998,
+   1274.355,
+   212.85
+  ],
+  "pred": [
+   1174.974365234375,
+   9.220161437988281,
+   1284.55859375,
+   149.31723022460938
+  ],
+  "conf": 0.551,
+  "iou": 0.5,
+  "note": "low iou",
+  "id": "E48",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu (hijab); chưa có quy ước nhãn cho khăn; mũ người lái chồng lên"
+ },
+ {
+  "kind": "c_pred_nohelmet_no_gt_nohelmet",
+  "img": "train/images/frame_15_763_jpg.rf.8bac8c3833d40d7029f8ff046df48946.jpg",
+  "video": "frame_15",
+  "gt": null,
+  "pred": [
+   1174.974365234375,
+   9.220161437988281,
+   1284.55859375,
+   149.31723022460938
+  ],
+  "conf": 0.551,
+  "iou": 0.5,
+  "overlaps_gt_class": "no-helmet",
+  "id": "E49",
+  "tag": "không chắc",
+  "why": "định vị: hộp GT dài gồm khăn + lưng, hộp dự đoán chỉ phần đầu (IoU < 0.5)"
+ },
+ {
+  "kind": "b_gt_nohelmet_missed",
+  "img": "train/images/frame_15_764_jpg.rf.867ab6c75440b86cb659e99a0718f997.jpg",
+  "video": "frame_15",
+  "gt": [
+   1176.415,
+   4.050000000000003,
+   1282.725,
+   182.77
+  ],
+  "pred": null,
+  "conf": null,
+  "iou": 0,
+  "id": "E50",
+  "tag": "không chắc",
+  "why": "khăn trùm đầu; model không thấy đầu nào"
+ }
+]

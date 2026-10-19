@@ -27,3 +27,7 @@ kaggle.json
 .pytest_cache/
 venv-edge/
 kaggle_upload/
+experiments/EXP-015-helmet-grouped-3cls/error_gallery/
+experiments/EXP-015-helmet-grouped-3cls/**/*batch*.jpg
+experiments/EXP-015-helmet-grouped-3cls/**/labels.jpg
+results_*.zip

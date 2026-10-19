@@ -1,0 +1,135 @@
+{
+  "run": "3cls",
+  "split": "A (grouped by video)",
+  "classes": [
+    "helmet",
+    "motorcycle",
+    "no-helmet"
+  ],
+  "splits": {
+    "train": {
+      "images": 1026,
+      "instances": {
+        "helmet": 2105,
+        "motorcycle": 2102,
+        "no-helmet": 662
+      }
+    },
+    "val": {
+      "images": 214,
+      "instances": {
+        "helmet": 468,
+        "motorcycle": 471,
+        "no-helmet": 140
+      }
+    },
+    "test": {
+      "images": 214,
+      "instances": {
+        "helmet": 258,
+        "motorcycle": 304,
+        "no-helmet": 133
+      }
+    },
+    "extra_1080p": {
+      "images": 6,
+      "instances": {
+        "helmet": 4,
+        "motorcycle": 14,
+        "no-helmet": 10
+      }
+    }
+  },
+  "env": {
+    "ultralytics": "8.4.26",
+    "torch": "2.11.0+cu128",
+    "gpu": "Tesla T4",
+    "python": "3.13.15"
+  },
+  "eval": {
+    "val": {
+      "all": {
+        "P": 0.8921,
+        "R": 0.9022,
+        "mAP50": 0.9524,
+        "mAP50-95": 0.6176
+      },
+      "per_class": {
+        "helmet": {
+          "P": 0.7719,
+          "R": 0.9542,
+          "mAP50": 0.9495,
+          "mAP50-95": 0.5794
+        },
+        "motorcycle": {
+          "P": 0.9914,
+          "R": 0.9809,
+          "mAP50": 0.9948,
+          "mAP50-95": 0.7448
+        },
+        "no-helmet": {
+          "P": 0.913,
+          "R": 0.7714,
+          "mAP50": 0.9129,
+          "mAP50-95": 0.5286
+        }
+      }
+    },
+    "test": {
+      "all": {
+        "P": 0.8995,
+        "R": 0.9063,
+        "mAP50": 0.9335,
+        "mAP50-95": 0.6346
+      },
+      "per_class": {
+        "helmet": {
+          "P": 0.8664,
+          "R": 0.9845,
+          "mAP50": 0.9616,
+          "mAP50-95": 0.623
+        },
+        "motorcycle": {
+          "P": 0.9992,
+          "R": 0.9901,
+          "mAP50": 0.995,
+          "mAP50-95": 0.8281
+        },
+        "no-helmet": {
+          "P": 0.8329,
+          "R": 0.7444,
+          "mAP50": 0.8438,
+          "mAP50-95": 0.4527
+        }
+      }
+    },
+    "extra_1080p": {
+      "all": {
+        "P": 0.7784,
+        "R": 0.6167,
+        "mAP50": 0.7021,
+        "mAP50-95": 0.289
+      },
+      "per_class": {
+        "helmet": {
+          "P": 0.3576,
+          "R": 0.25,
+          "mAP50": 0.2922,
+          "mAP50-95": 0.0642
+        },
+        "motorcycle": {
+          "P": 0.9929,
+          "R": 1.0,
+          "mAP50": 0.995,
+          "mAP50-95": 0.4834
+        },
+        "no-helmet": {
+          "P": 0.9848,
+          "R": 0.6,
+          "mAP50": 0.8191,
+          "mAP50-95": 0.3193
+        }
+      }
+    }
+  }
+}

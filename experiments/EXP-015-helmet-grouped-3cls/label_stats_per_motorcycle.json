@@ -1,0 +1,42 @@
+{
+ "train": {
+  "motos": 2102,
+  "heads=1": 1493,
+  "no-helmet=0": 1559,
+  "heads_not_inside_any_moto_box": 144,
+  "heads=2": 538,
+  "no-helmet=1": 448,
+  "motos_mixed_helmet_and_no-helmet": 245,
+  "heads=0": 53,
+  "heads=3": 18,
+  "no-helmet=2": 95,
+  "motos_with_>=2_no-helmet": 95
+ },
+ "val": {
+  "motos": 471,
+  "heads=2": 104,
+  "no-helmet=0": 334,
+  "heads=0": 21,
+  "heads=1": 332,
+  "no-helmet=1": 137,
+  "motos_mixed_helmet_and_no-helmet": 108,
+  "heads_not_inside_any_moto_box": 26,
+  "heads=3": 14
+ },
+ "test": {
+  "motos": 304,
+  "heads=2": 77,
+  "no-helmet=1": 131,
+  "motos_mixed_helmet_and_no-helmet": 77,
+  "heads=1": 227,
+  "no-helmet=0": 173,
+  "heads_not_inside_any_moto_box": 10
+ },
+ "extra_1080p": {
+  "motos": 14,
+  "heads=1": 14,
+  "no-helmet=1": 10,
+  "no-helmet=0": 4,
+  "heads_not_inside_any_moto_box": 0
+ }
+}

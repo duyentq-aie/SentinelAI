@@ -1,0 +1,194 @@
+{
+ "original_split": {
+  "train": {
+   "images": 1014,
+   "no_helmet_per_image": {
+    "0": 458,
+    "1": 448,
+    "2": 108
+   },
+   "images_with_ge2_no_helmet": 108,
+   "images_with_no_no_helmet": 458,
+   "heads_per_image(helmet+no-helmet)": {
+    "0": 2,
+    "1": 304,
+    "2": 285,
+    "3": 204,
+    "4": 91,
+    "5": 96,
+    "6": 22,
+    "7": 8,
+    "8": 2
+   },
+   "motorcycles_per_image": {
+    "0": 6,
+    "1": 464,
+    "2": 303,
+    "3": 124,
+    "4": 93,
+    "5": 23,
+    "6": 1
+   },
+   "mean_heads_per_motorcycle": 1.31
+  },
+  "valid": {
+   "images": 278,
+   "no_helmet_per_image": {
+    "0": 124,
+    "1": 138,
+    "2": 16
+   },
+   "images_with_ge2_no_helmet": 16,
+   "images_with_no_no_helmet": 124,
+   "heads_per_image(helmet+no-helmet)": {
+    "0": 1,
+    "1": 61,
+    "2": 62,
+    "3": 71,
+    "4": 45,
+    "5": 30,
+    "6": 8
+   },
+   "motorcycles_per_image": {
+    "0": 2,
+    "1": 87,
+    "2": 88,
+    "3": 68,
+    "4": 25,
+    "5": 7,
+    "6": 1
+   },
+   "mean_heads_per_motorcycle": 1.276
+  },
+  "test": {
+   "images": 168,
+   "no_helmet_per_image": {
+    "0": 68,
+    "1": 89,
+    "2": 11
+   },
+   "images_with_ge2_no_helmet": 11,
+   "images_with_no_no_helmet": 68,
+   "heads_per_image(helmet+no-helmet)": {
+    "0": 2,
+    "1": 26,
+    "2": 47,
+    "3": 57,
+    "4": 15,
+    "5": 9,
+    "6": 10,
+    "7": 2
+   },
+   "motorcycles_per_image": {
+    "0": 2,
+    "1": 56,
+    "2": 72,
+    "3": 19,
+    "4": 7,
+    "5": 10,
+    "6": 1,
+    "7": 1
+   },
+   "mean_heads_per_motorcycle": 1.351
+  }
+ },
+ "split_A": {
+  "train": {
+   "images": 1026,
+   "no_helmet_per_image": {
+    "0": 495,
+    "1": 400,
+    "2": 131
+   },
+   "images_with_ge2_no_helmet": 131,
+   "images_with_no_no_helmet": 495,
+   "heads_per_image(helmet+no-helmet)": {
+    "0": 5,
+    "1": 232,
+    "2": 304,
+    "3": 226,
+    "4": 110,
+    "5": 99,
+    "6": 38,
+    "7": 10,
+    "8": 2
+   },
+   "motorcycles_per_image": {
+    "0": 9,
+    "1": 398,
+    "2": 335,
+    "3": 150,
+    "4": 91,
+    "5": 39,
+    "6": 3,
+    "7": 1
+   },
+   "mean_heads_per_motorcycle": 1.316
+  },
+  "val": {
+   "images": 214,
+   "no_helmet_per_image": {
+    "0": 74,
+    "1": 140
+   },
+   "images_with_ge2_no_helmet": 0,
+   "images_with_no_no_helmet": 74,
+   "heads_per_image(helmet+no-helmet)": {
+    "1": 63,
+    "2": 20,
+    "3": 59,
+    "4": 34,
+    "5": 36,
+    "6": 2
+   },
+   "motorcycles_per_image": {
+    "1": 78,
+    "2": 50,
+    "3": 52,
+    "4": 33,
+    "5": 1
+   },
+   "mean_heads_per_motorcycle": 1.291
+  },
+  "test": {
+   "images": 214,
+   "no_helmet_per_image": {
+    "0": 81,
+    "1": 133
+   },
+   "images_with_ge2_no_helmet": 0,
+   "images_with_no_no_helmet": 81,
+   "heads_per_image(helmet+no-helmet)": {
+    "1": 96,
+    "2": 65,
+    "3": 47,
+    "4": 6
+   },
+   "motorcycles_per_image": {
+    "0": 1,
+    "1": 131,
+    "2": 73,
+    "3": 9
+   },
+   "mean_heads_per_motorcycle": 1.286
+  },
+  "extra_1080p": {
+   "images": 6,
+   "no_helmet_per_image": {
+    "1": 2,
+    "2": 4
+   },
+   "images_with_ge2_no_helmet": 4,
+   "images_with_no_no_helmet": 0,
+   "heads_per_image(helmet+no-helmet)": {
+    "2": 5,
+    "4": 1
+   },
+   "motorcycles_per_image": {
+    "2": 5,
+    "4": 1
+   },
+   "mean_heads_per_motorcycle": 1.0
+  }
+ }
+}

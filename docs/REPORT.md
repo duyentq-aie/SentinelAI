@@ -8,7 +8,7 @@ Written 2026-10-18 from the experiment folders in `experiments/` (every number b
 |---|---|
 | What it does | detects no-helmet / >2 riders on motorcycles (and, via the legacy zone rule, red-light running), tracks vehicles, saves evidence per event, optionally reads plate text, serves a demo UI |
 | What was improved on the original prototype | perception fixed (models no longer see overlays), rules rewritten as voting over a window, evidence + plate search made event-driven and bounded, security hardened, software optimised (default config +26% headless / +24% stream in the EXP-006 A/B, on top of the plate-policy gain in EXP-003; an unadopted tracker change would give ~2.4×), ONNX backend, OCR, tooling for recording/labelling |
-| What is **not** known | the precision/recall of the events (no labelled video), generalisation of the detectors (original test split not verified independent), behaviour at night / rain / other cameras, red-light rule quality (no red-light event in the clip), Edge performance on real hardware |
+| What is **not** known | the precision/recall of the events (no labelled video), generalisation of the deployed detectors (their original test splits leak; a video-grouped helmet re-training exists but is not deployed, EXP-015), behaviour at night / rain / other cameras, red-light rule quality (no red-light event in the clip), Edge performance on real hardware |
 | Biggest open risks | (1) no ground truth, (2) the detected plate box is only ~26×22 px at 720p so OCR cannot work on this footage, (3) tracker changes that give 2× speed need validation before adoption |
 
 ## 2. System
@@ -32,7 +32,8 @@ video/RTSP/file ──read──> raw frame (resized 1280x720, never drawn on)
 Design points that mattered: models and evidence use the **raw** frame (the v0 code fed drawn overlays into the helmet and plate models, EXP-002); rules never see pixels, so they are tested offline from recorded tracks (`tests/fixtures/tracks_test_video.jsonl`, replay in < 1 s); one inference worker serves every HTTP client.
 
 ## 3. Models and data (EXP-000)
-- Helmet: YOLO11s fine-tuned on a Roboflow export (1014/278/168 train/val/test images; classes helmet, motorcycle, no-helmet); test mAP50 0.994, mAP50-95 0.812 (per class 0.993/0.995/0.995) — **saturated and probably optimistic**: test ≈ val and the images are frames extracted from video (split independence unchecked).
+- Helmet (deployed `helmet_best.pt`): YOLO11s fine-tuned on a Roboflow export (1014/278/168 train/val/test images; classes helmet, motorcycle, no-helmet); reported test mAP50 0.994, mAP50-95 0.812 (per class mAP50-95 0.791 / 0.878 / 0.768). **These numbers are not evidence of generalisation**: the split is random over frames of 16 videos (EXP-011: all valid/test images belong to frame groups shared with train; 86% of test images are within 4 dHash bits of a train image).
+- Helmet re-trained on a video-grouped split (EXP-015, split A of EXP-013, 3 classes, same hyper-parameters, run on Kaggle by the project owner; weights not adopted by the app): **test (214 images, 5 videos) mAP50 0.934, mAP50-95 0.635; per class mAP50-95 helmet 0.623, motorcycle 0.828, no-helmet 0.453** (P/R no-helmet 0.833/0.744); val (4 videos) mAP50-95 0.618. The drop from the old numbers is *not* purely a leakage effect: the image sets, videos and training environment differ (EXP-015 README). The new test has no image with two no-helmet riders (train has 95 such motorcycles), 6 extra 1080p images (n = 6) are reported separately and support no conclusion, and 51 validation errors (46 images) cluster in three videos (head-scarf riders, one bare-headed passenger across many frames, overlapping heads). This is a detector score on still frames from one camera angle, **not** an accuracy claim for videos or for violation events.
 - Plate: YOLO11n (50 epochs, val mAP50 0.995 / 0.752). **The saved notebook does not correspond to the deployed weights** (10 of 19 training arguments differ; no outputs saved).
 - COCO YOLO11s for cars/trucks/buses and traffic lights. Datasets are not in the repo (`data/raw/` absent); their licences are unknown.
 
@@ -48,6 +49,11 @@ Design points that mattered: models and evidence use the **raw** frame (the v0 c
 | EXP-006 | software optimisation | ROI blend +21% headless / +18% stream; JPEG q80 +4–5%; tracker gmc none / ByteTrack ~+90% / +67% (not adopted) |
 | EXP-007 | ONNX | rectangular 384×640 export: identical detections to PyTorch, −18…−34% latency per model; pipeline events identical; CPU pipeline +7% FPS; GPU/TensorRT not measurable here |
 | EXP-008 | plate OCR | see §8 |
+| EXP-009/010 | speed across sessions | ratios vs v0 per round; see §5 |
+| EXP-011 | train/val/test leakage | helmet: random frame split of 16 videos, 100% of valid/test images in leaky groups; plate: ≥ 13% of valid/test have a near-identical train image (EXP-014) |
+| EXP-012 | ONNX GPU | ONNX Runtime CUDA FP32 = PyTorch (3.07× v0), FP16 3.35×; proxy hardware only |
+| EXP-013 | video-grouped split proposals | 17 groups, variants A/B/C; A used for EXP-015 |
+| EXP-015 | helmet re-trained on split A | test mAP50-95 0.635 (no-helmet 0.453), see §3 |
 
 ## 5. Performance
 **Method.** Every benchmark session runs the original pipeline (`v0-baseline`) as reference, interleaved round by round with the other configurations (`tools/benchmark_pipeline.py`, 3-5 rounds), and reports the **ratio to v0 in the same round** (median and range). Absolute FPS is given for reference only: it moves with background CPU load (EXP-009: ~50% foreign CPU load = -40% FPS on every configuration, while the ratio changed by <= 2%). *stream* = read + process + draw + JPEG (no HTTP).
@@ -84,7 +90,7 @@ Chain (`sentinel/ocr/`): best crop of the track (size × sharpness) → tight cr
 1. No event-level ground truth; no P/R/F1 anywhere. Tools for recording and labelling exist (`docs/RECORDING_GUIDE.md`, `docs/LABELING_GUIDE.md`) but no data.
 2. One 26 s clip, daytime, one camera; dev/test not separated; tracker/rule parameters were never tuned on separate data.
 3. Red-light: legacy rule only; the clip has no red-light event and the light is detected in 14 detections. The stop-line rule needs the camera geometry (tool exists) and video.
-4. Detector metrics saturated; leakage unchecked; training data and notebooks partly missing (plate).
+4. The deployed detectors' published metrics are leaky (helmet: EXP-011; plate: EXP-014); only the re-trained helmet model has a video-grouped score (EXP-015, 5 test videos, one camera angle) and it is not deployed; the plate detector has none; the plate notebook is missing.
 5. Edge: no real Edge device; proxies only (CPU ONNX, RTX 3050 Laptop ONNX-GPU FP32/FP16 in EXP-012); TensorRT/INT8 not measured; FP16 event equivalence only checked by counts.
 6. Licences: Ultralytics AGPL-3.0; dataset licences unknown. Plates and faces are personal data.
 
