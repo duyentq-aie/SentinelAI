@@ -1,0 +1,20 @@
+{
+ "images": 214,
+ "gt_plate_boxes": 271,
+ "4cls_best.pt (class 3)": {
+  "n_gt": 271,
+  "n_pred": 1372,
+  "precision": 0.9638,
+  "recall": 0.9815,
+  "ap50": 0.9876,
+  "ap50_95": 0.647
+ },
+ "plate_best.pt (deployed plate model)": {
+  "n_gt": 271,
+  "n_pred": 1660,
+  "precision": 0.0476,
+  "recall": 0.0037,
+  "ap50": 0.0075,
+  "ap50_95": 0.0011
+ }
+}
