@@ -39,3 +39,21 @@ Khoảng thời gian của 7 sự kiện ghép được (frame gốc, 10 FPS −
 - **Chi phí mỗi frame được xử lý không đổi** (≈ 49 ms ở cả hai, tỉ lệ so với v0 như nhau trong khoảng nhiễu): bước nhảy không làm pipeline nhanh hơn từng frame, chỉ làm **ít frame hơn** (263 so với 787 mỗi lượt), nên tổng thời gian tính toán mỗi giây video giảm khoảng 3 lần.
 - **Phiên đo có tải nền** (`cpu_other` ≈ 35%): tỉ lệ so với v0 ổn định hơn FPS tuyệt đối; xem EXP-009 về độ nhiễu.
 - Không suy ra được tốc độ trên thiết bị đích (G7): đây là RTX 3050 Laptop + CPU máy dev.
+
+## Độ ổn định của tracking xe máy: 30 FPS và 10 FPS (`tracking_stability.py`, `tracking_stability.json`; chỉ báo số, chưa sửa gì)
+Tracker của model helmet (BoT-SORT, GMC tắt, cấu hình mặc định), track lớp `motorcycle` trên `test_video.mp4`. Ba biến thể: 30 FPS (buffer 30 frame = 1 s); 10 FPS với buffer quy đổi về cùng thời lượng (10 frame, đúng như `Pipeline(fps=10)`); 10 FPS để nguyên buffer 30 frame (= 3 s) để tách ảnh hưởng của buffer.
+
+| | 30 FPS | 10 FPS (buffer 10) | 10 FPS (buffer 30) |
+|---|---|---|---|
+| track duy nhất | 63 | 49 | 45 |
+| độ dài track trung vị (s) | 1.37 | 1.30 | 1.80 |
+| track ngắn hơn 1 s | 23 (36.5%) | 15 (30.6%) | 7 (15.6%) |
+| ước lượng số lần đổi ID¹ | 2 | 0 | 0 |
+| IoU hộp giữa hai frame liên tiếp của một track (trung vị / phân vị 10) | 0.957 / 0.895 | 0.860 / 0.764 | 0.861 / 0.764 |
+| dịch chuyển tâm giữa hai frame (px, trung vị / phân vị 90) | 2.8 / 8.5 | 10.6 / 21.7 | 10.5 / 21.7 |
+| bước có IoU < 0.3 | 0% | 0% | 0% |
+| phát hiện mỗi frame xử lý | 3.3 | 3.2 | 3.2 |
+¹ track kết thúc (không phải cuối video) rồi một track MỚI bắt đầu trong ≤ 0.5 s sau, tâm hộp đầu tiên cách tâm hộp cuối của track cũ ≤ 0.5 × cạnh lớn của hộp, ghép một-một; heuristic, **công suất thấp** (chỉ 2 trường hợp ở 30 FPS).
+
+**Giả thuyết "ở 10 FPS xe dịch xa hơn nên tracker ghép kém hơn": không được ủng hộ trên clip này.** Quãng dịch giữa hai frame tăng đúng như dự đoán (≈ 3.8×: 2.8 → 10.6 px) nhưng chỉ làm IoU liên tiếp giảm từ 0.96 xuống 0.86, vẫn xa ngưỡng ghép; không có bước nào dưới 0.3. Số track duy nhất **giảm** (49 so với 63), tỉ lệ track ngắn hơn 1 s không tăng (30.6% so với 36.5%) và không phát hiện đổi ID. Lưu ý: cảnh này phần lớn là hàng xe đứng chờ đèn đỏ rồi chạy chậm, nên chuyển động nhỏ; kết luận không áp dụng cho dòng xe nhanh. Giữ buffer 30 frame ở 10 FPS cho track dài hơn (trung vị 1.80 s) và ít track ngắn hơn (15.6%), nhưng số liệu này không nói buffer dài có làm tăng nhầm ID hay không (không có nhãn ID).
+Hệ quả: 7 sự kiện mất và 3 sự kiện thêm ở 10 FPS (phần trên) **không giải thích được bằng tracker bị đứt/đổi ID**; nguyên nhân còn lại (không tách được ở đây): K/W = 2/5, lượng tử hóa của cửa sổ, ít quan sát hơn mỗi xe.

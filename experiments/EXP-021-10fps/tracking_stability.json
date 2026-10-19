@@ -1,0 +1,53 @@
+{
+ "30fps": {
+  "unique_tracks": 63,
+  "median_track_duration_s": 1.37,
+  "mean_track_duration_s": 1.85,
+  "tracks_shorter_than_1s": 23,
+  "pct_shorter_than_1s": 36.5,
+  "estimated_id_changes": 2,
+  "id_changes_per_10s_of_video": 0.76,
+  "steps": 2170,
+  "median_step_iou": 0.957,
+  "p10_step_iou": 0.895,
+  "pct_steps_iou_below_0.3": 0.0,
+  "median_step_displacement_px": 2.8,
+  "p90_step_displacement_px": 8.5,
+  "detections": 2401,
+  "frames_processed": 719
+ },
+ "10fps": {
+  "unique_tracks": 49,
+  "median_track_duration_s": 1.3,
+  "mean_track_duration_s": 1.98,
+  "tracks_shorter_than_1s": 15,
+  "pct_shorter_than_1s": 30.6,
+  "estimated_id_changes": 0,
+  "id_changes_per_10s_of_video": 0.0,
+  "steps": 635,
+  "median_step_iou": 0.86,
+  "p10_step_iou": 0.764,
+  "pct_steps_iou_below_0.3": 0.0,
+  "median_step_displacement_px": 10.6,
+  "p90_step_displacement_px": 21.7,
+  "detections": 755,
+  "frames_processed": 236
+ },
+ "10fps_buffer30": {
+  "unique_tracks": 45,
+  "median_track_duration_s": 1.8,
+  "mean_track_duration_s": 2.47,
+  "tracks_shorter_than_1s": 7,
+  "pct_shorter_than_1s": 15.6,
+  "estimated_id_changes": 0,
+  "id_changes_per_10s_of_video": 0.0,
+  "steps": 639,
+  "median_step_iou": 0.861,
+  "p10_step_iou": 0.764,
+  "pct_steps_iou_below_0.3": 0.0,
+  "median_step_displacement_px": 10.5,
+  "p90_step_displacement_px": 21.7,
+  "detections": 764,
+  "frames_processed": 237
+ }
+}
