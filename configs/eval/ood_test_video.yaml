@@ -1,0 +1,16 @@
+# EXP-018: out-of-domain detector evaluation on frames of test_video.mp4 (see experiments/EXP-018-ood-eval/README.md)
+video: data/raw/field/test_video.mp4          # 1280x720, 30 fps, 787 frames (sha256 51fdf565...a16a1d)
+frame_size: [1280, 720]
+n_frames: 15                                   # evenly spaced (centres of 15 equal segments, ~1.75 s apart)
+images_dir: data/ood_test_video/images         # gitignored (people, plates)
+
+# Evaluation region of interest, pixels of the 1280x720 frame: [x1, y1, x2, y2]. Rule: a ground-truth box or a prediction counts only if its CENTRE lies inside.
+# Lower two thirds: the heads of riders are >= ~38 px tall there (median 38-50 px between y = 240 and 480, 60+ px below), the upper third holds small, distant riders
+# whose helmets cannot be judged by eye. Chosen from the pre-label detections of both models (EXP-018 README), not from any ground truth.
+roi: [0, 240, 1280, 720]
+
+models:                                        # evaluated side by side (weights are gitignored)
+  old_helmet_best: helmet_best.pt
+  exp015_grouped_3cls: experiments/EXP-015-helmet-grouped-3cls/weights/best.pt
+nms_iou: 0.5                                   # merge of the two models' pre-labels (class-wise)
+classes: [helmet, motorcycle, no-helmet]
