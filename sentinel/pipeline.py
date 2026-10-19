@@ -133,6 +133,9 @@ class Pipeline:
         self.cfg = cfg
         self.camera = camera
         self.fps = float(fps)
+        # where the traffic-light colour comes from: a fixed region of the camera config (light_roi, read with OpenCV) or the COCO detector's `traffic light` boxes
+        self.light_source = "roi" if camera.light_roi else "coco"
+        print(f"[lights] traffic-light source: {self.light_source}" + (f" (light_roi {camera.light_roi})" if camera.light_roi else " (COCO detector; no light_roi in the camera config)"))
         if hasattr(detectors, "set_fps"):
             detectors.set_fps(self.fps)
         self.rules = make_rules(cfg.rules, camera, self.fps)
@@ -179,11 +182,24 @@ class Pipeline:
         self.s.violation_records[:] = [r for r in self.s.violation_records if not any(f"/{n}/" in r for n in removed)]
 
     # ---- stage 1: perception
+    def _read_light_roi(self, raw, display):
+        """State of the traffic light from the camera's fixed light_roi (no detector needed); '' when the ROI is outside the frame."""
+        x1, y1, x2, y2 = self.camera.light_roi
+        h, w = raw.shape[:2]
+        crop = raw[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]
+        if crop.size == 0:
+            return "UNKNOWN"
+        state = detect_traffic_light_color(crop)
+        self._box(display, x1, y1, x2, y2, f"LIGHT: {state}", (0, 0, 255) if state == "RED" else (0, 255, 0), 2)
+        return state
+
     def _perceive(self, raw, display):
         p = Perception()
         p.coco = self.d.track_coco(raw)
+        if self.light_source == "roi":
+            p.light = self._read_light_roi(raw, display)         # the COCO traffic-light boxes are ignored for the state
         for t in p.coco:
-            if t.cls == 'traffic light':
+            if t.cls == 'traffic light' and self.light_source == "coco":
                 x1, y1, x2, y2 = t.box
                 crop = raw[y1:y2, x1:x2]
                 if crop.size > 0:
