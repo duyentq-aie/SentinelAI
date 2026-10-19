@@ -60,6 +60,13 @@ python tools/diff_events.py tests/fixtures/baseline_events_v3_windowed.json <eve
 ```
 Configs are interleaved by the benchmark tool (round 1: every config, round 2 ...) so drift of the machine hits all of them equally; median and range of 3 runs are reported.
 
+### Pre-commit hook
+`scripts/hooks/pre-commit` refuses a commit that stages: model/data/archive files (`*.pt *.onnx *.engine *.mp4 *.zip *.bundle`); images (`*.jpg *.jpeg *.png`) outside the chart folders (allow-list: `docs/charts/`, `docs/figures/`, `experiments/*/charts/`, `experiments/*/plots/`, `experiments/*/figures/`, `experiments/*/box_consistency/`, `experiments/*/eval_*/`, `experiments/*/helmet_*/`); and file content with the author's mail domain, a Windows home path or the original local project path (only file and line number are printed). Git does not version hooks, so install it once per clone:
+```sh
+cp scripts/hooks/pre-commit .git/hooks/pre-commit      # Git for Windows runs it with its bundled sh; on Linux/macOS also: chmod +x .git/hooks/pre-commit
+```
+Do not bypass it with `--no-verify`: unstage the file (`git restore --staged <file>`). To change the allow-list edit `ALLOWED_IMAGE_DIRS` in the script and re-copy it. Tested in a throw-away repository by `tests/test_pre_commit_hook.py`.
+
 ## Data, models, licences
 - Models: YOLO11s (COCO, vehicles + traffic lights), YOLO11s fine-tuned for helmet / motorcycle / no-helmet, YOLO11n fine-tuned for licence plates (Kaggle runs; see `experiments/EXP-000-kaggle-original`).
   The notebook for the plate model does **not** match the deployed `plate_best.pt` (documented there).

@@ -40,3 +40,4 @@ experiments/EXP-022-light-roi/*.jpg
 # EXP-022 crossings report: evidence crops show people and plates
 experiments/EXP-022-light-roi/crossings/evidence*/
 experiments/EXP-022-light-roi/crossings/*.jpg
+experiments/EXP-023-track-death/*.jpg
