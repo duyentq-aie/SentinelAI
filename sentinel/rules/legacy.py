@@ -12,6 +12,7 @@ import cv2
 
 from sentinel.config import CameraConfig
 from sentinel.perception import Perception
+from sentinel.timebase import REFERENCE_FPS, seconds_of, to_frames
 
 VEHICLE_CLASSES = ['car', 'truck', 'bus', 'motorcycle']
 VIOLATION_LABELS = ("NO-HELMET", "OVERLOAD", "RED-LIGHT", "WRONG-WAY", "WRONG LANE")
@@ -48,12 +49,21 @@ def violation_labels(result):
 
 
 class LegacyRules:
-    def __init__(self, rules_cfg, camera):
+    def __init__(self, rules_cfg, camera, fps=REFERENCE_FPS):
         self.cfg = rules_cfg
+        self.set_fps(fps)
         self.violation_zone = CameraConfig.polygon(camera.violation_zone)
         self.bike_lane_zone = CameraConfig.polygon(camera.wrong_lane_zone)
         self.track_history = defaultdict(lambda: [])
         self.violation_counters = {}
+
+    def set_fps(self, fps):
+        """Durations of the config (seconds) -> frame counts at the frame rate the pipeline sees. Call it before processing (or after reset())."""
+        self.fps = float(fps)
+        h, w = self.cfg.helmet, self.cfg.wrong_way
+        self._violation_frames = to_frames(seconds_of(h.violation_s, h.violation_frames), self.fps)
+        self._history_len = to_frames(seconds_of(w.history_s, w.history_len), self.fps)
+        self._min_history = min(self._history_len, to_frames(seconds_of(w.min_history_s, w.min_history), self.fps))
 
     def reset(self):
         self.track_history.clear()
@@ -65,7 +75,7 @@ class LegacyRules:
         violator, reason = False, ""
         c = self.violation_counters.get(track_id, 0)
         self.violation_counters[track_id] = c + 1 if no_helmet_now else max(0, c - 1)
-        if self.violation_counters[track_id] >= rules.helmet.violation_frames:
+        if self.violation_counters[track_id] >= self._violation_frames:
             violator, reason = True, "NO-HELMET"
         if n_heads > rules.overload.max_passengers:
             violator = True
@@ -84,10 +94,10 @@ class LegacyRules:
                 cx, cy = int((x1 + x2) / 2), int((y1 + y2) / 2)
                 track = self.track_history[t.id]
                 track.append((cx, cy))
-                if len(track) > rules.wrong_way.history_len: track.pop(0)
+                if len(track) > self._history_len: track.pop(0)
 
                 violator, reason = False, ""
-                if rules.wrong_way.enabled and len(track) >= rules.wrong_way.min_history:
+                if rules.wrong_way.enabled and len(track) >= self._min_history:
                     old_cx, old_cy = track[0]
                     if cy - old_cy < rules.wrong_way.dy_threshold:
                         violator, reason = True, "WRONG-WAY"

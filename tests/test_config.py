@@ -4,6 +4,7 @@ import pytest
 import yaml
 
 from sentinel.config import REPO, CameraConfig, load_camera_config, load_pipeline_config
+from sentinel.timebase import to_frames
 
 
 def test_default_config_matches_original_constants():
@@ -11,12 +12,12 @@ def test_default_config_matches_original_constants():
     c = load_pipeline_config()
     assert c.frame_size == [1280, 720]
     assert (c.models.coco.conf, c.models.helmet.conf, c.models.plate.conf) == (0.35, 0.55, 0.35)
-    assert c.rules.helmet.violation_frames == 5
+    assert to_frames(c.rules.helmet.violation_s, 30) == 5                         # durations are seconds; at 30 FPS they are the old frame counts
     assert c.rules.overload.max_passengers == 2
     ww = c.rules.wrong_way
-    assert (ww.history_len, ww.min_history, ww.dy_threshold) == (30, 15, -30)
+    assert (to_frames(ww.history_s, 30), to_frames(ww.min_history_s, 30), ww.dy_threshold) == (30, 15, -30)
     assert ww.enabled is False                       # off by default since baseline v2 (out of the reported scope)
-    assert c.evidence.plate.max_attempts == 90
+    assert round(c.evidence.plate.search_s * 30) == 90 and c.evidence.plate.every_s == 0
     assert c.evidence.dir == "static/violations" and c.evidence.plate_margin == 10 and c.evidence.max_records == 12
 
 

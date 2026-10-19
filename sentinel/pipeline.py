@@ -9,6 +9,8 @@ Two frames per step (since 3.0b): `raw` (resized camera frame, never drawn on) f
 saw violation overlays, because everything was drawn on one frame (fixture tracks_test_video_v0_overlay.jsonl keeps that behaviour).
 """
 import functools
+import re
+import tempfile
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -23,6 +25,7 @@ from sentinel.lights import detect_traffic_light_color
 from sentinel.perception import Perception, tracks_from_results
 from sentinel.rules.legacy import RuleResult, vehicle_label, violation_labels
 from sentinel.rules.windowed import make_rules
+from sentinel.timebase import REFERENCE_FPS, to_frames
 from sentinel.viz import draw_sleek_box as _draw_box
 
 
@@ -40,6 +43,8 @@ def build_ocr(cfg):
 
 class Detectors:
     """The three YOLO models, built from PipelineConfig."""
+    fps = REFERENCE_FPS                          # frame rate the trackers are configured for (class defaults so test doubles need not call __init__)
+    _derived = None
 
     def __init__(self, cfg: PipelineConfig):
         self.cfg = cfg
@@ -47,11 +52,42 @@ class Detectors:
         self.coco = YOLO(str(cfg.path(cfg.models.coco.weights)))
         self.plate = YOLO(str(cfg.path(cfg.models.plate.weights)))
         self.kw = {} if cfg.device is None else {"device": cfg.device}
+        self._derived = {}                       # (tracker path, fps) -> tracker yaml with track_buffer rescaled
+
+    def _tracker_path(self, tracker):
+        """The tracker yaml to hand to Ultralytics. `track_buffer` is a frame count in the yaml (frames at 30 FPS = 1 s); at another frame rate a copy
+        with the same DURATION is used. At 30 FPS the original file is used unchanged."""
+        p = self.cfg.path(tracker)
+        if abs(self.fps - REFERENCE_FPS) < 1e-9:
+            return p
+        key = (str(p), self.fps)
+        if self._derived is None:
+            self._derived = {}
+        if key not in self._derived:
+            text = p.read_text(encoding="utf-8")
+            m = re.search(r"^track_buffer:\s*(\d+)", text, re.M)
+            if m:
+                frames = to_frames(int(m.group(1)) / REFERENCE_FPS, self.fps)
+                text = text[:m.start()] + f"track_buffer: {frames}" + text[m.end():]
+            d = Path(tempfile.mkdtemp(prefix="sentinel_tracker_"))
+            out = d / p.name
+            out.write_text(text, encoding="utf-8")
+            self._derived[key] = out
+        return self._derived[key]
+
+    def set_fps(self, fps):
+        """Frame rate the pipeline sees (source fps / stride). Re-creates the trackers (at the next frame) when their buffer has to change."""
+        fps = float(fps)
+        if abs(fps - self.fps) < 1e-9:
+            return
+        self.fps = fps
+        for model in (self.coco, self.helmet):
+            model.predictor = None               # the tracker is built from the yaml again on the next track() call
 
     def _track_kw(self, m):
         kw = dict(conf=m.conf, verbose=False, **self.kw)
         if m.tracker:
-            kw["tracker"] = str(self.cfg.path(m.tracker))
+            kw["tracker"] = str(self._tracker_path(m.tracker))
         return kw
 
     def track_coco(self, frame):
@@ -91,21 +127,36 @@ class FrameResult:
 
 
 class Pipeline:
-    def __init__(self, detectors, state, cfg: PipelineConfig, camera: CameraConfig, ocr=None):
+    def __init__(self, detectors, state, cfg: PipelineConfig, camera: CameraConfig, ocr=None, fps=REFERENCE_FPS):
         self.d = detectors
         self.s = state
         self.cfg = cfg
         self.camera = camera
-        self.rules = make_rules(cfg.rules, camera)
+        self.fps = float(fps)
+        if hasattr(detectors, "set_fps"):
+            detectors.set_fps(self.fps)
+        self.rules = make_rules(cfg.rules, camera, self.fps)
         self._box = functools.partial(_draw_box, blend=cfg.render.blend)
         self.frame_idx = 0
         if ocr is None and cfg.evidence.ocr.enabled:
             ocr = build_ocr(cfg)
         self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
-                                         camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune, ocr=ocr)
+                                         camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune, ocr=ocr, fps=self.fps)
         self.prev_frame_time = 0
         self.violation_zone = CameraConfig.polygon(camera.violation_zone)
         self.bike_lane_zone = CameraConfig.polygon(camera.wrong_lane_zone)
+
+    def set_fps(self, fps):
+        """Tell the pipeline the frame rate of the frames it receives (source fps / stride): all durations of the config become frame counts at that rate.
+        Call it when the source is (re)opened, before reset()."""
+        fps = float(fps)
+        if abs(fps - self.fps) < 1e-9:
+            return
+        self.fps = fps
+        if hasattr(self.d, "set_fps"):
+            self.d.set_fps(fps)
+        self.rules.set_fps(fps)
+        self.recorder.set_fps(fps)
 
     def reset(self):
         """Call when the source changes or a video loops: ids restart, so every id-keyed state must go."""

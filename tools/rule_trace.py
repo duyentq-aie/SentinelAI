@@ -10,11 +10,13 @@ import argparse
 import sys
 from collections import deque
 from pathlib import Path
+from types import SimpleNamespace
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 from sentinel.config import load_pipeline_config  # noqa: E402
 from sentinel.offline import load_tracks  # noqa: E402
+from sentinel.timebase import window_votes  # noqa: E402
 
 
 def heads_of(p, tid):
@@ -27,7 +29,7 @@ def heads_of(p, tid):
 
 def trace(perceptions, tid, rule, exit_ratio=None):
     """Rows for every frame with the track; `exit_ratio` = hysteresis (flag stays on until ratio < exit_ratio or votes < min_votes)."""
-    win = deque(maxlen=rule.window)
+    win = deque(maxlen=rule.window_frames)
     rows, on_h = [], False
     for i, p in enumerate(perceptions):
         hs = heads_of(p, tid)
@@ -37,9 +39,9 @@ def trace(perceptions, tid, rule, exit_ratio=None):
             win.append(any(h.cls == "no-helmet" for h in hs))
         votes, n = sum(win), len(win)
         ratio = votes / n if n else 0.0
-        plain = n > 0 and votes >= rule.min_votes and ratio >= rule.min_ratio
+        plain = n > 0 and votes >= rule.min_votes_frames and ratio >= rule.min_ratio
         if exit_ratio is not None:
-            on_h = (plain or (on_h and votes >= rule.min_votes and ratio >= exit_ratio))
+            on_h = (plain or (on_h and votes >= rule.min_votes_frames and ratio >= exit_ratio))
         rows.append({"frame": i, "heads": len(hs), "no_helmet_heads": sum(h.cls == "no-helmet" for h in hs), "obs": n, "votes": votes,
                      "ratio": round(ratio, 3), "verdict": plain, "verdict_hysteresis": on_h if exit_ratio is not None else None})
     return rows
@@ -66,11 +68,14 @@ def main():
     ap.add_argument("--from", dest="lo", type=int, default=0)
     ap.add_argument("--to", dest="hi", type=int, default=10**9)
     ap.add_argument("--exit-ratio", type=float, default=0.3, help="exit threshold for the hysteresis what-if")
+    ap.add_argument("--fps", type=float, default=30.0, help="frame rate of the tracks file (the config durations are in seconds)")
     a = ap.parse_args()
-    rule = load_pipeline_config().rules.helmet
+    cfg_rule = load_pipeline_config().rules.helmet
+    W, K = window_votes(cfg_rule, a.fps)                     # window and votes in frames at the frame rate of the tracks file
+    rule = SimpleNamespace(window_frames=W, min_votes_frames=K, min_ratio=cfg_rule.min_ratio)
     _, per = load_tracks(a.tracks)
     rows = trace(per, a.track, rule, a.exit_ratio)
-    print(f"track M_{a.track}: W={rule.window} K={rule.min_votes} r={rule.min_ratio}   ({len(rows)} frames seen)")
+    print(f"track M_{a.track}: W={W} K={K} r={rule.min_ratio} at {a.fps:g} FPS   ({len(rows)} frames seen)")
     print("frame heads bad  obs votes ratio  verdict  verdict(hysteresis exit<%.2f)" % a.exit_ratio)
     for r in rows:
         if a.lo <= r["frame"] <= a.hi:

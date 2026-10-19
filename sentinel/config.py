@@ -4,8 +4,12 @@ from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import List, Optional
 
+import warnings
+
 import numpy as np
 import yaml
+
+from sentinel.timebase import REFERENCE_FPS, seconds_of
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -26,28 +30,37 @@ class ModelsCfg:
 
 @dataclass
 class HelmetRule:
-    violation_frames: int = 5     # legacy engine: net no-helmet frames
-    window: int = 15              # windowed engine: observations kept (frames in which a head is attached to the motorcycle)
-    min_votes: int = 5            # ... no-helmet votes needed inside the window
-    min_ratio: float = 0.5        # ... and votes / observations in the window
+    """Durations are in SECONDS and turned into frames from the processing fps (sentinel/timebase.py). The integer fields marked LEGACY are the old
+    frame-based settings: when present they win and mean frames at 30 FPS (the loader warns)."""
+    violation_s: float = 5 / 30   # legacy engine: net no-helmet time (+1 seen / -1 not seen per frame) before flagging
+    window_s: float = 0.5         # windowed engine: span of observations kept (observation = frame with a head attached to the motorcycle)
+    min_vote_fraction: float = 1 / 3   # K / W: no-helmet votes needed inside the window, as a fraction of the window
+    min_ratio: float = 0.5        # votes / observations needed in the window (already a ratio)
     exit_ratio: Optional[float] = None   # hysteresis: once flagged, stay flagged while ratio >= exit_ratio (None = same as min_ratio = no hysteresis)
+    violation_frames: Optional[int] = None   # LEGACY (frames at 30 FPS)
+    window: Optional[int] = None             # LEGACY (frames at 30 FPS)
+    min_votes: Optional[int] = None          # LEGACY (K in frames; converted to K / W)
 
 
 @dataclass
 class OverloadRule:
     max_passengers: int = 2       # more heads than this on one motorcycle = overload vote
-    window: int = 15
-    min_votes: int = 5
+    window_s: float = 0.5
+    min_vote_fraction: float = 1 / 3
     min_ratio: float = 0.5
     exit_ratio: Optional[float] = None
+    window: Optional[int] = None             # LEGACY
+    min_votes: Optional[int] = None          # LEGACY
 
 
 @dataclass
 class WrongWayRule:
     enabled: bool = False
-    history_len: int = 30
-    min_history: int = 15
-    dy_threshold: float = -30
+    history_s: float = 1.0        # span of positions kept per track
+    min_history_s: float = 0.5    # span needed before judging
+    dy_threshold: float = -30     # px moved "up" the image over the history span (pixels, not time)
+    history_len: Optional[int] = None        # LEGACY (frames at 30 FPS)
+    min_history: Optional[int] = None        # LEGACY
 
 
 @dataclass
@@ -66,16 +79,19 @@ class RulesCfg:
 
 @dataclass
 class PlateCfg:
-    max_attempts: int = 90          # plate-detector runs per violating track; 0 = unlimited
+    search_s: float = 3.0           # plate search budget per violating track, in seconds of violation (runs allowed = search_s * fps / every); 0 = unlimited
     stop_when_found: bool = True    # False = keep detecting on every violating frame (v0 behaviour, used as the A/B reference)
-    every: int = 1                  # try on every k-th frame of a violating track
+    every_s: float = 0.0            # minimum time between two detector runs on a track (0 = every frame)
+    max_attempts: Optional[int] = None       # LEGACY: runs per track (frames at 30 FPS when every = 1); 0 = unlimited
+    every: Optional[int] = None              # LEGACY: every k-th frame
 
 
 @dataclass
 class OcrCfg:
     enabled: bool = False             # off by default: needs PaddleOCR (heavy import, ~model download on first use)
     candidates: int = 5               # plate crops collected per track before reading (the detector keeps running until then)
-    min_gap: int = 3                  # frames between two collected crops (different views of the same plate)
+    min_gap_s: float = 0.1            # time between two collected crops (different views of the same plate)
+    min_gap: Optional[int] = None     # LEGACY (frames at 30 FPS)
     reads: int = 3                    # best crops (by size x sharpness) actually read; the readings are voted
     margin: int = 2                   # px of background kept around the plate box in the crops that are READ (plate.jpg keeps evidence.plate_margin)
     model: str = "PP-OCRv5_mobile_rec"
@@ -88,7 +104,9 @@ class EvidenceCfg:
     max_records: int = 12           # gallery length kept in memory
     max_dir_mb: int = 200           # oldest evidence is deleted when the folder exceeds this; 0 = unlimited
     jpeg_quality: int = 95            # saved evidence images; validate() enforces >= 95 (the MJPEG stream uses web.jpeg_quality)
-    close_after: int = 30           # frames without the violation before an event is closed
+    close_after_s: float = 1.0      # time without the violation before an event is closed
+    box_sample_s: float = 5 / 30    # time between the vehicle boxes stored in event["boxes"]
+    close_after: Optional[int] = None        # LEGACY (frames at 30 FPS)
     one_event_per_track: bool = True  # at most one event per (track, type) per run, even if the verdict flickers
     plate: PlateCfg = field(default_factory=PlateCfg)
     ocr: OcrCfg = field(default_factory=OcrCfg)
@@ -135,30 +153,37 @@ class PipelineConfig:
         r = self.rules
         if r.engine not in ("legacy", "windowed"):
             raise ValueError(f"rules.engine must be 'legacy' or 'windowed', got {r.engine!r}")
-        if r.helmet.violation_frames < 1:
-            raise ValueError("rules.helmet.violation_frames must be >= 1")
+        if (r.helmet.violation_frames is not None and r.helmet.violation_frames < 1) or r.helmet.violation_s <= 0:
+            raise ValueError("rules.helmet.violation_s (or legacy violation_frames) must be positive")
         if r.overload.max_passengers < 1:
             raise ValueError("rules.overload.max_passengers must be >= 1")
         for name, rule in (("helmet", r.helmet), ("overload", r.overload)):
-            if not 1 <= rule.min_votes <= rule.window:
-                raise ValueError(f"rules.{name}: need 1 <= min_votes <= window")
+            if rule.window is not None or rule.min_votes is not None:
+                w_ref = rule.window if rule.window is not None else round(rule.window_s * REFERENCE_FPS)
+                k_ref = rule.min_votes if rule.min_votes is not None else 1
+                if not 1 <= k_ref <= w_ref:
+                    raise ValueError(f"rules.{name}: need 1 <= min_votes <= window")
+            if rule.window_s <= 0 or not 0 < rule.min_vote_fraction <= 1:
+                raise ValueError(f"rules.{name}: window_s must be > 0 and min_vote_fraction in (0, 1]")
             if not 0 < rule.min_ratio <= 1:
                 raise ValueError(f"rules.{name}.min_ratio must be in (0, 1]")
             if rule.exit_ratio is not None and not 0 < rule.exit_ratio <= rule.min_ratio:
                 raise ValueError(f"rules.{name}.exit_ratio must be in (0, min_ratio]")
         ww = r.wrong_way
-        if not 1 <= ww.min_history <= ww.history_len:
-            raise ValueError("rules.wrong_way needs 1 <= min_history <= history_len")
+        hist, minh = seconds_of(ww.history_s, ww.history_len), seconds_of(ww.min_history_s, ww.min_history)
+        if not 0 < minh <= hist:
+            raise ValueError("rules.wrong_way needs 0 < min_history <= history (history_s / min_history_s)")
         ev = self.evidence
         if ev.max_records < 1 or ev.plate_margin < 0:
             raise ValueError("evidence.max_records must be >= 1 and plate_margin >= 0")
-        if ev.max_dir_mb < 0 or not 95 <= ev.jpeg_quality <= 100 or ev.close_after < 1:
-            raise ValueError("evidence: max_dir_mb >= 0, 95 <= jpeg_quality <= 100 (evidence is not stored at stream quality), close_after >= 1")
+        if ev.max_dir_mb < 0 or not 95 <= ev.jpeg_quality <= 100 or seconds_of(ev.close_after_s, ev.close_after) <= 0 or ev.box_sample_s <= 0:
+            raise ValueError("evidence: max_dir_mb >= 0, 95 <= jpeg_quality <= 100 (evidence is not stored at stream quality), close_after_s > 0, box_sample_s > 0")
         o = ev.ocr
-        if o.margin < 0 or o.candidates < 1 or o.reads < 1 or o.min_gap < 1 or o.reads > o.candidates:
-            raise ValueError("evidence.ocr: candidates >= 1, min_gap >= 1 and 1 <= reads <= candidates")
-        if ev.plate.max_attempts < 0 or ev.plate.every < 1:
-            raise ValueError("evidence.plate: max_attempts >= 0 and every >= 1")
+        if o.margin < 0 or o.candidates < 1 or o.reads < 1 or seconds_of(o.min_gap_s, o.min_gap) <= 0 or o.reads > o.candidates:
+            raise ValueError("evidence.ocr: candidates >= 1, min_gap_s > 0 and 1 <= reads <= candidates")
+        pl = ev.plate
+        if pl.search_s < 0 or pl.every_s < 0 or (pl.max_attempts is not None and pl.max_attempts < 0) or (pl.every is not None and pl.every < 1):
+            raise ValueError("evidence.plate: search_s >= 0, every_s >= 0 (legacy: max_attempts >= 0, every >= 1)")
         w = self.web
         if not 1 <= w.port <= 65535 or w.max_upload_mb < 1 or not w.allowed_extensions or not w.allowed_source_dirs:
             raise ValueError("web: port in 1..65535, max_upload_mb >= 1, allowed_extensions and allowed_source_dirs non-empty")
@@ -230,9 +255,31 @@ def _build(cls, data, where):
     return cls(**kwargs)
 
 
+LEGACY_FRAME_KEYS = {"rules.helmet": ("violation_frames", "window", "min_votes"), "rules.overload": ("window", "min_votes"), "rules.wrong_way": ("history_len", "min_history"),
+                     "evidence": ("close_after",), "evidence.plate": ("max_attempts", "every"), "evidence.ocr": ("min_gap",)}
+
+
+def legacy_frame_keys(data):
+    """Dotted names of the old frame-based keys present in a raw yaml mapping."""
+    found = []
+    for scope, keys in LEGACY_FRAME_KEYS.items():
+        node = data
+        for part in scope.split("."):
+            node = node.get(part) if isinstance(node, dict) else None
+        if isinstance(node, dict):
+            found += [f"{scope}.{k}" for k in keys if k in node]
+    return found
+
+
 def load_pipeline_config(path=None, root=REPO, device="__keep__"):
     path = Path(path) if path else REPO / "configs" / "pipeline" / "default.yaml"
-    cfg = _build(PipelineConfig, yaml.safe_load(path.read_text(encoding="utf-8")), str(path))
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    old = legacy_frame_keys(data or {})
+    if old:
+        warnings.warn(f"{path.name}: frame-based setting(s) {old} are read as frames at {REFERENCE_FPS:g} FPS; use the seconds / fraction keys "
+                      f"(window_s, min_vote_fraction, close_after_s, search_s, every_s, min_gap_s, history_s, min_history_s, violation_s) so they follow the real frame rate",
+                      UserWarning, stacklevel=2)
+    cfg = _build(PipelineConfig, data, str(path))
     cfg.root = Path(root)
     if device != "__keep__":
         cfg.device = device

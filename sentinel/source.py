@@ -13,6 +13,12 @@ class VideoSource:
         self.is_file = not is_live_source(self.source)
         self._cap = opener(self.source)
 
+    @property
+    def fps(self):
+        """Nominal frame rate reported by the capture, or None when unknown (many live streams report 0)."""
+        v = self._cap.get(cv2.CAP_PROP_FPS) if self._cap is not None else 0
+        return float(v) if v and 1.0 <= v <= 240.0 else None
+
     def is_open(self):
         return self._cap is not None and self._cap.isOpened()
 

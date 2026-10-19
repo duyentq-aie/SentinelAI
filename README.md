@@ -66,6 +66,11 @@ Configs are interleaved by the benchmark tool (round 1: every config, round 2 ..
 - **Ultralytics is AGPL-3.0**; this project is a portfolio piece and accepts that (derived code and weights follow AGPL-3.0). Dataset licences: both Roboflow exports *declare* CC BY 4.0 in `data.yaml`, **not independently verified (chưa xác minh)**; see `docs/DATA_CARD.md` (the helmet split leaks: random frame split of 16 videos) – check before any redistribution of data or weights. See `LICENSE` (AGPL-3.0) and `docs/PUBLISH_CHECKLIST.md`.
 - Plate text, plate crops and vehicle video are personal data: raw videos and evidence stay out of git (`*.mp4`, `*.pt`, `data/`, `static/violations/` are ignored); blur plates and faces before publishing any image or clip (`docs/RECORDING_GUIDE.md`).
 
+## Direction (2026-10-19)
+- **Target: AI on the camera** (assumed Rockchip RK3588, with RV1126 as the harsh case; no hardware, device speeds are sourced estimates only): >= 10 FPS for the helmet rule with a single detector, see PLAN G7-G12.
+- **M1 scope for `red_light`: motorcycles only**; the light state is read from a fixed ROI with OpenCV. **Cars are future work**: auto-label a `car` class on the helmet set with the COCO model (then review by hand) and train a 5-class model (helmet, motorcycle, no-helmet, plate, car).
+- **Pipeline settings are durations, not frame counts**: windows, close delays, plate-search budget ... are in seconds or ratios and become frame counts from the frame rate the pipeline sees (`docs/TIME_BASED_PARAMETERS.md`); old configs written in frames still load (with a warning, `tools/convert_config_to_seconds.py` converts them).
+
 ## Roadmap (not done)
 Record + label dev/test videos (`docs/RECORDING_GUIDE.md`, `docs/LABELING_GUIDE.md`) → event-level P/R/F1 (`tools/eval_events.py` is not written yet) → stop-line red-light rule (`tools/camera_config.py` already draws the geometry) →
 independent test split for the detectors (leakage check) → GPU/TensorRT/INT8 on real Edge hardware.

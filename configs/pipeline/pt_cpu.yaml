@@ -15,21 +15,21 @@ models:
 rules:
   engine: windowed            # windowed = P2 3.2 voting rules; legacy = v0 counters (baseline replays)
   helmet:
-    violation_frames: 5       # legacy engine only
-    window: 15                # W: observations kept (frames where a head is attached to the motorcycle; occluded frames are skipped)
-    min_votes: 5              # K: no-helmet votes needed in the window
+    violation_s: 0.166667       # legacy engine only
+    window_s: 0.5                # W: observations kept (frames where a head is attached to the motorcycle; occluded frames are skipped)
+    min_vote_fraction: 0.333333              # K: no-helmet votes needed in the window
     min_ratio: 0.5
     exit_ratio: 0.3           # hysteresis (flag stays on while ratio >= 0.3): NOT TUNED - "chua tinh chinh", waiting for dev video (EXP-005 addendum)
   overload:
     max_passengers: 2         # more heads than this on one motorcycle = overload vote
-    window: 15
-    min_votes: 5
+    window_s: 0.5
+    min_vote_fraction: 0.333333
     min_ratio: 0.5
     exit_ratio: 0.3
   wrong_way:                  # legacy rule, OUT of the reported scope: off by default (baseline v1 and older had it on)
     enabled: false
-    history_len: 30           # positions kept per track
-    min_history: 15           # positions needed before judging
+    history_s: 1           # positions kept per track
+    min_history_s: 0.5           # positions needed before judging
     dy_threshold: -30         # px; moved "up" the image by more than this -> WRONG-WAY
   red_light:
     enabled: true             # zone comes from the camera config
@@ -40,12 +40,12 @@ evidence:
   max_records: 12             # gallery length kept in memory
   max_dir_mb: 200             # oldest evidence is deleted when the folder exceeds this (0 = unlimited)
   jpeg_quality: 95            # evidence images: >= 95 enforced (was 90 when this experiment was run)
-  close_after: 30             # frames without the violation before an event is closed
+  close_after_s: 1             # frames without the violation before an event is closed
   one_event_per_track: true   # at most one event per (track, type) per run: a flickering verdict cannot create duplicates
   plate:                      # plate detector runs only for tracks that are currently violating
-    max_attempts: 90          # runs per track (0 = unlimited); 30 lost 1 of 21 plates on the GPU run, see EXP-004
+    search_s: 3          # runs per track (0 = unlimited); 30 lost 1 of 21 plates on the GPU run, see EXP-004
     stop_when_found: true     # false + max_attempts 0 reproduces the v0 behaviour (run on every violating frame)
-    every: 1                  # try on every k-th violating frame
+    every_s: 0                  # try on every k-th violating frame
 
 web:                          # demo server (apps/web); restrictive defaults
   host: 127.0.0.1             # loopback only; change deliberately if you really want to expose it

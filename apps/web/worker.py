@@ -86,6 +86,9 @@ class InferenceWorker:
     def _open(self, spec):
         src = self._factory(spec)
         self._source = spec
+        fps = getattr(src, "fps", None)                     # durations in the config follow the frame rate of this source
+        if fps and hasattr(self.pipeline, "set_fps"):
+            self.pipeline.set_fps(fps)
         return src
 
     def _run(self):

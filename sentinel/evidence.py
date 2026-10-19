@@ -11,7 +11,7 @@ Event records use the ground-truth schema of PLAN section 3.1 (id, type, frame_s
 difficulty, notes) plus prediction-only fields (track_id, trigger_frame, confidence, plate_pred, boxes, plate, evidence, ...),
 so tools/eval_events.py can read predictions and ground truth with the same code. An event is written even when no plate is found.
 
-The plate detector runs only for tracks that are violating right now, at most `plate.max_attempts` times per track, and stops at the
+The plate detector runs only for tracks that are violating right now, for at most `plate.search_s` seconds of violation per track (`max_attempts` runs at 30 FPS), and stops at the
 first plate (unless plate.stop_when_found is false: the v0 behaviour, kept as an A/B reference).
 """
 import json
@@ -23,6 +23,7 @@ from pathlib import Path
 import cv2
 
 from sentinel.ocr import quality
+from sentinel.timebase import REFERENCE_FPS, seconds_of, to_frames
 from sentinel.ocr.engine import OcrUnavailable
 
 SCHEMA = "sentinel.event/1"
@@ -39,7 +40,6 @@ TYPES_OF_REASON = {
     "WRONG LANE": ["wrong_lane"],
     "WRONG LANE & WAY": ["wrong_lane", "wrong_way"],
 }
-BOX_SAMPLE_EVERY = 5      # frames between boxes stored in event["boxes"]
 BOX_SAMPLE_MAX = 60
 
 
@@ -94,10 +94,11 @@ def enforce_dir_limit(root, max_bytes, protect=("events.jsonl",)):
 
 
 class EvidenceRecorder:
-    def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time, ocr=None):
+    def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time, ocr=None, fps=REFERENCE_FPS):
         """cfg: EvidenceCfg. plate_boxes(crop_bgr) -> [(x1, y1, x2, y2, conf)] relative to the crop, best first.
         ocr: PlateOCR or None (None = plates are only cropped, never read)."""
         self.cfg, self.plate_boxes, self.ocr = cfg, plate_boxes, ocr
+        self.set_fps(fps)
         self.ocr_latencies_ms = []
         self.video_id, self.camera_id = video_id, camera_id
         self.root = Path(cfg.dir)
@@ -112,6 +113,17 @@ class EvidenceRecorder:
         self._last_cand = {}       # track_id -> frame of the last collected candidate
         self._pred = {}            # track_id -> plate_pred (OCR result, or an error record)
         self.root.mkdir(parents=True, exist_ok=True)
+
+    def set_fps(self, fps):
+        """Durations of the config (seconds) -> frame counts at the frame rate the pipeline sees."""
+        self.fps = float(fps)
+        c, p, o = self.cfg, self.cfg.plate, self.cfg.ocr
+        self._close_after = to_frames(seconds_of(c.close_after_s, c.close_after), self.fps)
+        self._box_every = to_frames(c.box_sample_s, self.fps)
+        self._every = to_frames(p.every_s if p.every is None else (p.every / REFERENCE_FPS if p.every > 1 else 0.0), self.fps)   # legacy `every` k = k frames at 30 FPS (1 = every frame)
+        search_s = p.search_s if p.max_attempts is None else p.max_attempts * (p.every or 1) / REFERENCE_FPS   # legacy runs -> seconds of search
+        self._max_attempts = 0 if search_s == 0 else max(1, int(round(search_s * self.fps / self._every + 1e-9)))
+        self._min_gap = to_frames(seconds_of(o.min_gap_s, o.min_gap), self.fps)
 
     # ---- lifecycle
     def reset(self):
@@ -143,13 +155,13 @@ class EvidenceRecorder:
                     ev = self._start(frame_idx, raw, v, etype, light)
                     res.new_events.append(ev.id)
                 ev.last_seen = ev.frame_end = frame_idx
-                if (frame_idx - ev.frame_start) % BOX_SAMPLE_EVERY == 0 and len(ev.boxes) < BOX_SAMPLE_MAX:
+                if (frame_idx - ev.frame_start) % self._box_every == 0 and len(ev.boxes) < BOX_SAMPLE_MAX:
                     ev.boxes[str(frame_idx)] = list(v.coords)
 
             self._maybe_detect_plate(frame_idx, raw, v, res)
 
         for ev in list(self._open.values()):
-            if frame_idx - ev.last_seen >= cfg.close_after:
+            if frame_idx - ev.last_seen >= self._close_after:
                 self._close(ev)
         return res
 
@@ -164,10 +176,10 @@ class EvidenceRecorder:
         if found and cfg.stop_when_found and not self._collecting(v.id):
             return
         attempts = self._attempts.get(v.id, 0)
-        if cfg.max_attempts and attempts >= cfg.max_attempts:
+        if self._max_attempts and attempts >= self._max_attempts:
             self._finish_plate_search(v.id)
             return
-        if (frame_idx - self._violating_since[v.id]) % cfg.every:
+        if (frame_idx - self._violating_since[v.id]) % self._every:
             return
         vx1, vy1, vx2, vy2 = v.coords
         vx1, vy1 = max(0, vx1), max(0, vy1)
@@ -200,12 +212,12 @@ class EvidenceRecorder:
                             self._attach_plate(ev)
                 if self.ocr is not None and v.id not in self._pred:
                     self._collect(v.id, info)
-        if (not boxes or v.id in self._plates) and cfg.max_attempts and self._attempts[v.id] >= cfg.max_attempts:
+        if (not boxes or v.id in self._plates) and self._max_attempts and self._attempts[v.id] >= self._max_attempts:
             self._finish_plate_search(v.id)
 
     def _collect(self, tid, info):
         o = self.cfg.ocr
-        if info["frame"] - self._last_cand.get(tid, -10**9) < o.min_gap:
+        if info["frame"] - self._last_cand.get(tid, -10**9) < self._min_gap:
             return
         self._last_cand[tid] = info["frame"]
         self._cands.setdefault(tid, []).append(info)

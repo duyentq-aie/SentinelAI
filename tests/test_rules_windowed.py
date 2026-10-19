@@ -4,7 +4,9 @@ import pytest
 from sentinel.config import REPO, load_camera_config, load_pipeline_config
 from sentinel.perception import Perception, Track
 from sentinel.rules.legacy import LegacyRules
-from sentinel.rules.windowed import PURGE_AFTER, PURGE_EVERY, WindowedRules, make_rules
+from sentinel.rules.windowed import PURGE_AFTER_S, PURGE_EVERY_S, WindowedRules, make_rules
+
+PURGE_EVERY, PURGE_AFTER = round(PURGE_EVERY_S * 30), round(PURGE_AFTER_S * 30)      # frames at 30 FPS (300)
 
 CAM = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
 MOTO = (100, 100, 400, 500)
