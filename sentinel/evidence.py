@@ -41,6 +41,17 @@ TYPES_OF_REASON = {
     "WRONG LANE & WAY": ["wrong_lane", "wrong_way"],
 }
 BOX_SAMPLE_MAX = 60
+SINGLE_TYPE = {"NO-HELMET": "no_helmet", "OVERLOAD": "overload", "RED-LIGHT RUNNER": "red_light", "WRONG-WAY": "wrong_way", "WRONG LANE": "wrong_lane"}
+
+
+def types_of(reason):
+    """Event types of a vehicle's reason: a known combined reason, or several single reasons joined with ' & ' (e.g. 'NO-HELMET & RED-LIGHT RUNNER'), else a slug."""
+    if reason in TYPES_OF_REASON:
+        return TYPES_OF_REASON[reason]
+    parts = reason.split(" & ")
+    if all(p in SINGLE_TYPE for p in parts):
+        return list(dict.fromkeys(SINGLE_TYPE[p] for p in parts))
+    return [reason.lower().replace(" ", "_")]
 
 
 @dataclass
@@ -147,7 +158,7 @@ class EvidenceRecorder:
 
         for v in violating.values():
             self._violating_since.setdefault(v.id, frame_idx)
-            for etype in TYPES_OF_REASON.get(v.reason, [v.reason.lower().replace(" ", "_")]):
+            for etype in types_of(v.reason):
                 ev = self._open.get((v.id, etype))
                 if ev is None and cfg.one_event_per_track and (v.id, etype) in self._done:
                     continue                      # this track already had its event of this type

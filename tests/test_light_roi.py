@@ -52,6 +52,8 @@ def test_red_light_rule_logic_is_unchanged_by_the_source_of_the_light():
     from sentinel.perception import Perception
     from sentinel.rules.windowed import make_rules
     cam = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
-    rules = make_rules(load_pipeline_config().rules, cam)
+    cfg = load_pipeline_config().rules
+    cfg.red_light.mode = "legacy_zone"   # the v0 zone rule; the stop-line rule has its own tests
+    rules = make_rules(cfg, cam)
     p = Perception(helmet=[Track(1, "motorcycle", (300, 200, 400, 370), 0.9)], light="RED")        # bottom-centre (350, 370) inside the violation zone
     assert [v.reason for v in rules.step(p).vehicles] == ["RED-LIGHT RUNNER"]

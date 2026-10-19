@@ -66,6 +66,10 @@ class WrongWayRule:
 @dataclass
 class RedLightRule:
     enabled: bool = True
+    mode: str = "stop_line_crossing"   # "stop_line_crossing": a motorcycle crossing the stop line (camera.stop_line / direction) while its lane's light is RED;
+                                       # "legacy_zone": the v0 rule (bottom-centre inside violation_zone while RED: also flags stopped vehicles, knows no lanes)
+    jitter_px: float = 4.0             # stop_line_crossing: dead zone of +-jitter_px around the line (detector jitter is not a crossing)
+    hold_s: float = 1.0                # stop_line_crossing: the verdict is held this long after a crossing so the recorder opens an event with evidence
 
 
 @dataclass
@@ -169,6 +173,10 @@ class PipelineConfig:
                 raise ValueError(f"rules.{name}.min_ratio must be in (0, 1]")
             if rule.exit_ratio is not None and not 0 < rule.exit_ratio <= rule.min_ratio:
                 raise ValueError(f"rules.{name}.exit_ratio must be in (0, min_ratio]")
+        if r.red_light.mode not in ("stop_line_crossing", "legacy_zone"):
+            raise ValueError("rules.red_light.mode must be 'stop_line_crossing' or 'legacy_zone'")
+        if r.red_light.jitter_px < 0 or r.red_light.hold_s <= 0:
+            raise ValueError("rules.red_light: jitter_px >= 0 and hold_s > 0")
         ww = r.wrong_way
         hist, minh = seconds_of(ww.history_s, ww.history_len), seconds_of(ww.min_history_s, ww.min_history)
         if not 0 < minh <= hist:
@@ -202,6 +210,14 @@ class PipelineConfig:
 
 
 @dataclass
+class Lane:
+    """A lane of the approach for the stop-line red-light rule. signal: "roi" = the shared light_roi applies, "exempt" = no red-light rule (e.g. a right-turn lane with its own signal)."""
+    name: str
+    polygon: List[List[int]]
+    signal: str = "roi"
+
+
+@dataclass
 class CameraConfig:
     camera_id: str = "camera"
     source: str = ""
@@ -212,6 +228,7 @@ class CameraConfig:
     stop_line: Optional[List[List[int]]] = None       # two points
     direction: Optional[List[List[int]]] = None       # arrow tail -> head: legal direction of travel across the stop line
     light_roi: Optional[List[int]] = None             # [x1, y1, x2, y2] around the traffic light that governs this approach
+    lanes: Optional[List[Lane]] = None                # lanes of the approach (stop_line_crossing); None = the shared signal applies to the whole stop line
 
     def validate(self):
         for name in ("violation_zone", "wrong_lane_zone"):
@@ -231,6 +248,14 @@ class CameraConfig:
             raise ValueError(f"light_roi must be [x1, y1, x2, y2] with x1 < x2 and y1 < y2, got {r}")
         if len(self.frame_size) != 2 or min(self.frame_size) < 1:
             raise ValueError("frame_size must be [width, height]")
+        names = [l.name for l in self.lanes or []]
+        if len(set(names)) != len(names):
+            raise ValueError(f"lane names must be unique, got {names}")
+        for l in self.lanes or []:
+            if len(l.polygon) < 3 or any(len(p) != 2 for p in l.polygon):
+                raise ValueError(f"lane {l.name!r}: polygon needs >= 3 [x, y] points")
+            if l.signal not in ("roi", "exempt"):
+                raise ValueError(f"lane {l.name!r}: signal must be 'roi' or 'exempt', got {l.signal!r}")
         return self
 
     @staticmethod
@@ -251,7 +276,13 @@ def _build(cls, data, where):
     for f in fields(cls):
         if f.name in data:
             t = hints[f.name]
-            kwargs[f.name] = _build(t, data[f.name], f"{where}.{f.name}") if is_dataclass(t) else data[f.name]
+            if is_dataclass(t):
+                kwargs[f.name] = _build(t, data[f.name], f"{where}.{f.name}")
+            elif typing.get_origin(t) is typing.Union and any(typing.get_origin(a) is list and a.__args__ and is_dataclass(a.__args__[0]) for a in typing.get_args(t)):
+                item = next(a for a in typing.get_args(t) if typing.get_origin(a) is list).__args__[0]
+                kwargs[f.name] = None if data[f.name] is None else [_build(item, x, f"{where}.{f.name}[{i}]") for i, x in enumerate(data[f.name])]
+            else:
+                kwargs[f.name] = data[f.name]
     return cls(**kwargs)
 
 

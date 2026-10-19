@@ -12,6 +12,7 @@ import cv2
 
 from sentinel.config import CameraConfig
 from sentinel.perception import Perception
+from sentinel.rules.stopline import StopLineCrossing
 from sentinel.timebase import REFERENCE_FPS, seconds_of, to_frames
 
 VEHICLE_CLASSES = ['car', 'truck', 'bus', 'motorcycle']
@@ -51,6 +52,8 @@ def violation_labels(result):
 class LegacyRules:
     def __init__(self, rules_cfg, camera, fps=REFERENCE_FPS):
         self.cfg = rules_cfg
+        self.camera = camera
+        self.stop_line_rule = StopLineCrossing(camera, rules_cfg.red_light, fps) if (rules_cfg.red_light.enabled and rules_cfg.red_light.mode == "stop_line_crossing") else None
         self.set_fps(fps)
         self.violation_zone = CameraConfig.polygon(camera.violation_zone)
         self.bike_lane_zone = CameraConfig.polygon(camera.wrong_lane_zone)
@@ -64,10 +67,14 @@ class LegacyRules:
         self._violation_frames = to_frames(seconds_of(h.violation_s, h.violation_frames), self.fps)
         self._history_len = to_frames(seconds_of(w.history_s, w.history_len), self.fps)
         self._min_history = min(self._history_len, to_frames(seconds_of(w.min_history_s, w.min_history), self.fps))
+        if getattr(self, "stop_line_rule", None) is not None:
+            self.stop_line_rule.set_fps(self.fps)
 
     def reset(self):
         self.track_history.clear()
         self.violation_counters.clear()
+        if self.stop_line_rule is not None:
+            self.stop_line_rule.reset()
 
     def _judge_motorcycle(self, track_id, n_heads, no_helmet_now):
         """Legacy verdict: running no-helmet counter (+1 seen / -1 not seen, flagged at >= violation_frames) and a per-frame head count."""
@@ -128,8 +135,10 @@ class LegacyRules:
             heads_drawn.extend(associated)
             vehicles.append(Vehicle(f"M_{m.id}", m.box, "motorcycle", violator, reason))
 
-        # --- red light: bottom-centre inside the zone while the light is RED ---
-        if rules.red_light.enabled and p.light == "RED":
+        # --- red light ---
+        if rules.red_light.enabled and self.stop_line_rule is not None:        # mode "stop_line_crossing": track crosses the stop line while its lane's signal is RED
+            self.stop_line_rule.update(p.light, vehicles)
+        elif rules.red_light.enabled and p.light == "RED":                      # mode "legacy_zone": bottom-centre inside the zone while the light is RED (v0)
             for v in vehicles:
                 vx1, vy1, vx2, vy2 = v.coords
                 if cv2.pointPolygonTest(self.violation_zone, (int((vx1 + vx2) / 2), int(vy2)), False) >= 0:

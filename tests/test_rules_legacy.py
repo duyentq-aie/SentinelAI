@@ -8,6 +8,7 @@ CAM = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
 
 def rules(wrong_way=False):
     cfg = load_pipeline_config().rules
+    cfg.red_light.mode = "legacy_zone"   # these tests pin the v0 zone rule; the default mode is stop_line_crossing (tests/test_stopline_rule.py)
     cfg.wrong_way.enabled = wrong_way                # default config has the legacy wrong-way rule off
     return LegacyRules(cfg, CAM)
 

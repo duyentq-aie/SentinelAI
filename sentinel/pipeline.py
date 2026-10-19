@@ -216,7 +216,13 @@ class Pipeline:
             self._box(frame, hx1, hy1, hx2, hy2, h_type.upper(), (255, 144, 30) if h_type == "helmet" else (0, 0, 255))
 
         zone_color = (0, 0, 255) if p.light == "RED" else (0, 255, 0)
-        cv2.polylines(frame, [self.violation_zone], isClosed=True, color=zone_color, thickness=2)
+        if self.cfg.rules.red_light.mode == "legacy_zone":
+            cv2.polylines(frame, [self.violation_zone], isClosed=True, color=zone_color, thickness=2)
+        elif self.camera.stop_line:                                              # stop_line_crossing: the line (coloured by the light) and the lanes (grey = exempt)
+            (ax, ay), (bx, by) = self.camera.stop_line
+            cv2.line(frame, (int(ax), int(ay)), (int(bx), int(by)), zone_color, 3)
+            for lane in self.camera.lanes or []:
+                cv2.polylines(frame, [CameraConfig.polygon(lane.polygon)], isClosed=True, color=(160, 160, 160) if lane.signal == "exempt" else (255, 200, 0), thickness=1)
         cv2.putText(frame, f"TRAFFIC STATUS: {p.light}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, zone_color, 3)
 
         for v in result.vehicles:
