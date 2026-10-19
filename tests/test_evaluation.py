@@ -231,3 +231,54 @@ def test_ambiguous_counts_appear_in_the_report_text_and_overall_row():
     assert rep["overall"]["types"]["all"]["n_ambiguous_matched"] == 1 and rep["overall"]["types"]["all"]["n_ambiguous_total"] == 1
     assert "ambiguous ground truth (not scored): 1 of 1 matched" in ev.format_report(rep)
     assert "ambiguous" not in ev.format_report(ev.evaluate({"v1": labels([N])}, {"v1": [P_N]}, n_boot=5))        # no line when there is none
+
+
+# ---- undefined precision (no prediction counted) through every output path
+def two_videos(pred_b=True):
+    a = run(labels([gt(1)], video="a"), [])                                     # GT, no prediction at all: TP 0, FP 0, FN 1 -> precision undefined
+    b = run(labels([gt(1)], video="b"), [pred(1, video="b")] if pred_b else [])
+    return a, b
+
+
+def test_bootstrap_drops_resamples_with_undefined_precision_and_reports_how_many():
+    """Also a regression test: tp, fp and fn of one resample must come from the SAME draw (they once came from three independent draws, so the
+    dropped count would not match the replayed draws below)."""
+    import random
+    a, b = two_videos()
+    n, seed = 300, 3
+    rng = random.Random(seed)
+    only_a = sum(1 for _ in range(n) if [rng.choice([a, b]) for _ in range(2)] == [a, a])      # replays the bootstrap's own draws (both draws are always made)
+    boot = ev.bootstrap([a, b], "no_helmet", n=n, seed=seed)
+    assert only_a > 0
+    assert boot["n_resamples_dropped"]["precision"] == boot["n_resamples_dropped"]["f1"] == only_a
+    assert boot["n_resamples_dropped"]["recall"] == 0                                         # recall is defined whenever a GT event is drawn
+    assert boot["n_resamples_used"]["precision"] + boot["n_resamples_dropped"]["precision"] == n
+    assert boot["precision"] == [1.0, 1.0]                                                    # every usable resample contains the single TP: never silently 0
+    assert boot["recall"][0] == 0.0 and boot["recall"][1] == 1.0                              # a dropped resample is not mixed into the recall interval either
+
+
+def test_bootstrap_with_no_prediction_in_any_video_gives_null_intervals_not_zeros_or_a_crash():
+    a, b = two_videos(pred_b=False)
+    boot = ev.bootstrap([a, b], "no_helmet", n=200, seed=1)
+    assert boot["precision"] is None and boot["f1"] is None
+    assert boot["n_resamples_dropped"]["precision"] == boot["n_resamples_dropped"]["f1"] == 200 and boot["n_resamples_used"]["precision"] == 0
+    assert boot["recall"] == [0.0, 0.0]                                                       # recall is defined (0 of 2) and is really 0
+    empty = ev.bootstrap([run(labels([], video="x"), []), run(labels([], video="y"), [])], "no_helmet", n=50)   # nothing labelled, nothing predicted
+    assert empty["precision"] is None and empty["recall"] is None and empty["n_resamples_dropped"] == {"precision": 50, "recall": 50, "f1": 50}
+
+
+def test_undefined_precision_is_null_in_json_n_a_in_text_and_the_dropped_resamples_are_stated():
+    rep = ev.evaluate({"a": labels([gt(1)], video="a"), "b": labels([gt(1)], video="b")}, {"b": [pred(1, video="b")]}, n_boot=200, seed=3)
+    only_a = ev.evaluate({"a": labels([gt(1)], video="a")}, {}, n_boot=50)                      # one video, no prediction: precision undefined everywhere
+    for r in (rep, only_a):
+        text = json.dumps(r, allow_nan=False)                                                   # would raise on NaN / Infinity
+        assert "NaN" not in text and json.loads(text)["overall"]["types"]["all"] is not None
+        assert isinstance(ev.format_report(r), str)
+    row = only_a["overall"]["types"]["no_helmet"]
+    assert row["precision"] is None and row["f1"] is None and row["recall"] == 0.0 and row["ci95_bootstrap_by_video"] is None      # 1 video: no CI claimed
+    txt = ev.format_report(only_a)
+    line = next(l for l in txt.splitlines() if l.startswith("no_helmet"))
+    assert "n/a" in line and "0.000" in line                                                    # precision and F1 print n/a, recall prints a real 0.000
+    boot_row = rep["overall"]["types"]["no_helmet"]
+    assert boot_row["precision"] == 1.0 and boot_row["ci95_bootstrap_by_video"]["n_resamples_dropped"]["precision"] > 0
+    assert "dropped, not counted as 0" in ev.format_report(rep)

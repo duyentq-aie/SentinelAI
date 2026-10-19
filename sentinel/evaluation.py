@@ -245,13 +245,19 @@ def plate_metrics(results):
 
 
 def bootstrap(results, typ=None, n=1000, seed=0):
-    """95% percentile CI of micro P/R/F1 resampling videos with replacement. None when fewer than 2 videos."""
+    """95% percentile CI of micro P/R/F1 resampling videos with replacement. None when fewer than 2 videos.
+
+    A metric can be UNDEFINED in a resample (precision and F1 when the drawn videos contain no prediction at all, recall when they contain no ground truth).
+    Such a resample is NOT counted as 0: it is dropped for that metric only, and the number dropped is reported in `n_resamples_dropped[metric]`
+    (`n_resamples_used[metric]` = n - dropped). If fewer than 20 usable resamples remain, that metric's CI is null (no interval is claimed).
+    A large `dropped` means the point estimate itself rests on very few predictions: read the interval with that in mind."""
     if len(results) < 2:
         return None
     rng = random.Random(seed)
     vals = {"precision": [], "recall": [], "f1": []}
     for _ in range(n):
-        s = prf(*(total([rng.choice(results) for _ in results], typ)[k] for k in ("tp", "fp", "fn")))
+        t = total([rng.choice(results) for _ in results], typ)          # ONE resample per iteration: tp, fp and fn must come from the same draw
+        s = prf(t["tp"], t["fp"], t["fn"])
         for k in vals:
             if s[k] is not None:
                 vals[k].append(s[k])
@@ -260,7 +266,8 @@ def bootstrap(results, typ=None, n=1000, seed=0):
             return None
         xs = sorted(xs)
         return [round(xs[int(0.025 * (len(xs) - 1))], 4), round(xs[int(0.975 * (len(xs) - 1))], 4)]
-    return {k: ci(v) for k, v in vals.items()} | {"n_boot": n, "unit": "video"}
+    return {k: ci(v) for k, v in vals.items()} | {"n_boot": n, "unit": "video", "n_resamples_used": {k: len(v) for k, v in vals.items()},
+                                                  "n_resamples_dropped": {k: n - len(v) for k, v in vals.items()}}
 
 
 def summarize(results, n_boot=1000, seed=0):
@@ -321,6 +328,13 @@ def format_report(rep):
         if a["n_ambiguous_total"]:
             out.append(f"ambiguous ground truth (not scored): {a['n_ambiguous_matched']} of {a['n_ambiguous_total']} matched by a prediction; "
                        f"{a['predictions_dropped_for_ambiguous']} prediction(s) dropped from FP/TP because of them")
+        for typ, r in s["types"].items():                    # undefined metrics are shown as n/a, never as 0; say how the CI dealt with them
+            b = r["ci95_bootstrap_by_video"]
+            if b:
+                drop = {k: v for k, v in b["n_resamples_dropped"].items() if v}
+                if drop:
+                    out.append(f"  {typ}: bootstrap resamples where a metric was undefined were dropped, not counted as 0 (of {b['n_boot']}): "
+                               + ", ".join(f"{k} {v}" for k, v in drop.items()) + ("; CI shown as n/a when < 20 usable" if any(b[k] is None for k in drop) else ""))
         if s["detection_latency_s"]:
             d = s["detection_latency_s"]
             out.append(f"detection latency (trigger - frame_start) over {d['n']} TPs: mean {d['mean']} s, median {d['median']} s, range [{d['min']}, {d['max']}]")
