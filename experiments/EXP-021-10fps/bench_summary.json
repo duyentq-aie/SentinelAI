@@ -1,0 +1,112 @@
+{
+ "stride1": {
+  "frames_processed_per_run": [
+   757,
+   757,
+   757
+  ],
+  "process_p50_ms": [
+   49.45,
+   47.95,
+   49.46
+  ],
+  "process_mean_ms": [
+   52.26,
+   50.77,
+   52.87
+  ],
+  "v0_process_p50_ms": [
+   150.69,
+   151.98,
+   152.53
+  ],
+  "plate_calls": [
+   14,
+   14,
+   14
+  ],
+  "events": [
+   14,
+   14,
+   14
+  ],
+  "ratio_vs_v0": {
+   "fps_headless": {
+    "median": 2.814,
+    "min": 2.807,
+    "max": 2.913,
+    "per_round": [
+     2.807,
+     2.913,
+     2.814
+    ]
+   },
+   "fps_stream": {
+    "median": 2.387,
+    "min": 2.384,
+    "max": 2.464,
+    "per_round": [
+     2.384,
+     2.464,
+     2.387
+    ]
+   }
+  },
+  "cpu_other_pct": 34.5
+ },
+ "stride3": {
+  "frames_processed_per_run": [
+   233,
+   233,
+   233
+  ],
+  "process_p50_ms": [
+   48.87,
+   50.76,
+   48.01
+  ],
+  "process_mean_ms": [
+   52.53,
+   54.89,
+   51.66
+  ],
+  "v0_process_p50_ms": [
+   155.73,
+   149.79,
+   156.1
+  ],
+  "plate_calls": [
+   9,
+   9,
+   9
+  ],
+  "events": [
+   10,
+   10,
+   10
+  ],
+  "ratio_vs_v0": {
+   "fps_headless": {
+    "median": 2.885,
+    "min": 2.684,
+    "max": 2.963,
+    "per_round": [
+     2.885,
+     2.684,
+     2.963
+    ]
+   },
+   "fps_stream": {
+    "median": 2.463,
+    "min": 2.293,
+    "max": 2.516,
+    "per_round": [
+     2.463,
+     2.293,
+     2.516
+    ]
+   }
+  },
+  "cpu_other_pct": 36.3
+ }
+}

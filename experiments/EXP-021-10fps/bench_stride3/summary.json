@@ -1,0 +1,109 @@
+{
+  "v0": {
+    "headless_fps": 6.27,
+    "headless_range": [
+      6.18,
+      6.45
+    ],
+    "stream_fps": 5.61,
+    "stream_range": [
+      5.54,
+      5.77
+    ],
+    "ratio_vs_v0": null,
+    "plate_calls_per_frame": 1.729,
+    "tracks_with_event/with_plate": [
+      20,
+      20
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 21.0,
+      "gpu_temp_c_max": 64.0,
+      "gpu_util_pct": 29.0,
+      "cpu_perf_pct": 129.0,
+      "cpu_other_pct": 35.3,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "League of Legends.exe": 15.7,
+        "RiotClientServices.exe": 8.0,
+        "LeagueClientUxRender.exe": 7.2,
+        "MemCompression": 8.3,
+        "sqlservr.exe": 6.5,
+        "LeagueClient.exe": 6.0,
+        "LeagueClientUx.exe": 5.2,
+        "vgc.exe": 6.5
+      }
+    }
+  },
+  "default": {
+    "headless_fps": 18.09,
+    "headless_range": [
+      17.31,
+      18.31
+    ],
+    "stream_fps": 13.82,
+    "stream_range": [
+      13.23,
+      13.94
+    ],
+    "ratio_vs_v0": {
+      "fps_headless": {
+        "median": 2.885,
+        "min": 2.684,
+        "max": 2.963,
+        "per_round": [
+          2.885,
+          2.684,
+          2.963
+        ]
+      },
+      "fps_stream": {
+        "median": 2.463,
+        "min": 2.293,
+        "max": 2.516,
+        "per_round": [
+          2.463,
+          2.293,
+          2.516
+        ]
+      }
+    },
+    "plate_calls_per_frame": 0.039,
+    "tracks_with_event/with_plate": [
+      10,
+      10
+    ],
+    "telemetry": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 22.8,
+      "gpu_temp_c_max": 64.0,
+      "gpu_util_pct": 35.0,
+      "cpu_perf_pct": 126.0,
+      "cpu_other_pct": 36.3,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "League of Legends.exe": 12.7,
+        "LeagueClientUxRender.exe": 6.0,
+        "LeagueClient.exe": 5.6,
+        "vgc.exe": 5.1
+      }
+    }
+  }
+}

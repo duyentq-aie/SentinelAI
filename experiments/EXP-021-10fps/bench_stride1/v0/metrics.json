@@ -1,0 +1,393 @@
+{
+  "summary": {
+    "config": "v0",
+    "n_runs": 3,
+    "fps_headless": {
+      "median": 6.41,
+      "min": 6.39,
+      "max": 6.46,
+      "runs": [
+        6.46,
+        6.41,
+        6.39
+      ]
+    },
+    "fps_stream": {
+      "median": 5.73,
+      "min": 5.73,
+      "max": 5.78,
+      "runs": [
+        5.78,
+        5.73,
+        5.73
+      ]
+    },
+    "plate_calls_per_frame_median": 1.729,
+    "stages_median_of_runs": {
+      "process": {
+        "mean_ms": 156.06,
+        "p50_ms": 151.98,
+        "p95_ms": 205.03
+      },
+      "encode": {
+        "mean_ms": 18.27,
+        "p50_ms": 17.67,
+        "p95_ms": 23.42
+      },
+      "read": {
+        "mean_ms": 3.02,
+        "p50_ms": 2.88,
+        "p95_ms": 4.01
+      }
+    },
+    "evidence_first_run": {
+      "events": 20,
+      "events_by_type": {},
+      "tracks_with_event": 20,
+      "tracks_with_plate": 20,
+      "note": "v0 only records plate captures (no event notion): counts are captures"
+    },
+    "telemetry_median_of_runs": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 20.5,
+      "gpu_temp_c_max": 63.0,
+      "gpu_util_pct": 29.0,
+      "cpu_perf_pct": 129.0,
+      "cpu_other_pct": 35.7,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "League of Legends.exe": 15.9,
+        "LeagueClientUxRender.exe": 9.0,
+        "LeagueClient.exe": 6.2,
+        "vgc.exe": 5.2,
+        "System": 5.8,
+        "sqlservr.exe": 6.0
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 6.46,
+      "fps_stream": 5.78,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 154.74,
+          "p50_ms": 150.69,
+          "p95_ms": 205.03
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 18.23,
+          "p50_ms": 17.55,
+          "p95_ms": 23.88
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 2.81,
+          "p50_ms": 2.72,
+          "p95_ms": 4.0
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 54,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 20.5,
+          "min": 14.47,
+          "max": 23.35
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 62.0,
+          "min": 61.0,
+          "max": 63.0
+        },
+        "gpu_util_pct": {
+          "median": 29.0,
+          "min": 20.0,
+          "max": 42.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 129.16,
+          "min": 124.48,
+          "max": 132.92
+        },
+        "cpu_total_pct": {
+          "median": 48.45,
+          "min": 0.0,
+          "max": 68.8
+        },
+        "cpu_own_pct": {
+          "median": 61.0,
+          "min": 39.9,
+          "max": 73.9
+        },
+        "cpu_other_pct": {
+          "median": 35.7,
+          "min": 23.6,
+          "max": 56.6
+        },
+        "heaviest_other_processes_peak_pct": {
+          "League of Legends.exe": 15.7,
+          "LeagueClientUxRender.exe": 8.8,
+          "LeagueClient.exe": 6.6,
+          "vgc.exe": 6.3,
+          "System": 5.8
+        }
+      },
+      "gpu_mean_util_pct": 29.0,
+      "gpu_peak_temp_c": 63.0
+    },
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 6.41,
+      "fps_stream": 5.73,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 156.06,
+          "p50_ms": 151.98,
+          "p95_ms": 203.13
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 18.34,
+          "p50_ms": 17.72,
+          "p95_ms": 23.42
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 3.02,
+          "p50_ms": 2.88,
+          "p95_ms": 4.01
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 54,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 20.54,
+          "min": 15.57,
+          "max": 25.31
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 63.0,
+          "min": 62.0,
+          "max": 63.0
+        },
+        "gpu_util_pct": {
+          "median": 29.0,
+          "min": 19.0,
+          "max": 36.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 128.96,
+          "min": 124.13,
+          "max": 131.69
+        },
+        "cpu_total_pct": {
+          "median": 48.3,
+          "min": 0.0,
+          "max": 57.3
+        },
+        "cpu_own_pct": {
+          "median": 61.25,
+          "min": 52.4,
+          "max": 70.6
+        },
+        "cpu_other_pct": {
+          "median": 35.7,
+          "min": 27.4,
+          "max": 44.6
+        },
+        "heaviest_other_processes_peak_pct": {
+          "League of Legends.exe": 13.9,
+          "LeagueClientUxRender.exe": 9.4,
+          "sqlservr.exe": 6.2,
+          "LeagueClient.exe": 5.7,
+          "vgc.exe": 5.6
+        }
+      },
+      "gpu_mean_util_pct": 29.0,
+      "gpu_peak_temp_c": 63.0
+    },
+    {
+      "kind": "v0",
+      "config": "v0-baseline (original app.py)",
+      "n_frames": 757,
+      "fps_headless": 6.39,
+      "fps_stream": 5.73,
+      "stages": {
+        "process": {
+          "n": 757,
+          "mean_ms": 156.38,
+          "p50_ms": 152.53,
+          "p95_ms": 207.3
+        },
+        "encode": {
+          "n": 757,
+          "mean_ms": 18.27,
+          "p50_ms": 17.67,
+          "p95_ms": 23.23
+        },
+        "read": {
+          "n": 757,
+          "mean_ms": 3.09,
+          "p50_ms": 2.89,
+          "p95_ms": 4.15
+        }
+      },
+      "plate_calls": 1309,
+      "plate_calls_per_frame": 1.729,
+      "evidence": {
+        "events": 20,
+        "events_by_type": {},
+        "tracks_with_event": 20,
+        "tracks_with_plate": 20,
+        "note": "v0 only records plate captures (no event notion): counts are captures"
+      },
+      "system": {
+        "n_samples": 54,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 20.62,
+          "min": 18.04,
+          "max": 22.87
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 63.0,
+          "min": 62.0,
+          "max": 63.0
+        },
+        "gpu_util_pct": {
+          "median": 29.0,
+          "min": 22.0,
+          "max": 37.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 128.68,
+          "min": 123.29,
+          "max": 132.45
+        },
+        "cpu_total_pct": {
+          "median": 47.2,
+          "min": 0.0,
+          "max": 70.0
+        },
+        "cpu_own_pct": {
+          "median": 62.25,
+          "min": 39.3,
+          "max": 74.0
+        },
+        "cpu_other_pct": {
+          "median": 34.85,
+          "min": 23.6,
+          "max": 56.9
+        },
+        "heaviest_other_processes_peak_pct": {
+          "League of Legends.exe": 15.9,
+          "LeagueClientUxRender.exe": 9.0,
+          "LeagueClient.exe": 6.2,
+          "sqlservr.exe": 6.0,
+          "vgc.exe": 5.2
+        }
+      },
+      "gpu_mean_util_pct": 29.0,
+      "gpu_peak_temp_c": 63.0
+    }
+  ]
+}

@@ -37,6 +37,24 @@ Mọi tham số từng đếm bằng **frame** nay tính bằng **giây** hoặc
 | cửa sổ FPS của HUD (`deque(maxlen=60)`) | 60 | frame mẫu | giữ (chỉ để hiển thị) |
 | `evidence.max_records` / `max_dir_mb` / `plate_margin` | 12 / 200 / 10 | số mục / MB / px | giữ |
 
+## Lượng tử hóa
+Số khung hình là số nguyên, nên một cửa sổ ngắn không giữ được đúng tỉ lệ K/W. **Quy tắc làm tròn đang dùng** (`sentinel/timebase.py`): số frame = `floor(giây × fps + 0.5)` (làm tròn nửa lên, tối thiểu 1); số phiếu `K = floor(min_vote_fraction × W + 0.5)` giới hạn trong 1..W. Cùng quy tắc cho `window_s`, `close_after_s`, `min_gap_s`, `every_s`, `history_s`, `box_sample_s` và `PURGE_*_S`; số lần thử biển số = `round(search_s × fps / every)`.
+
+**Ở 10 FPS, K/W = 2/5 = 0.4 thay vì 1/3, nên luật khắt khe hơn**: cùng cửa sổ 0.5 s nhưng cần 40% số quan sát phải là phiếu no-helmet (ở 30 FPS: 33%). Cả hai còn bị chặn bởi `min_ratio = 0.5`; khi cửa sổ đầy, số phiếu thực sự cần là `max(K, ceil(0.5 × W))`:
+
+| fps | W | K | K/W | số phiếu cần khi cửa sổ đầy | tỉ lệ thực tế |
+|---|---|---|---|---|---|
+| 10 | 5 | 2 | 0.400 | 3 | 0.600 |
+| 12 | 6 | 2 | 0.333 | 3 | 0.500 |
+| 15 | 8 | 3 | 0.375 | 4 | 0.500 |
+| 20 | 10 | 3 | 0.300 | 5 | 0.500 |
+| 24 | 12 | 4 | 0.333 | 6 | 0.500 |
+| 25 | 13 | 4 | 0.308 | 7 | 0.538 |
+| 30 | 15 | 5 | 0.333 | 8 | 0.533 |
+| 60 | 30 | 10 | 0.333 | 15 | 0.500 |
+
+Hệ quả: ở 10 FPS một cửa sổ đầy cần 3/5 = 60% phiếu (so với 8/15 = 53% ở 30 FPS), nên luật chặt hơn khoảng 7 điểm phần trăm; trước khi cửa sổ đầy thì 2 phiếu liên tiếp là đủ (0.2 s, so với 5 phiếu = 0.167 s ở 30 FPS). Kết quả đo trên `test_video.mp4` xem EXP-021. Sai số làm tròn mỗi cửa sổ tối đa nửa frame (0.05 s ở 10 FPS). Chưa tinh chỉnh `min_vote_fraction` hay `min_ratio` cho tốc độ thấp: nếu cần giữ đúng 1/3 thì phải chọn W lớn hơn (thời lượng dài hơn), một đánh đổi cần quyết định riêng.
+
 ## Chưa làm / ghi chú
 - Chưa tinh chỉnh bất kỳ giá trị nào (vẫn "chưa kiểm định"); chỉ đổi đơn vị.
 - Ở 10 FPS chưa đo ảnh hưởng tới sự kiện (PLAN G10 bước 4); test mới chỉ xác nhận cửa sổ dài đúng cùng số giây và thời điểm bật/tắt cờ lệch tối đa một khung hình so với 30 FPS.

@@ -40,7 +40,7 @@ def _finish(res, sampler):
 
 
 # --------------------------------------------------------------------------- sentinel pipeline child
-def run_once(config, warmup, out_json, limit=0):
+def run_once(config, warmup, out_json, limit=0, stride=1):
     import cv2
     import statistics
     import torch
@@ -54,7 +54,10 @@ def run_once(config, warmup, out_json, limit=0):
     cfg.evidence.dir = str(work)
     camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     det = Detectors(cfg)
-    pipe = Pipeline(det, SharedState(), cfg, camera)
+    cap0 = cv2.VideoCapture(str(REPO / "test_video.mp4"))
+    src_fps = cap0.get(cv2.CAP_PROP_FPS) or 30.0
+    cap0.release()
+    pipe = Pipeline(det, SharedState(), cfg, camera, fps=src_fps / stride)      # every `stride`-th frame is processed: the pipeline sees src_fps / stride
     sync = torch.cuda.synchronize if torch.cuda.is_available() else (lambda: None)
 
     acc = {}
@@ -87,9 +90,14 @@ def run_once(config, warmup, out_json, limit=0):
 
     rows, plate_calls, events_opened, plates_found = [], 0, 0, 0
     cap = cv2.VideoCapture(str(REPO / "test_video.mp4"))
-    i = -1
+    i, raw_i = -1, -1
     while True:
         t0 = time.perf_counter()
+        raw_i += 1
+        if stride > 1 and raw_i % stride:
+            if not cap.grab():                                   # skipped frame: only advance the capture (not counted in the timing)
+                break
+            continue
         ok, frame = cap.read()
         read = (time.perf_counter() - t0) * 1000
         if not ok or (limit and i + 1 >= limit):
@@ -265,6 +273,7 @@ def main():
     ap.add_argument("--no-v0", action="store_true", help="do not run the v0 reference (not recommended: ratios need it)")
     ap.add_argument("--out")
     ap.add_argument("--limit", type=int, default=0, help="stop after N frames (smoke tests only)")
+    ap.add_argument("--stride", type=int, default=1, help="process every k-th frame of the video (30 -> 10 FPS with 3); v0 is always run on every frame, so the ratio compares cost per processed frame")
     ap.add_argument("--child", help=argparse.SUPPRESS)
     ap.add_argument("--v0", action="store_true", help=argparse.SUPPRESS)
     a = ap.parse_args()
@@ -272,7 +281,7 @@ def main():
         if a.v0:
             run_once_v0(a.warmup, a.child, a.limit)
         else:
-            run_once(a.configs[0] if a.configs else None, a.warmup, a.child, a.limit)
+            run_once(a.configs[0] if a.configs else None, a.warmup, a.child, a.limit, a.stride)
         return
     if not a.out:
         ap.error("--out is required")
@@ -293,7 +302,7 @@ def main():
             (out / "runs").mkdir(exist_ok=True)
             tmp = out / "runs" / f"{stem}_{r + 1}.json"
             print(f"[bench] round {r + 1}/{a.repeats}: {stem}", flush=True)
-            cmd = [py, __file__, "--child", str(tmp), "--warmup", str(a.warmup)] + (["--limit", str(a.limit)] if a.limit else []) + (["--v0"] if stem == "v0" else (["--configs", cfg] if cfg else []))
+            cmd = [py, __file__, "--child", str(tmp), "--warmup", str(a.warmup)] + (["--limit", str(a.limit)] if a.limit else []) + (["--stride", str(a.stride)] if a.stride > 1 else []) + (["--v0"] if stem == "v0" else (["--configs", cfg] if cfg else []))
             subprocess.check_call(cmd)
             runs[stem].append(json.loads(tmp.read_text(encoding="utf-8")))
             time.sleep(5)

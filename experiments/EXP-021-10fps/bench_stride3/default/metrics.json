@@ -1,0 +1,593 @@
+{
+  "summary": {
+    "config": "configs/pipeline/default.yaml",
+    "n_runs": 3,
+    "fps_headless": {
+      "median": 18.09,
+      "min": 17.31,
+      "max": 18.31,
+      "runs": [
+        18.09,
+        17.31,
+        18.31
+      ]
+    },
+    "fps_stream": {
+      "median": 13.82,
+      "min": 13.23,
+      "max": 13.94,
+      "runs": [
+        13.82,
+        13.23,
+        13.94
+      ]
+    },
+    "plate_calls_per_frame_median": 0.039,
+    "stages_median_of_runs": {
+      "evidence_io_and_bookkeeping": {
+        "mean_ms": 1.13,
+        "p50_ms": 0.01,
+        "p95_ms": 0.78
+      },
+      "rules": {
+        "mean_ms": 0.07,
+        "p50_ms": 0.06,
+        "p95_ms": 0.11
+      },
+      "read": {
+        "mean_ms": 2.88,
+        "p50_ms": 2.78,
+        "p95_ms": 3.96
+      },
+      "helmet": {
+        "mean_ms": 21.17,
+        "p50_ms": 20.44,
+        "p95_ms": 27.11
+      },
+      "plate_detector": {
+        "mean_ms": 1.7,
+        "p50_ms": 0.0,
+        "p95_ms": 0.0
+      },
+      "encode": {
+        "mean_ms": 17.13,
+        "p50_ms": 16.71,
+        "p95_ms": 21.29
+      },
+      "coco": {
+        "mean_ms": 25.24,
+        "p50_ms": 24.17,
+        "p95_ms": 32.61
+      },
+      "process": {
+        "mean_ms": 52.53,
+        "p50_ms": 48.87,
+        "p95_ms": 69.99
+      },
+      "draw": {
+        "mean_ms": 0.52,
+        "p50_ms": 0.48,
+        "p95_ms": 0.9
+      }
+    },
+    "evidence_first_run": {
+      "events": 10,
+      "events_by_type": {
+        "no_helmet": 9,
+        "overload": 1
+      },
+      "tracks_with_event": 10,
+      "tracks_with_plate": 10,
+      "plates_found_first_time": 9,
+      "events_opened_counter": 9,
+      "mean_vehicle_crop_wh": [
+        189.1,
+        251.8
+      ],
+      "mean_plate_crop_wh": [
+        42.4,
+        40
+      ],
+      "mean_plate_box_wh": [
+        22.4,
+        20
+      ],
+      "evidence_dir_mb": 3.97
+    },
+    "telemetry_median_of_runs": {
+      "gpu_sm_clock_mhz": 1500.0,
+      "gpu_power_w": 22.8,
+      "gpu_temp_c_max": 64.0,
+      "gpu_util_pct": 35.0,
+      "cpu_perf_pct": 126.0,
+      "cpu_other_pct": 36.3,
+      "throttle_fraction_max": {
+        "applications_clocks_setting": 0.0,
+        "sw_power_cap": 0.0,
+        "hw_slowdown": 0.0,
+        "sync_boost": 0.0,
+        "sw_thermal_slowdown": 0.0,
+        "hw_thermal_slowdown": 0.0,
+        "hw_power_brake_slowdown": 0.0
+      },
+      "heaviest_other_processes": {
+        "League of Legends.exe": 12.7,
+        "LeagueClientUxRender.exe": 6.0,
+        "LeagueClient.exe": 5.6,
+        "vgc.exe": 5.1
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "pipeline",
+      "config": "configs/pipeline/default.yaml",
+      "n_frames": 233,
+      "fps_headless": 18.09,
+      "fps_stream": 13.82,
+      "stages": {
+        "evidence_io_and_bookkeeping": {
+          "n": 233,
+          "mean_ms": 1.05,
+          "p50_ms": 0.01,
+          "p95_ms": 0.78
+        },
+        "rules": {
+          "n": 233,
+          "mean_ms": 0.07,
+          "p50_ms": 0.06,
+          "p95_ms": 0.11
+        },
+        "read": {
+          "n": 233,
+          "mean_ms": 2.73,
+          "p50_ms": 2.65,
+          "p95_ms": 3.58
+        },
+        "helmet": {
+          "n": 233,
+          "mean_ms": 21.17,
+          "p50_ms": 20.44,
+          "p95_ms": 27.11
+        },
+        "plate_detector": {
+          "n": 233,
+          "mean_ms": 1.77,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        },
+        "encode": {
+          "n": 233,
+          "mean_ms": 17.1,
+          "p50_ms": 16.62,
+          "p95_ms": 21.29
+        },
+        "coco": {
+          "n": 233,
+          "mean_ms": 25.24,
+          "p50_ms": 24.17,
+          "p95_ms": 32.16
+        },
+        "process": {
+          "n": 233,
+          "mean_ms": 52.53,
+          "p50_ms": 48.87,
+          "p95_ms": 69.99
+        },
+        "draw": {
+          "n": 233,
+          "mean_ms": 0.52,
+          "p50_ms": 0.48,
+          "p95_ms": 0.85
+        }
+      },
+      "plate_calls": 9,
+      "plate_calls_per_frame": 0.039,
+      "evidence": {
+        "events": 10,
+        "events_by_type": {
+          "no_helmet": 9,
+          "overload": 1
+        },
+        "tracks_with_event": 10,
+        "tracks_with_plate": 10,
+        "plates_found_first_time": 9,
+        "events_opened_counter": 9,
+        "mean_vehicle_crop_wh": [
+          189.1,
+          251.8
+        ],
+        "mean_plate_crop_wh": [
+          42.4,
+          40
+        ],
+        "mean_plate_box_wh": [
+          22.4,
+          20
+        ],
+        "evidence_dir_mb": 3.97
+      },
+      "system": {
+        "n_samples": 8,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 22.89,
+          "min": 21.77,
+          "max": 23.33
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 63.0,
+          "min": 63.0,
+          "max": 64.0
+        },
+        "gpu_util_pct": {
+          "median": 35.0,
+          "min": 31.0,
+          "max": 40.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 130.37,
+          "min": 123.45,
+          "max": 131.15
+        },
+        "cpu_total_pct": {
+          "median": 49.1,
+          "min": 0.0,
+          "max": 60.7
+        },
+        "cpu_own_pct": {
+          "median": 61.05,
+          "min": 52.1,
+          "max": 68.3
+        },
+        "cpu_other_pct": {
+          "median": 36.3,
+          "min": 28.8,
+          "max": 43.5
+        },
+        "heaviest_other_processes_peak_pct": {
+          "League of Legends.exe": 16.0,
+          "LeagueClientUxRender.exe": 6.7,
+          "LeagueClient.exe": 5.5,
+          "vgc.exe": 2.9
+        }
+      },
+      "gpu_mean_util_pct": 35.0,
+      "gpu_peak_temp_c": 64.0
+    },
+    {
+      "kind": "pipeline",
+      "config": "configs/pipeline/default.yaml",
+      "n_frames": 233,
+      "fps_headless": 17.31,
+      "fps_stream": 13.23,
+      "stages": {
+        "process": {
+          "n": 233,
+          "mean_ms": 54.89,
+          "p50_ms": 50.76,
+          "p95_ms": 73.85
+        },
+        "plate_detector": {
+          "n": 233,
+          "mean_ms": 1.62,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        },
+        "encode": {
+          "n": 233,
+          "mean_ms": 17.82,
+          "p50_ms": 17.26,
+          "p95_ms": 22.1
+        },
+        "read": {
+          "n": 233,
+          "mean_ms": 2.88,
+          "p50_ms": 2.78,
+          "p95_ms": 3.96
+        },
+        "rules": {
+          "n": 233,
+          "mean_ms": 0.07,
+          "p50_ms": 0.06,
+          "p95_ms": 0.11
+        },
+        "helmet": {
+          "n": 233,
+          "mean_ms": 22.34,
+          "p50_ms": 21.27,
+          "p95_ms": 29.15
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 233,
+          "mean_ms": 1.19,
+          "p50_ms": 0.01,
+          "p95_ms": 0.83
+        },
+        "coco": {
+          "n": 233,
+          "mean_ms": 26.27,
+          "p50_ms": 25.34,
+          "p95_ms": 33.61
+        },
+        "draw": {
+          "n": 233,
+          "mean_ms": 0.55,
+          "p50_ms": 0.51,
+          "p95_ms": 1.02
+        }
+      },
+      "plate_calls": 9,
+      "plate_calls_per_frame": 0.039,
+      "evidence": {
+        "events": 10,
+        "events_by_type": {
+          "no_helmet": 9,
+          "overload": 1
+        },
+        "tracks_with_event": 10,
+        "tracks_with_plate": 10,
+        "plates_found_first_time": 9,
+        "events_opened_counter": 9,
+        "mean_vehicle_crop_wh": [
+          189.1,
+          251.8
+        ],
+        "mean_plate_crop_wh": [
+          42.4,
+          40
+        ],
+        "mean_plate_box_wh": [
+          22.4,
+          20
+        ],
+        "evidence_dir_mb": 3.97
+      },
+      "system": {
+        "n_samples": 8,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1500.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 22.84,
+          "min": 21.17,
+          "max": 25.36
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 63.0,
+          "min": 63.0,
+          "max": 64.0
+        },
+        "gpu_util_pct": {
+          "median": 35.0,
+          "min": 30.0,
+          "max": 47.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 126.03,
+          "min": 125.58,
+          "max": 127.02
+        },
+        "cpu_total_pct": {
+          "median": 53.2,
+          "min": 0.0,
+          "max": 61.1
+        },
+        "cpu_own_pct": {
+          "median": 57.1,
+          "min": 49.5,
+          "max": 65.1
+        },
+        "cpu_other_pct": {
+          "median": 40.35,
+          "min": 31.5,
+          "max": 45.5
+        },
+        "heaviest_other_processes_peak_pct": {
+          "League of Legends.exe": 13.4,
+          "LeagueClientUxRender.exe": 7.8,
+          "LeagueClient.exe": 5.7,
+          "vgc.exe": 5.1
+        }
+      },
+      "gpu_mean_util_pct": 35.0,
+      "gpu_peak_temp_c": 64.0
+    },
+    {
+      "kind": "pipeline",
+      "config": "configs/pipeline/default.yaml",
+      "n_frames": 233,
+      "fps_headless": 18.31,
+      "fps_stream": 13.94,
+      "stages": {
+        "helmet": {
+          "n": 233,
+          "mean_ms": 20.51,
+          "p50_ms": 19.46,
+          "p95_ms": 26.82
+        },
+        "process": {
+          "n": 233,
+          "mean_ms": 51.66,
+          "p50_ms": 48.01,
+          "p95_ms": 69.75
+        },
+        "draw": {
+          "n": 233,
+          "mean_ms": 0.51,
+          "p50_ms": 0.46,
+          "p95_ms": 0.9
+        },
+        "plate_detector": {
+          "n": 233,
+          "mean_ms": 1.7,
+          "p50_ms": 0.0,
+          "p95_ms": 0.0
+        },
+        "coco": {
+          "n": 233,
+          "mean_ms": 24.96,
+          "p50_ms": 23.82,
+          "p95_ms": 32.61
+        },
+        "encode": {
+          "n": 233,
+          "mean_ms": 17.13,
+          "p50_ms": 16.71,
+          "p95_ms": 21.21
+        },
+        "evidence_io_and_bookkeeping": {
+          "n": 233,
+          "mean_ms": 1.13,
+          "p50_ms": 0.01,
+          "p95_ms": 0.75
+        },
+        "read": {
+          "n": 233,
+          "mean_ms": 2.95,
+          "p50_ms": 2.84,
+          "p95_ms": 4.08
+        },
+        "rules": {
+          "n": 233,
+          "mean_ms": 0.06,
+          "p50_ms": 0.06,
+          "p95_ms": 0.1
+        }
+      },
+      "plate_calls": 9,
+      "plate_calls_per_frame": 0.039,
+      "evidence": {
+        "events": 10,
+        "events_by_type": {
+          "no_helmet": 9,
+          "overload": 1
+        },
+        "tracks_with_event": 10,
+        "tracks_with_plate": 10,
+        "plates_found_first_time": 9,
+        "events_opened_counter": 9,
+        "mean_vehicle_crop_wh": [
+          189.1,
+          251.8
+        ],
+        "mean_plate_crop_wh": [
+          42.4,
+          40
+        ],
+        "mean_plate_box_wh": [
+          22.4,
+          20
+        ],
+        "evidence_dir_mb": 3.97
+      },
+      "system": {
+        "n_samples": 8,
+        "gpu_sm_clock_mhz": {
+          "median": 1500.0,
+          "min": 1500.0,
+          "max": 1515.0
+        },
+        "gpu_sm_clock_max_mhz": 2100.0,
+        "gpu_mem_clock_mhz": {
+          "median": 6001.0,
+          "min": 6001.0,
+          "max": 6001.0
+        },
+        "gpu_power_w": {
+          "median": 22.81,
+          "min": 21.91,
+          "max": 24.98
+        },
+        "gpu_power_limit_w": null,
+        "gpu_temp_c": {
+          "median": 63.0,
+          "min": 63.0,
+          "max": 64.0
+        },
+        "gpu_util_pct": {
+          "median": 34.5,
+          "min": 20.0,
+          "max": 39.0
+        },
+        "gpu_throttle_reason_fraction": {
+          "gpu_idle": 1.0,
+          "applications_clocks_setting": 0.0,
+          "sw_power_cap": 0.0,
+          "hw_slowdown": 0.0,
+          "sync_boost": 0.0,
+          "sw_thermal_slowdown": 0.0,
+          "hw_thermal_slowdown": 0.0,
+          "hw_power_brake_slowdown": 0.0
+        },
+        "cpu_perf_pct": {
+          "median": 125.58,
+          "min": 123.71,
+          "max": 129.64
+        },
+        "cpu_total_pct": {
+          "median": 46.95,
+          "min": 0.0,
+          "max": 54.0
+        },
+        "cpu_own_pct": {
+          "median": 63.6,
+          "min": 56.7,
+          "max": 68.1
+        },
+        "cpu_other_pct": {
+          "median": 32.85,
+          "min": 28.6,
+          "max": 39.0
+        },
+        "heaviest_other_processes_peak_pct": {
+          "League of Legends.exe": 12.7,
+          "LeagueClientUxRender.exe": 6.0,
+          "LeagueClient.exe": 5.6
+        }
+      },
+      "gpu_mean_util_pct": 34.5,
+      "gpu_peak_temp_c": 64.0
+    }
+  ]
+}

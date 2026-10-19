@@ -1,0 +1,143 @@
+{
+ "stride": 3,
+ "events_30fps": 14,
+ "events_10fps": 10,
+ "matched": 7,
+ "only_30fps": [
+  "no_helmet M_129 71-146",
+  "no_helmet M_175 112-117",
+  "no_helmet M_523 451-484",
+  "no_helmet M_573 474-496",
+  "no_helmet M_634 533-588",
+  "no_helmet M_707 554-622",
+  "no_helmet M_782 582-595"
+ ],
+ "only_10fps": [
+  "no_helmet M_372 426-456",
+  "no_helmet M_659 471-483",
+  "no_helmet M_725 498-534"
+ ],
+ "matched_pairs": [
+  {
+   "type": "no_helmet",
+   "a": "M_77 35-89",
+   "b": "M_69 36-87",
+   "start_shift_frames": 1,
+   "end_shift_frames": -2,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    35,
+    36
+   ]
+  },
+  {
+   "type": "no_helmet",
+   "a": "M_153 104-118",
+   "b": "M_127 99-135",
+   "start_shift_frames": -5,
+   "end_shift_frames": 17,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    104,
+    99
+   ]
+  },
+  {
+   "type": "no_helmet",
+   "a": "M_299 290-333",
+   "b": "M_392 306-333",
+   "start_shift_frames": 16,
+   "end_shift_frames": 0,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    290,
+    306
+   ]
+  },
+  {
+   "type": "no_helmet",
+   "a": "M_380 374-424",
+   "b": "M_505 375-423",
+   "start_shift_frames": 1,
+   "end_shift_frames": -1,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    374,
+    375
+   ]
+  },
+  {
+   "type": "no_helmet",
+   "a": "M_482 471-474",
+   "b": "M_620 474-474",
+   "start_shift_frames": 3,
+   "end_shift_frames": 0,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    471,
+    474
+   ]
+  },
+  {
+   "type": "no_helmet",
+   "a": "M_681 528-570",
+   "b": "M_869 531-570",
+   "start_shift_frames": 3,
+   "end_shift_frames": 0,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    528,
+    531
+   ]
+  },
+  {
+   "type": "overload",
+   "a": "M_350 328-337",
+   "b": "M_468 330-330",
+   "start_shift_frames": 2,
+   "end_shift_frames": -7,
+   "plate_attempts": [
+    1,
+    1
+   ],
+   "plate_found_frame": [
+    328,
+    330
+   ]
+  }
+ ],
+ "diff_events": {
+  "3": {
+   "missing_in_10fps": 28,
+   "added_in_10fps": 20,
+   "changed": 1
+  },
+  "6": {
+   "missing_in_10fps": 28,
+   "added_in_10fps": 20,
+   "changed": 1
+  }
+ },
+ "plate_detector_calls": {
+  "30fps": 14,
+  "10fps": 10
+ }
+}
