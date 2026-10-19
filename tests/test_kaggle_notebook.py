@@ -21,7 +21,8 @@ def test_base_model_and_run_name_are_parameters_and_the_recipe_is_otherwise_unch
     assert "model = YOLO(BASE)" in c[2] and 'YOLO("yolo11s.pt")' not in c[2] and "NAME = " not in c[2]
     t = c[2]
     for fixed in ("epochs=150", "patience=25", "imgsz=640", "batch=32", "seed=0", "deterministic=True", 'optimizer="auto"', "cos_lr=True", "mosaic=1.0", "mixup=0.1",
-                  "degrees=10.0", "translate=0.1", "scale=0.5", "hsv_h=0.015", "hsv_s=0.7", "hsv_v=0.4", 'fliplr=0.5 if RUN == "3cls" else 0.0'):
+                  "degrees=10.0", "translate=0.1", "scale=0.5", "hsv_h=0.015", "hsv_s=0.7", "hsv_v=0.4", "fliplr=0.5,"):
         assert fixed in t, fixed
-    assert re.search(r"time=2\.5,", t) and re.search(r"workers=2,", t)
+    assert re.search(r"workers=2,", t) and not re.search(r"^\s*time=", t, re.M)          # no `time=`: it would rescale the epochs and the cosine schedule
+    assert "RUN ==" not in t.split("model.train(")[1]                                    # fliplr is the same for 3cls and 4cls
     assert "BASE[:7]" and "yolo11n.pt"[:7] == "yolo11n" and "yolo11s.pt"[:7] == "yolo11s"

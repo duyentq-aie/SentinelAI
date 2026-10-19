@@ -42,6 +42,17 @@ Người chạy: chủ dự án, trên Kaggle (`results_4cls.zip`, sha256 `f1709
 | plate | 0.383 | 0.417 | **0.231** | 0.050 | – | – | – |
 | tất cả (4 lớp / 3 lớp) | 0.615 | 0.617 | 0.560 | 0.217 | 0.702 | 0.289 | (không so được: khác số lớp) |
 
+### Khác biệt so với EXP-015 (đầy đủ, từ `args.yaml` hai lần chạy; mọi tham số khác giống hệt)
+| tham số | EXP-015 (3cls) | EXP-016 (4cls) | tác động có thể |
+|---|---|---|---|
+| lớp | 3 | **4 (thêm plate)** | thêm mục tiêu nhỏ, đổi phân bố nhãn và hàm loss |
+| `fliplr` | 0.5 | **0.0** | bỏ một phép tăng cường (lật ngang) cho mọi lớp |
+| `time` | không đặt | **2.5** | Ultralytics tính lại số epoch, lịch cosine dài ≈ **178 epoch** (suy từ `lr/pg0`) thay vì 150 |
+| `workers` | 8 | **2** | thứ tự và ngẫu nhiên hóa nạp dữ liệu có thể khác (không đổi thuật toán) |
+Lần dừng: patience 25 ở epoch 80 (EXP-015: 83).
+
+**Ghi chú quan trọng:** no-helmet trên **val gần như bằng nhau** (mAP50 0.911 so với 0.913); chênh lệch lớn chỉ xuất hiện ở **test** (0.679 so với 0.844). Với một lần chạy mỗi cấu hình và 5 video test, **chưa phân biệt được tác động thật của bốn thay đổi với dao động giữa các lần chạy** (seed, thứ tự dữ liệu, lịch học). **Kế hoạch: EXP-016b** = 4cls với `fliplr=0.5` và không đặt `time` (notebook `kaggle/helmet_train_split_a.ipynb` đã sửa theo đó; giữ `workers=2`), để tách thay đổi lớp plate khỏi ba thay đổi còn lại; lặp lại với hạt giống khác nếu cần ước lượng dao động.
+
 ### Đọc đúng
 - **Lần này đổi nhiều thứ cùng lúc nên chênh lệch với EXP-015 không quy được cho riêng yếu tố nào.** Bạn nêu 2 thứ (thêm lớp plate, `fliplr: 0.0`); so `args.yaml` hai lần chạy còn thấy **thêm 2 khác biệt**: `workers: 2` (EXP-015: 8) và `time: 2.5` (EXP-015: không đặt). Ultralytics khi có `time` sẽ **tính lại số epoch theo thời gian** và co giãn lịch học: từ cột `lr/pg0` suy ra độ dài cosine ≈ **178 epoch** ở EXP-016, so với đúng 150 ở EXP-015 (ước lượng từ lr, giả định lr0 = 0.001429 như EXP-000). Vì vậy lịch học (learning-rate) cũng khác. Các tham số còn lại giống hệt (`diff` args.yaml).
 - no-helmet trên test: **mAP50 0.679 (4cls) so với 0.844 (3cls)**, R 0.624 so với 0.744; helmet 0.929 so với 0.962; motorcycle 0.994 so với 0.995. Confusion matrix test (`eval_4cls_test/confusion_matrix.png`): trong 133 no-helmet thật, 4cls tìm đúng **71**, nhầm thành helmet **31**, bỏ sót **31**; EXP-015: 105 đúng, 21 nhầm, 7 bỏ sót. Hai lần chạy cho lớp no-helmet khác nhau nhiều hơn mức ta có cách giải thích; với 5 video test, phương sai theo lần chạy (seed, thứ tự dữ liệu, lịch học) **chưa được đo** và có thể là một phần.
