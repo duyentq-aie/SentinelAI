@@ -29,7 +29,7 @@ def overlay(frame, camera, point, scale):
     """Whole frame with the stop line, the lanes and the crossing point, scaled."""
     f = frame.copy()
     for lane in camera.lanes or []:
-        col = (255, 0, 255) if lane.signal == "exempt" else (255, 200, 0)
+        col = (255, 0, 255) if lane.kind == "exempt" else (255, 200, 0)
         cv2.polylines(f, [np.array(lane.polygon, np.int32).reshape(-1, 1, 2)], True, col, 3)
     (ax, ay), (bx, by) = camera.stop_line
     cv2.line(f, (int(ax), int(ay)), (int(bx), int(by)), (0, 0, 255), 4)

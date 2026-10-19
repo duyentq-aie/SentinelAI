@@ -2,7 +2,7 @@
 import typing
 from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import warnings
 
@@ -216,10 +216,23 @@ class PipelineConfig:
 
 @dataclass
 class Lane:
-    """A lane of the approach for the stop-line red-light rule. signal: "roi" = the shared light_roi applies, "exempt" = no red-light rule (e.g. a right-turn lane with its own signal)."""
+    """A lane of the approach for the stop-line red-light rule. `signal` is one of
+      {roi: [x1, y1, x2, y2]}  the lane's own light (e.g. an arrow), read from that region with the same HSV classifier as light_roi
+      "shared"                 the camera's light_roi (the old spelling "roi" means the same)
+      "exempt"                 the lane has no light: the red-light rule does not apply (precision first)."""
     name: str
     polygon: List[List[int]]
-    signal: str = "roi"
+    signal: Any = "shared"
+
+    @property
+    def kind(self):
+        """"own" | "shared" | "exempt"."""
+        return "own" if isinstance(self.signal, dict) else ("exempt" if self.signal == "exempt" else "shared")
+
+    @property
+    def roi(self):
+        """[x1, y1, x2, y2] of the lane's own light, or None."""
+        return list(self.signal["roi"]) if isinstance(self.signal, dict) else None
 
 
 @dataclass
@@ -259,8 +272,14 @@ class CameraConfig:
         for l in self.lanes or []:
             if len(l.polygon) < 3 or any(len(p) != 2 for p in l.polygon):
                 raise ValueError(f"lane {l.name!r}: polygon needs >= 3 [x, y] points")
-            if l.signal not in ("roi", "exempt"):
-                raise ValueError(f"lane {l.name!r}: signal must be 'roi' or 'exempt', got {l.signal!r}")
+            if isinstance(l.signal, dict):
+                r = l.signal.get("roi")
+                if set(l.signal) != {"roi"} or not isinstance(r, (list, tuple)) or len(r) != 4 or not (r[0] < r[2] and r[1] < r[3]):
+                    raise ValueError(f"lane {l.name!r}: signal {{roi: [x1, y1, x2, y2]}} needs exactly the key 'roi' with x1 < x2 and y1 < y2, got {l.signal!r}")
+            elif l.signal not in ("shared", "roi", "exempt"):
+                raise ValueError(f"lane {l.name!r}: signal must be {{roi: [x1, y1, x2, y2]}}, 'shared' or 'exempt', got {l.signal!r}")
+            elif l.signal == "roi":
+                l.signal = "shared"                                # old spelling
         return self
 
     @staticmethod

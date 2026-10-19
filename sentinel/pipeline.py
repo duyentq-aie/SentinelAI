@@ -133,6 +133,7 @@ class Pipeline:
         self.cfg = cfg
         self.camera = camera
         self.fps = float(fps)
+        self._signal_log, self.lane_states = {}, {}          # last logged state per lane / state of the lane signals on the last frame (HUD, /api/status)
         self.rules = make_rules(cfg.rules, camera, self.fps)
         st = self.red_light_status()
         if st["state"] == "inactive":                       # first lines of the log of every run
@@ -144,6 +145,8 @@ class Pipeline:
             detectors.set_fps(self.fps)
         self._box = functools.partial(_draw_box, blend=cfg.render.blend)
         self.frame_idx = 0
+        for lane in camera.lanes or []:
+            print(f"[lights] lane {lane.name!r}: signal " + (f"own light, roi {lane.roi}" if lane.kind == "own" else ("exempt (no light)" if lane.kind == "exempt" else "shared (light_roi)")))
         if ocr is None and cfg.evidence.ocr.enabled:
             ocr = build_ocr(cfg)
         self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
@@ -196,6 +199,32 @@ class Pipeline:
         self._box(display, x1, y1, x2, y2, f"LIGHT: {state}", (0, 0, 255) if state == "RED" else (0, 255, 0), 2)
         return state
 
+    def _read_lane_lights(self, raw, display):
+        """State of each lane's own light ({roi: [...]} signal), read like light_roi (HSV classifier on the crop). -> {lane name: RED | GREEN | UNKNOWN}."""
+        out = {}
+        h, w = raw.shape[:2]
+        for lane in self.camera.lanes or []:
+            if lane.kind != "own":
+                continue
+            x1, y1, x2, y2 = lane.roi
+            crop = raw[max(0, y1):min(h, y2), max(0, x1):min(w, x2)]
+            state = detect_traffic_light_color(crop) if crop.size else "UNKNOWN"
+            out[lane.name] = state
+            self._box(display, x1, y1, x2, y2, f"{lane.name}: {state}", (0, 0, 255) if state == "RED" else (0, 255, 0), 1)
+        return out
+
+    def _log_signal_changes(self, light, lane_lights):
+        """Log (once per change) the state of every signal the stop-line rule uses, per lane."""
+        now = {}
+        for lane in self.camera.lanes or []:
+            now[lane.name] = lane_lights.get(lane.name, "UNKNOWN") if lane.kind == "own" else ("n/a (exempt)" if lane.kind == "exempt" else light)
+        if not self.camera.lanes:
+            now["(whole stop line)"] = light
+        for name, state in now.items():
+            if self._signal_log.get(name) != state:
+                print(f"[lights] frame {self.frame_idx}: lane {name!r} signal {self._signal_log.get(name, '-')} -> {state}")
+                self._signal_log[name] = state
+
     def _perceive(self, raw, display):
         p = Perception()
         p.coco = self.d.track_coco(raw)
@@ -210,7 +239,15 @@ class Pipeline:
                     color = (0, 0, 255) if t.state == "RED" else (0, 255, 0)
                     self._box(display, x1, y1, x2, y2, f"LIGHT: {t.state}", color, 2)
         p.helmet = self.d.track_helmet(raw)
+        if self.stop_line_active():
+            p.lane_lights = self._read_lane_lights(raw, display)
+            self._log_signal_changes(p.light, p.lane_lights)
+            self.lane_states = {l.name: (l.kind, p.lane_lights.get(l.name, "UNKNOWN") if l.kind == "own" else (None if l.kind == "exempt" else p.light)) for l in self.camera.lanes or []}
         return p
+
+    def stop_line_active(self):
+        slr = getattr(self.rules, "stop_line_rule", None)
+        return slr is not None and slr.active
 
     def red_light_status(self):
         """{"state": "active" | "inactive" | "disabled" | "legacy_zone", "mode", "reasons": [...], ...}: shown on the HUD and in /api/status."""
@@ -221,7 +258,8 @@ class Pipeline:
         if r.mode == "legacy_zone" or slr is None:
             return {"state": "legacy_zone", "mode": r.mode, "reasons": []}
         st = slr.status()
-        return {"state": "active" if st["active"] else "inactive", "mode": r.mode, "reasons": st["inactive_reasons"], "lanes": st["lanes"],
+        signals = {l.name: {"signal": l.kind, "roi": l.roi, "state": self.lane_states.get(l.name, (l.kind, "UNKNOWN"))[1] if l.kind != "exempt" else None} for l in self.camera.lanes or []}
+        return {"state": "active" if st["active"] else "inactive", "mode": r.mode, "reasons": st["inactive_reasons"], "lanes": st["lanes"], "lane_signals": signals,
                 "crossings": st["crossings"], "unassigned_crossings": st["unassigned_crossings"]}
 
     # ---- stage 3: drawing (same order as the original code)
@@ -237,7 +275,10 @@ class Pipeline:
             (ax, ay), (bx, by) = self.camera.stop_line
             cv2.line(frame, (int(ax), int(ay)), (int(bx), int(by)), zone_color, 3)
             for lane in self.camera.lanes or []:
-                cv2.polylines(frame, [CameraConfig.polygon(lane.polygon)], isClosed=True, color=(160, 160, 160) if lane.signal == "exempt" else (255, 200, 0), thickness=1)
+                cv2.polylines(frame, [CameraConfig.polygon(lane.polygon)], isClosed=True, color=(160, 160, 160) if lane.kind == "exempt" else (255, 200, 0), thickness=1)
+            if self.lane_states:
+                txt = "  ".join(f"{n}={'exempt' if kind == 'exempt' else f'{state}({kind})'}" for n, (kind, state) in self.lane_states.items())
+                cv2.putText(frame, "LANE SIGNALS: " + txt, (50, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
         cv2.putText(frame, f"TRAFFIC STATUS: {p.light}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, zone_color, 3)
         rl = self.red_light_status()
         if rl["state"] == "inactive":

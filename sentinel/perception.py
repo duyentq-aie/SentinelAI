@@ -19,6 +19,7 @@ class Track:
 class Perception:
     coco: List[Track] = field(default_factory=list)       # COCO model tracks (vehicles, traffic lights, ...)
     helmet: List[Track] = field(default_factory=list)     # helmet model tracks (motorcycle, helmet, no-helmet)
+    lane_lights: dict = field(default_factory=dict)          # lane name -> state of that lane's own light ({roi: ...} signal): RED | GREEN | UNKNOWN
     light: str = "UNKNOWN"                                # state of the last traffic light with a usable crop
 
     # ---- compact JSON form: [id, cls, x1, y1, x2, y2, conf, state]

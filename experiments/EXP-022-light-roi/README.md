@@ -57,6 +57,23 @@ Luật `stop_line_crossing` nhận track xe máy của **COCO** (id `K_<n>`), kh
 - **Giới hạn:** helmet model hầu như không thấy xe máy ở vùng vạch dừng trở lên (13 so với 1000+ detection của COCO); mọi kết quả ở đây dựa vào track COCO (ID vỡ nhiều: 242 track), không có nhãn thật, nên clip này chỉ chứng minh "không báo oan" (và rằng track tới được vạch), không chứng minh bắt được vượt đèn thật.
 - **M_257:** luật vùng cũ báo oan (xe đang nhích chờ đèn); luật mới đúng khi không báo (xem phần đính chính ở trên và EXP-023).
 
+## Tín hiệu theo làn (thiết kế lại 2026-10-19)
+Mỗi làn trong `camera.lanes` khai báo `signal` là một trong ba dạng:
+- `{roi: [x1, y1, x2, y2]}`: **đèn riêng của làn** (ví dụ đèn mũi tên), đọc từ vùng đó bằng đúng bộ phân loại HSV của `light_roi` (`sentinel/lights.py`), không đổi;
+- `"shared"`: dùng `camera.light_roi` chung (cách ghi cũ `"roi"` được hiểu là `"shared"`);
+- `"exempt"`: làn không có đèn, luật đèn đỏ không áp dụng.
+Luật xét vi phạm theo trạng thái của đèn chi phối làn chứa điểm cắt vạch: làn có đèn riêng mà đọc ra `UNKNOWN` thì **không báo** (precision trước). Trạng thái từng làn được ghi ở: log (`[lights] lane 'left-turn' signal RED -> GREEN` mỗi lần đổi, và dòng khai báo các làn lúc khởi động), HUD (dòng `LANE SIGNALS: ...`), và `/api/status` (`red_light.lane_signals`: `{signal, roi, state}` cho từng làn). Cột "đèn" trong danh sách cắt vạch là trạng thái của đèn chi phối làn đó. Test: `tests/test_lane_signals.py` (cả ba dạng, dạng cũ, các dạng không hợp lệ, đọc đèn trong pipeline, log, HUD, status).
+
+### Đề xuất ROI cho test_video (CHƯA ghi vào config, chờ duyệt bằng mắt)
+Ảnh dải mỗi 0.5 s, trạng thái ghi bên dưới: `lane_signals/lane_signals_1..6.jpg` (không commit), ảnh bối cảnh `lane_signals/rois_context.jpg`; số liệu từng frame `lane_signals/lane_signals.csv`, các đoạn trạng thái `lane_signals/lane_signals_summary.json`; tái tạo bằng `lane_signals/make_strips.py`.
+| ROI | tọa độ đề xuất | trạng thái đọc được (0–26.2 s) |
+|---|---|---|
+| bộ đếm (`light_roi`, đã duyệt) | `[590, 0, 632, 22]` | RED 0–9.3 s, GREEN từ 9.33 s |
+| mũi tên rẽ trái, cụm đèn trên biển "LÀN RẼ TRÁI" | `[466, 0, 530, 16]` | RED 0–9.47 s; từ 9.6 s GREEN **nhưng chập chờn UNKNOWN** (16.0–17.7 s, 19.0–19.5 s, 20.0–21.5 s) |
+| mũi tên rẽ trái, **cụm đèn thứ hai** cạnh bộ đếm (phương án thay thế) | `[684, 0, 748, 15]` | RED 0–9.3 s, GREEN từ 9.37 s, **không chập chờn**, trùng pha với bộ đếm |
+| mũi tên rẽ phải, cụm 3 mũi tên trên biển "LÀN RẼ PHẢI" | `[845, 3, 898, 16]` | **GREEN suốt 0–26.2 s** (không bao giờ đỏ trong clip) |
+Quan sát: (1) trong clip có **hai cụm đèn mũi tên rẽ trái** (x ≈ 466–530 và x ≈ 684–748) đổi pha cùng lúc; chưa biết cụm nào chi phối làn left-turn trong ảnh. (2) Mũi tên rẽ trái xanh có lõi gần trắng, chỉ còn vài điểm ảnh xanh (1–44) nên bộ phân loại hiện tại (ngưỡng > 5 điểm ảnh) lúc xanh lúc `UNKNOWN`ở cụm thứ nhất; với luật đèn đỏ việc này vô hại (chỉ trạng thái RED mới sinh vi phạm, và RED ở cả hai cụm rất rõ: 150–185 điểm ảnh đỏ), nhưng đáng biết. (3) Mũi tên rẽ phải luôn xanh nên clip này không kiểm được việc làn rẽ phải có thể đỏ.
+
 ## Còn mở
 1. ~~Sự kiện `M_257`: vượt đèn thật hay làn có tín hiệu riêng?~~ Đã trả lời bằng số liệu ở EXP-023: xe đứng chờ, chưa qua vạch.
 2. ROI nhỏ (42×22 px) sát mép trên khung hình: nếu camera dịch thì lệch; chưa có kiểm tra tự động.

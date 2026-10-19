@@ -1,0 +1,145 @@
+{
+ "rois": {
+  "counter (light_roi)": [
+   590,
+   0,
+   632,
+   22
+  ],
+  "left arrow": [
+   466,
+   0,
+   530,
+   16
+  ],
+  "right arrow": [
+   845,
+   3,
+   898,
+   16
+  ],
+  "left arrow, 2nd housing (alternative)": [
+   684,
+   0,
+   748,
+   15
+  ]
+ },
+ "frames": 787,
+ "fps": 30.0,
+ "runs": {
+  "counter (light_roi)": [
+   {
+    "state": "RED",
+    "first_frame": 0,
+    "last_frame": 279,
+    "from_s": 0.0,
+    "to_s": 9.3
+   },
+   {
+    "state": "GREEN",
+    "first_frame": 280,
+    "last_frame": 786,
+    "from_s": 9.33,
+    "to_s": 26.2
+   }
+  ],
+  "left arrow": [
+   {
+    "state": "RED",
+    "first_frame": 0,
+    "last_frame": 284,
+    "from_s": 0.0,
+    "to_s": 9.47
+   },
+   {
+    "state": "UNKNOWN",
+    "first_frame": 285,
+    "last_frame": 287,
+    "from_s": 9.5,
+    "to_s": 9.57
+   },
+   {
+    "state": "GREEN",
+    "first_frame": 288,
+    "last_frame": 479,
+    "from_s": 9.6,
+    "to_s": 15.97
+   },
+   {
+    "state": "UNKNOWN",
+    "first_frame": 480,
+    "last_frame": 532,
+    "from_s": 16.0,
+    "to_s": 17.73
+   },
+   {
+    "state": "GREEN",
+    "first_frame": 533,
+    "last_frame": 569,
+    "from_s": 17.77,
+    "to_s": 18.97
+   },
+   {
+    "state": "UNKNOWN",
+    "first_frame": 570,
+    "last_frame": 584,
+    "from_s": 19.0,
+    "to_s": 19.47
+   },
+   {
+    "state": "GREEN",
+    "first_frame": 585,
+    "last_frame": 599,
+    "from_s": 19.5,
+    "to_s": 19.97
+   },
+   {
+    "state": "UNKNOWN",
+    "first_frame": 600,
+    "last_frame": 646,
+    "from_s": 20.0,
+    "to_s": 21.53
+   },
+   {
+    "state": "GREEN",
+    "first_frame": 647,
+    "last_frame": 786,
+    "from_s": 21.57,
+    "to_s": 26.2
+   }
+  ],
+  "right arrow": [
+   {
+    "state": "GREEN",
+    "first_frame": 0,
+    "last_frame": 786,
+    "from_s": 0.0,
+    "to_s": 26.2
+   }
+  ],
+  "left arrow, 2nd housing (alternative)": [
+   {
+    "state": "RED",
+    "first_frame": 0,
+    "last_frame": 279,
+    "from_s": 0.0,
+    "to_s": 9.3
+   },
+   {
+    "state": "UNKNOWN",
+    "first_frame": 280,
+    "last_frame": 280,
+    "from_s": 9.33,
+    "to_s": 9.33
+   },
+   {
+    "state": "GREEN",
+    "first_frame": 281,
+    "last_frame": 786,
+    "from_s": 9.37,
+    "to_s": 26.2
+   }
+  ]
+ }
+}

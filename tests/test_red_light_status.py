@@ -27,7 +27,7 @@ def test_the_approved_test_video_geometry_is_loaded_and_the_rule_is_active(tmp_p
     pipe = pipeline(tmp_path)
     cam = pipe.camera
     assert cam.stop_line == [[400, 302], [1040, 277]] and cam.direction == [[650, 430], [665, 200]]
-    assert [(l.name, l.signal) for l in cam.lanes] == [("left-turn", "exempt"), ("through", "roi"), ("right-turn", "exempt")]
+    assert [(l.name, l.signal) for l in cam.lanes] == [("left-turn", "exempt"), ("through", "shared"), ("right-turn", "exempt")]
     st = pipe.red_light_status()
     assert st["state"] == "active" and st["reasons"] == [] and st["lanes"] == 3
     assert "INACTIVE" not in capsys.readouterr().out

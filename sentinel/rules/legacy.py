@@ -140,7 +140,7 @@ class LegacyRules:
         # --- red light ---
         if rules.red_light.enabled and self.stop_line_rule is not None:        # mode "stop_line_crossing": track crosses the stop line while its lane's signal is RED
             bikes = [Vehicle(f"K_{t.id}", t.box, "motorcycle") for t in p.coco if t.cls == "motorcycle"]       # the COCO model sees motorcycles up to and beyond the stop line (EXP-023)
-            vehicles.extend(self.stop_line_rule.update(p.light, bikes, vehicles))
+            vehicles.extend(self.stop_line_rule.update(p.light, bikes, vehicles, p.lane_lights))
         elif rules.red_light.enabled and p.light == "RED":                      # mode "legacy_zone": bottom-centre inside the zone while the light is RED (v0)
             for v in vehicles:
                 vx1, vy1, vx2, vy2 = v.coords

@@ -151,7 +151,7 @@ def test_lanes_are_read_from_the_camera_yaml_and_validated(tmp_path):
     f = tmp_path / "cam.yaml"
     f.write_text(yaml.safe_dump(base), encoding="utf-8")
     cam = load_camera_config(f)
-    assert [(l.name, l.signal) for l in cam.lanes] == [("turn", "exempt"), ("go", "roi")] and isinstance(cam.lanes[0], Lane)
+    assert [(l.name, l.signal) for l in cam.lanes] == [("turn", "exempt"), ("go", "shared")] and isinstance(cam.lanes[0], Lane)
     bad_lanes = ([{"name": "a", "polygon": [[0, 0], [1, 1]]}],
                  [{"name": "a", "polygon": [[0, 0], [1, 0], [1, 1]], "signal": "green"}],
                  [{"name": "a", "polygon": [[0, 0], [1, 0], [1, 1]]}, {"name": "a", "polygon": [[0, 0], [1, 0], [1, 1]]}])

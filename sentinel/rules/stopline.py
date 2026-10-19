@@ -16,7 +16,8 @@ and their events stay those of the M_ track.
 ID breaks: two reportable crossings in the same lane less than merge_s seconds apart whose crossing points are less than merge_px apart are one event (the second is recorded as merged, not reported).
 A track that breaks BEFORE the line and restarts beyond it is not a crossing (no side flip): a known limit.
 
-Lanes (camera.lanes): polygons with signal "roi" (the shared light_roi applies) or "exempt" (no red-light rule, e.g. a right-turn lane with its own signal). A vehicle belongs to the
+Lanes (camera.lanes): polygons whose signal is {roi: [x1, y1, x2, y2]} (the lane's own light, e.g. an arrow: its state arrives as `lane_lights`), "shared" (the camera's light_roi; the old
+spelling "roi" is read as "shared") or "exempt" (no light: no red-light rule). A vehicle belongs to the
 lane that contains the crossing point. With NO lanes configured the shared signal applies to the whole line (a warning is logged). With lanes configured, a crossing outside every
 lane is not reported (it cannot be attributed to a signal) and is counted in `unassigned_crossings`.
 """
@@ -123,7 +124,13 @@ class StopLineCrossing:
                 return vid
         return None
 
-    def update(self, light, bikes, vehicles=()):
+    def lane_state(self, lane, light, lane_lights):
+        """State of the signal that governs `lane`: its own light, the shared light, or None for an exempt lane."""
+        if lane.kind == "own":
+            return (lane_lights or {}).get(lane.name, "UNKNOWN")
+        return None if lane.kind == "exempt" else light
+
+    def update(self, light, bikes, vehicles=(), lane_lights=None):
         """Judge the motorcycle tracks `bikes` (Vehicle list, ids "K_<COCO track>") of this frame; `vehicles` are the other vehicles of the frame (the helmet-model M_ tracks are
         linked to a violating bike). -> the violating bikes (violator=True, reason RED-LIGHT RUNNER, linked/linked_reason set), to be appended to the frame's vehicles."""
         self._frame += 1
@@ -145,14 +152,15 @@ class StopLineCrossing:
                 if -SEGMENT_MARGIN <= t <= 1 + SEGMENT_MARGIN:
                     lane = self._lane_of(p) if self.lane_polys else None
                     lane_name = getattr(lane, "name", None)
+                    state = light if lane is None else (self.lane_state(lane, light, lane_lights) or light)       # the signal that governs this crossing
                     violation, merged = False, None
                     if self.lane_polys and lane is None:
                         self.unassigned_crossings += 1
                         why = "crossing point in no lane: not attributable to a signal (precision first: counted, not reported)"
-                    elif lane is not None and lane.signal == "exempt":
-                        why = f"lane {lane.name!r} is exempt (own signal / phase not confirmed): no red-light rule"
-                    elif light != "RED":
-                        why = f"light is {light}"
+                    elif lane is not None and lane.kind == "exempt":
+                        why = f"lane {lane.name!r} is exempt (no light of its own to judge by): no red-light rule"
+                    elif state != "RED":
+                        why = f"light is {state}" + (f" (lane {lane.name!r} own light)" if lane is not None and lane.kind == "own" else "")
                     elif v.id in self._fired:
                         why = "track already reported"
                     else:
@@ -167,7 +175,7 @@ class StopLineCrossing:
                             self._hold_until[v.id] = self._frame + self._hold - 1
                             self._reported.append((self._frame, lane_name, p, v.id))
                             why = f"crossed the stop line on RED in lane {lane.name!r}" if lane else "crossed the stop line on RED (no lanes configured)"
-                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": lane_name, "light": light, "violation": violation, "merged_into": merged,
+                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": lane_name, "light": state, "violation": violation, "merged_into": merged,
                                            "why": why, "box": [int(c) for c in v.coords], "point": [round(p[0], 1), round(p[1], 1)]})
                 else:
                     self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": None, "light": light, "violation": False, "merged_into": None,
