@@ -19,9 +19,9 @@ THROUGH = Lane("through", [[300, 100], [500, 100], [500, 500], [300, 500]], "roi
 APPROACH = list(range(420, 280, -5))        # bottom-centre y from 420 to 285: crosses the line (dead zone 296..304)
 
 
-def camera(lanes=None, stop_line=LINE, direction=UP):
+def camera(lanes=None, stop_line=LINE, direction=UP, light_roi=(590, 0, 632, 22)):
     return CameraConfig(camera_id="t", source="t.mp4", violation_zone=[[0, 0], [10, 0], [10, 10]],
-                        stop_line=stop_line, direction=direction, lanes=lanes).validate()
+                        stop_line=stop_line, direction=direction, lanes=lanes, light_roi=light_roi).validate()
 
 
 def rules(cam=None, fps=30, **red):

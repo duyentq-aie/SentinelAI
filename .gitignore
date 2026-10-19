@@ -36,3 +36,7 @@ experiments/EXP-017-field-inventory/*.jpg
 experiments/EXP-016-helmet-grouped-4cls/**/*batch*.jpg
 experiments/EXP-016-helmet-grouped-4cls/**/labels.jpg
 experiments/EXP-022-light-roi/*.jpg
+
+# EXP-022 crossings report: evidence crops show people and plates
+experiments/EXP-022-light-roi/crossings/evidence*/
+experiments/EXP-022-light-roi/crossings/*.jpg

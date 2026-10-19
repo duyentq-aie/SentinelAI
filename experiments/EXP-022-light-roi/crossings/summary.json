@@ -1,0 +1,38 @@
+{
+ "motorcycle_tracks": 63,
+ "tracks_closest_approach_px": {
+  "within_20": 4,
+  "within_60": 16,
+  "within_100": 23,
+  "median": -167.7
+ },
+ "crossings": 0,
+ "reported": 0,
+ "unassigned_crossings": 0,
+ "by_lane": {},
+ "by_light": {},
+ "red_light_events": [],
+ "pages": [],
+ "closest_approach_pages": [
+  "closest_approach_1.jpg"
+ ],
+ "closest_approach_of_asked": {
+  "M_257": {
+   "track": "M_257",
+   "frame": 218,
+   "s": -61.4,
+   "box": [
+    715,
+    219,
+    826,
+    349
+   ],
+   "light": "RED",
+   "lane": "through",
+   "last_frame": 221
+  }
+ },
+ "tracks_asked": {
+  "M_257": "no crossing of the stop line seen"
+ }
+}

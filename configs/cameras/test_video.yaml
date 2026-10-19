@@ -12,3 +12,19 @@ wrong_lane_zone: null
 # Traffic-light region (pixels of the 1280x720 frame): the countdown display of the signal at the top centre. Confirmed by the project owner on 2026-10-19 as the signal of this
 # approach (experiments/EXP-022-light-roi). The light state is read from this region with OpenCV instead of the COCO detector.
 light_roi: [590, 0, 632, 22]
+
+# Red-light rule "stop_line_crossing" (rules.red_light.mode, the default). Geometry approved by the project owner on 2026-10-19 from experiments/EXP-022-light-roi/lanes_proposal.jpg.
+# stop_line: just below the near edge of the zebra crossing (the queue waits below it). direction: entry direction (tail -> head), up the image.
+stop_line: [[400, 302], [1040, 277]]
+direction: [[650, 430], [665, 200]]
+# A vehicle belongs to the lane that contains its crossing point. Precision first: lanes whose signal is not known are "exempt" (never reported); a crossing outside every lane is only counted/logged.
+lanes:
+  - name: left-turn
+    signal: exempt          # chưa xác nhận pha đèn mũi tên rẽ trái (own arrow signal; not known to match the countdown in light_roi)
+    polygon: [[400, 420], [400, 235], [560, 235], [560, 420]]
+  - name: through
+    signal: roi             # governed by the countdown in light_roi
+    polygon: [[560, 420], [560, 235], [873, 235], [738, 420]]
+  - name: right-turn
+    signal: exempt          # own green-arrow signal
+    polygon: [[873, 235], [1048, 235], [1048, 420], [738, 420]]

@@ -25,11 +25,25 @@
 
 **Luật mới** `stop_line_crossing` (`sentinel/rules/stopline.py`, mặc định): vi phạm khi điểm giữa-đáy của track **cắt vạch dừng** theo hướng vào (`camera.stop_line`, `camera.direction`) **trong lúc đèn của làn đó là RED**. Khoảng cách có dấu tới vạch, vùng chết ±`jitter_px` (4 px) chống rung; "cắt" = đổi phía từ trước vạch sang sau vạch giữa hai quan sát. Không phải vi phạm: xe đứng yên, xe đã qua vạch trước khi đèn đỏ, đi ngược hướng, cắt vạch lúc xanh, làn `exempt`. Tối đa một vi phạm cho mỗi track; kết luận được giữ `hold_s` (1 s) để recorder mở đúng một sự kiện. Làn (`camera.lanes`): polygon + `signal: roi | exempt`; xe thuộc làn chứa điểm cắt vạch; không khai báo làn thì tín hiệu chung áp cho cả vạch (có cảnh báo trong log); điểm cắt nằm ngoài mọi làn thì **không báo** và được đếm (`unassigned_crossings`). Lý do ghép bằng " & " (ví dụ `NO-HELMET & RED-LIGHT RUNNER`) để không che luật helmet/overload. Test: `tests/test_stopline_rule.py` (track tổng hợp, không cần video).
 
-**Trạng thái trên test_video:** `configs/cameras/test_video.yaml` **chưa có** `stop_line`/`direction`/`lanes`, nên luật mới **không hoạt động** (log cảnh báo `INACTIVE`) và pipeline mặc định hiện không báo `red_light` trên clip này cho đến khi bạn duyệt đề xuất. Đề xuất (chưa vào config) vẽ ở `lanes_proposal.jpg` (gitignored), tái tạo bằng `draw_lanes_proposal.py`:
+**(Đã thay bằng mục "Hình học đã duyệt" bên dưới.)** Trạng thái lúc đề xuất: `configs/cameras/test_video.yaml` **chưa có** `stop_line`/`direction`/`lanes`, nên luật mới **không hoạt động** (log cảnh báo `INACTIVE`) và pipeline mặc định hiện không báo `red_light` trên clip này cho đến khi bạn duyệt đề xuất. Đề xuất (chưa vào config) vẽ ở `lanes_proposal.jpg` (gitignored), tái tạo bằng `draw_lanes_proposal.py`:
 - `stop_line`: `[[400, 302], [1040, 277]]` (sát phía dưới mép gần của vạch người đi bộ; hàng xe chờ ở dưới vạch này);
 - `direction`: `[[650, 430], [665, 200]]` (đi lên khung hình, hướng vào ngã tư);
 - làn: `left-turn` (signal `roi`, x 400–560), `through` (`roi`, x 560 đến vạch vàng chéo), `right-turn` (`exempt`, phần bên phải vạch vàng chéo, có đèn mũi tên xanh riêng).
 Chưa chắc: ranh giới left-turn/through (biển ở phía xa, không thấy vạch kẻ làn bên dưới hàng xe), và đèn mũi tên rẽ trái có cùng pha với bộ đếm hay không.
+
+## Hình học đã duyệt (2026-10-19) và nguyên tắc precision trước
+
+Chủ dự án đã duyệt `lanes_proposal.jpg`; cấu hình nằm trong `configs/cameras/test_video.yaml`: `stop_line` `[[400, 302], [1040, 277]]`, `direction` `[[650, 430], [665, 200]]`, ba làn: `left-turn` **exempt** (chưa xác nhận pha đèn mũi tên rẽ trái), `through` **roi**, `right-turn` **exempt** (đèn mũi tên riêng).
+
+**Nguyên tắc** (cũng trong `docs/PLAN.md` mục 8): phạt nguội ưu tiên precision. Không chắc thì không báo, chỉ đếm và log: làn chưa rõ pha đèn → exempt; điểm cắt vạch ngoài mọi làn → đếm `unassigned_crossings`, không báo; luật thiếu `stop_line`/`direction`/`light_roi` → INACTIVE, hiển thị ở dòng đầu log, trên HUD ("RED-LIGHT RULE INACTIVE (...)") và trường `red_light` của `/api/status`.
+
+## Danh sách mọi lần cắt vạch trên test_video (`tools/crossings_report.py`)
+Chạy pipeline mặc định + `helmet_best.pt` + cấu hình camera ở trên. Đầu ra trong `experiments/EXP-022-light-roi/crossings/` (không commit: có người, biển số): `crossings.csv/json` (mỗi lần cắt vạch: thời điểm, track, làn, đèn, báo hay không, lý do), `closest_approach.json`, `summary.json`, contact sheet đánh số.
+- **Số lần cắt vạch: 0** (kể cả không bị báo). Số sự kiện `red_light`: **0**. Số `unassigned_crossings`: 0.
+- 63 track xe máy (helmet model). Không track nào đi từ phía trước vạch (khoảng cách có dấu <= -4 px) sang phía sau (>= +4 px). Khoảng cách gần vạch nhất của mỗi track (số âm = còn trước vạch, tính theo điểm giữa-đáy hộp): trung vị -168 px; 4 track trong 20 px, 16 track trong 60 px, 23 track trong 100 px (`closest_approach.json`, contact sheet `closest_approach_1.jpg` là 20 track gần nhất, **không phải ca cắt vạch**). Ba track chạm vùng chết nhưng không qua (M_612: +2.8, M_378: 0.0; M_752 và M_1112 bắt đầu khi đã ở sau vạch nên không có lần cắt).
+- Quan sát (chưa kiểm chứng nguyên nhân): track của helmet model đa số kết thúc khi còn cách vạch hàng chục đến hàng trăm px, nên điểm giữa-đáy gần như không bao giờ tới vạch; các hộp `motorcycle` rộng (~110 px) và ID bị chia nhỏ. Các giả thuyết (xe nhỏ/xa, che khuất trong hàng xe, hộp gộp nhiều xe) chưa được kiểm tra, không đổi gì trong pipeline.
+- **M_257**: chỉ được theo dõi ở frame 215–221 (7.17–7.37 s), điểm giữa-đáy cao nhất ở khoảng cách -61.4 px (chưa tới vạch), đèn RED. Theo vị trí điểm đó thuộc làn **through** (signal `roi`). Không có lần cắt vạch nên luật mới **không báo** M_257 (luật vùng cũ báo). Hệ quả cho câu hỏi mở: với tracker hiện tại, luật mới không bắt được ca này; muốn bắt cần track sống tới vạch (ví dụ theo dõi xe máy bằng một nguồn track khác hoặc ngưỡng khác), việc này chưa làm.
+- Hệ quả cho kiểm thử: trên clip này luật mới chỉ chứng minh được "không báo oan"; khả năng bắt vượt đèn thật chưa kiểm được (như đã ghi ở mục giới hạn).
 
 ## Còn mở
 1. Sự kiện `M_257`: vượt đèn thật hay làn có tín hiệu riêng? (cần bạn xác nhận; luật mới `stop_line_crossing` cần hình học vạch/hướng/làn của test_video được duyệt).

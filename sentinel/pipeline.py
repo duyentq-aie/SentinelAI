@@ -133,12 +133,15 @@ class Pipeline:
         self.cfg = cfg
         self.camera = camera
         self.fps = float(fps)
+        self.rules = make_rules(cfg.rules, camera, self.fps)
+        st = self.red_light_status()
+        if st["state"] == "inactive":                       # first lines of the log of every run
+            print(f"[!] RED-LIGHT RULE INACTIVE: {', '.join(st['reasons'])}. No red_light events will be reported for camera {camera.camera_id!r}.")
         # where the traffic-light colour comes from: a fixed region of the camera config (light_roi, read with OpenCV) or the COCO detector's `traffic light` boxes
         self.light_source = "roi" if camera.light_roi else "coco"
         print(f"[lights] traffic-light source: {self.light_source}" + (f" (light_roi {camera.light_roi})" if camera.light_roi else " (COCO detector; no light_roi in the camera config)"))
         if hasattr(detectors, "set_fps"):
             detectors.set_fps(self.fps)
-        self.rules = make_rules(cfg.rules, camera, self.fps)
         self._box = functools.partial(_draw_box, blend=cfg.render.blend)
         self.frame_idx = 0
         if ocr is None and cfg.evidence.ocr.enabled:
@@ -209,6 +212,18 @@ class Pipeline:
         p.helmet = self.d.track_helmet(raw)
         return p
 
+    def red_light_status(self):
+        """{"state": "active" | "inactive" | "disabled" | "legacy_zone", "mode", "reasons": [...], ...}: shown on the HUD and in /api/status."""
+        r = self.cfg.rules.red_light
+        if not r.enabled:
+            return {"state": "disabled", "mode": r.mode, "reasons": []}
+        slr = getattr(self.rules, "stop_line_rule", None)
+        if r.mode == "legacy_zone" or slr is None:
+            return {"state": "legacy_zone", "mode": r.mode, "reasons": []}
+        st = slr.status()
+        return {"state": "active" if st["active"] else "inactive", "mode": r.mode, "reasons": st["inactive_reasons"], "lanes": st["lanes"],
+                "crossings": st["crossings"], "unassigned_crossings": st["unassigned_crossings"]}
+
     # ---- stage 3: drawing (same order as the original code)
     def _draw(self, frame, p, result):
         for hbox, h_type in result.heads:
@@ -224,6 +239,9 @@ class Pipeline:
             for lane in self.camera.lanes or []:
                 cv2.polylines(frame, [CameraConfig.polygon(lane.polygon)], isClosed=True, color=(160, 160, 160) if lane.signal == "exempt" else (255, 200, 0), thickness=1)
         cv2.putText(frame, f"TRAFFIC STATUS: {p.light}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, zone_color, 3)
+        rl = self.red_light_status()
+        if rl["state"] == "inactive":
+            cv2.putText(frame, f"RED-LIGHT RULE INACTIVE ({'; '.join(rl['reasons'])})", (50, 125), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
         for v in result.vehicles:
             x1, y1, x2, y2 = v.coords

@@ -34,10 +34,11 @@ class StopLineCrossing:
     def __init__(self, camera, red_cfg, fps=REFERENCE_FPS, log=print):
         self.cfg, self.log = red_cfg, log
         self.lanes = list(camera.lanes or [])
-        self.active = bool(camera.stop_line and camera.direction)
+        self.active = bool(camera.stop_line and camera.direction and camera.light_roi)
         self.warnings = []
+        self.inactive_reasons = [f"no camera.{k}" for k in ("stop_line", "direction", "light_roi") if not getattr(camera, k)]
         if not self.active:
-            self._warn("red_light: stop_line_crossing needs camera.stop_line and camera.direction; the rule is INACTIVE (no red-light events)")
+            self._warn(f"red_light: stop_line_crossing needs camera.stop_line, camera.direction and camera.light_roi ({', '.join(self.inactive_reasons)}); the rule is INACTIVE (no red-light events)")
         else:
             (ax, ay), (bx, by) = camera.stop_line
             (tx, ty), (hx, hy) = camera.direction
@@ -49,6 +50,7 @@ class StopLineCrossing:
             n = (-self.L[1] / self.length, self.L[0] / self.length)
             if abs(n[0] * d[0] + n[1] * d[1]) < 0.2 * dn:
                 self.active = False
+                self.inactive_reasons.append("direction parallel to the stop line")
                 self._warn("red_light: the direction of travel is (nearly) parallel to the stop line; the rule is INACTIVE")
             else:
                 self.n = n if n[0] * d[0] + n[1] * d[1] > 0 else (-n[0], -n[1])
@@ -62,6 +64,11 @@ class StopLineCrossing:
         self.warnings.append(msg)
         self.log(f"[!] {msg}")
 
+    def status(self):
+        """For the HUD and /api/status: whether the rule can report anything, and what it has counted instead of reporting."""
+        return {"mode": "stop_line_crossing", "active": self.active, "inactive_reasons": list(self.inactive_reasons), "lanes": len(self.lanes),
+                "crossings": len(self.crossings), "unassigned_crossings": self.unassigned_crossings}
+
     def set_fps(self, fps):
         self._hold = to_frames(self.cfg.hold_s, fps)
         self._purge = to_frames(PURGE_S, fps)
@@ -70,7 +77,7 @@ class StopLineCrossing:
         self._side, self._fired, self._hold_until, self._last_seen = {}, set(), {}, {}
         self._frame = 0
         self.unassigned_crossings = 0
-        self.crossings = []                      # (frame, vehicle id, lane name or None, light, violation?) of every crossing seen: for tests and diagnostics
+        self.crossings = []                      # one dict per crossing seen (frame, id, lane, light, violation, why, box, point): reported or not, for the crossings report
 
     def signed_distance(self, point):
         return self.n[0] * (point[0] - self.A[0]) + self.n[1] * (point[1] - self.A[1])
@@ -104,11 +111,23 @@ class StopLineCrossing:
                     violation = False
                     if self.lane_polys and lane is None:
                         self.unassigned_crossings += 1
-                    elif (lane is None or lane.signal == "roi") and light == "RED" and v.id not in self._fired:
+                        why = "crossing point in no lane: not attributable to a signal (precision first: counted, not reported)"
+                    elif lane is not None and lane.signal == "exempt":
+                        why = f"lane {lane.name!r} is exempt (own signal / phase not confirmed): no red-light rule"
+                    elif light != "RED":
+                        why = f"light is {light}"
+                    elif v.id in self._fired:
+                        why = "track already reported"
+                    else:
                         violation = True
                         self._fired.add(v.id)
                         self._hold_until[v.id] = self._frame + self._hold - 1
-                    self.crossings.append((self._frame, v.id, getattr(lane, "name", None), light, violation))
+                        why = f"crossed the stop line on RED in lane {lane.name!r}" if lane else "crossed the stop line on RED (no lanes configured)"
+                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": getattr(lane, "name", None), "light": light, "violation": violation,
+                                           "why": why, "box": [int(c) for c in v.coords], "point": [round(p[0], 1), round(p[1], 1)]})
+                else:
+                    self.crossings.append({"frame": self._frame - 1, "id": v.id, "lane": None, "light": light, "violation": False, "why": "crossed the line's extension beyond the ends of the segment: ignored",
+                                           "box": [int(c) for c in v.coords], "point": [round(p[0], 1), round(p[1], 1)]})
             if self._hold_until.get(v.id, -1) >= self._frame:
                 v.violator = True
                 v.reason = join_reason(v.reason, self.REASON)
