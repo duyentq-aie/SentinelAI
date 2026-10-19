@@ -83,3 +83,32 @@ GT no-helmet trên val = 140; 40 cái (29%) không được dự đoán đúng �
 
 ## Tệp
 `metrics_3cls.json`, `helmet_3cls_splitA/` (args, results.csv, đường cong, ảnh batch, `weights/` rỗng), `eval_3cls_{val,test,extra_1080p}/` (confusion matrix, PR…), `weights/best.pt` (không commit), `label_stats*.json`, `val_error_cases.{json,csv}`, `error_gallery/` (không commit), `scripts/` (các script phân tích đã chạy).
+
+
+## Cập nhật 2026-10-19
+
+### Ba kết luận cần nhớ
+1. **Giả thuyết "mỗi ảnh chỉ có 1 no-helmet" bị bác bỏ cho dữ liệu huấn luyện.** Split A train có **131 / 1026 ảnh có đúng 2 no-helmet** (12.8%) và **95 xe có 2 người không mũ**; split gốc: 108/1014, 16/278, 11/168 ảnh. Không ảnh nào có ≥ 3. *Nhưng* đúng với val và test của split A (0 ảnh có ≥ 2, 0 xe có 2 người không mũ): đó là khoảng trống của tập đánh giá chứ không phải của nhãn nói chung. Số liệu này không chứng minh nguyên nhân của recall no-helmet thấp (0.74–0.77).
+2. **Lỗi tập trung ở frame_14.** 23 / 51 ca lỗi của val (19 (a) + 2 (b) + 2 (c)) nằm ở frame_14 (một người đầu trần ngồi trước qua nhiều frame liên tiếp, hộp GT cao). Trong val, no-helmet ở frame_14 có 24/34 box bị đánh dấu "bao thân" (xem dưới).
+3. **Test không có xe 3 người** (0 xe có 3 đầu; val có 14, train 18): luật `overload` **chưa được đánh giá** trên split này; mAP không nói gì về nó.
+
+### Độ nhất quán của box (`tools/box_consistency.py`, `box_consistency/`)
+Đo trên cả 4 lớp của split A. Cao/rộng tính bằng pixel (kích thước ảnh từ manifest); tỉ lệ chiều cao tương đối = cao box đầu / cao box xe máy chứa tâm box đó (ghép được 94–98% box đầu, phần còn lại không nằm trong box xe nào). `boxes.csv` = từng box; `hist_aspect.png`, `hist_rel_h.png` = histogram theo lớp/split; `summary.json` = phân vị.
+- **Phân phối cao/rộng không có hai cụm** (đơn đỉnh liên tục, `valley_depth_ratio` = 1.0). Trung vị helmet 1.32 / 1.39 / 1.36 (train/val/test), no-helmet 1.36 / **1.47** / 1.41; xe máy ≈ 1.32, biển số ≈ 0.59. Box đầu nhìn từ trên xuống gần vuông nếu chỉ bao đầu, nên trung vị 1.3–1.4 nghĩa là phần lớn box đã dài hơn vùng đầu.
+- **Chiều cao tương đối có một đỉnh chính + đuôi:** đỉnh ở ≈ 0.2–0.25 chiều cao xe (trung vị helmet 0.23, no-helmet 0.22 – gần như bằng nhau), đuôi kéo tới 0.6; Otsu cho thung lũng ở **0.303**.
+- **Ngưỡng đề xuất (dựa trên phân phối, chưa kiểm với người):** cao/rộng > **1.514** (phân vị 90 của helmet + no-helmet gộp; vì không có thung lũng nên đây là "đuôi trên", không phải ranh giới cụm) **hoặc** cao tương đối > **0.303** (thung lũng Otsu) ⇒ gắn cờ "box bao thân".
+
+| lớp | split | box | gắn cờ (%) | do cao/rộng | do cao tương đối | không ghép được xe |
+|---|---|---|---|---|---|---|
+| helmet | train | 2105 | 404 (19.2%) | 174 | 281 | 120 |
+| helmet | val | 468 | 90 (19.2%) | 57 | 44 | 23 |
+| helmet | test | 258 | 33 (12.8%) | 15 | 21 | 8 |
+| helmet | extra_1080p | 4 | 4 (100.0%) | 0 | 4 | 0 |
+| no-helmet | train | 662 | 117 (17.7%) | 64 | 68 | 24 |
+| no-helmet | val | 140 | 63 (45.0%) | 55 | 13 | 3 |
+| no-helmet | test | 133 | 24 (18.0%) | 17 | 7 | 2 |
+| no-helmet | extra_1080p | 10 | 3 (30.0%) | 0 | 3 | 0 |
+
+- no-helmet **val: 45.0%** gắn cờ so với 17.7% (train) và 18.0% (test); theo video val: frame_14 24/34, frame_10 14/30, frame_15 25/76. Trung vị cao/rộng val 1.47. Khác biệt thể hiện rõ mức "bao thân" không đồng đều giữa các video và khớp với việc lỗi val dồn vào frame_14. Helmet 12.8–19.2%.
+- Gallery duyệt tay (30 box ngẫu nhiên seed 0 mỗi nhóm: helmet/no-helmet × gắn cờ/không): `box_consistency/gallery/*.jpg` (**không commit**, có mặt người). Quan sát bằng mắt trên 120 box: nhóm gắn cờ thường bao tới thắt lưng/ba lô; nhóm *không* gắn cờ của no-helmet cũng **phần lớn bao cả vai** (không chỉ đầu); helmet không cờ phần lớn bao mũ và một ít vai.
+- **Kết luận (quan sát + số đo):** hộp của cả hai lớp thay đổi liên tục từ "gần chỉ đầu" tới "đầu + vai + lưng", no-helmet cao hơn helmet một chút và lệch nhiều ở val (frame_14). Không có cụm rõ ràng nên ngưỡng ở trên chỉ là công cụ rà soát. **Không đề xuất gán nhãn lại** ở bước này: chưa biết bao nhiêu phần mAP50-95 thấp là do hộp (so với do model) – cần số đo (ví dụ đánh giá lại với IoU lỏng hơn hoặc trên tập đã chuẩn hóa hộp) trước khi quyết định. Quy tắc mới cho nhãn đầu: `docs/LABELING_GUIDE.md`.

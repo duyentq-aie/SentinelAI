@@ -34,3 +34,14 @@ Vùng nhìn không rõ (xa, cây che): có thể khai báo `ignore_regions` th�
 ## Phím tắt
 `space` phát/dừng · `j`/`l` ±1 frame · `J`/`L` ±30 frame · `s` đầu sự kiện · `e` cuối sự kiện · kéo chuột + `k` = key frame và hộp ·
 `t` đổi loại · `h` đánh dấu `hard` · `Enter` lưu sự kiện (hỏi biển số ở terminal) · `u` hoàn tác · `[` mở/đóng vùng đã gán đầy đủ · `w` lưu · `q` lưu và thoát.
+
+
+## Định nghĩa class đầu người (nhãn cho detector, **quy tắc mới 2026-10-19**)
+Áp dụng khi gán/sửa nhãn ảnh tĩnh cho detector (`helmet`, `no-helmet`), không phải khi gán sự kiện ở trên.
+- **`helmet` = chỉ mũ bảo hiểm** (mũ cứng/nửa đầu/trùm đầu có vỏ cứng). Đầu đội mũ bảo hiểm → `helmet`.
+- **Khăn trùm đầu, mũ vải, mũ lưỡi trai/nón (kể cả nón lá), hood, tóc trần → `no-helmet`.** Chỉ mũ bảo hiểm mới là `helmet`.
+- **Box chỉ bao vùng đầu: từ đỉnh đầu (đỉnh mũ) tới cằm; không bao vai, lưng hay thân.** Nhìn từ trên xuống (camera hiện tại) thì hộp gần vuông; hộp cao gấp rõ ràng lần rộng thường là đã bao cả vai/lưng.
+- Hai đầu chồng nhau (người ngồi sau thò mũ lên trên vai người trước): mỗi đầu một box riêng, phần chồng được phép; đừng nới box của người phía trước để bao cả mũ người sau.
+- Không chắc (đầu bị che, quá nhỏ): không gán box hoặc ghi chú để duyệt; đừng đoán.
+- **Đây là quy tắc mới và dữ liệu hiện tại chưa tuân theo hoàn toàn.** Đo trên split A (`experiments/EXP-015-helmet-grouped-3cls/box_consistency/`): box đầu thường bao cả vai (trung vị cao/rộng 1.34 helmet, 1.39 no-helmet), một phần nhỏ bao tới thắt lưng; khăn trùm đầu hiện bị gán lẫn lộn. **Chưa có quyết định gán nhãn lại**: quy tắc này là chuẩn cho nhãn mới và cho khi rà soát; việc sửa nhãn cũ cần số đo và duyệt riêng.
+- **Khác với luật sự kiện ở trên:** dòng `no_helmet` của bảng sự kiện vẫn *không gán* khi mũ không rõ ràng (khăn, mũ vải…) vì ground truth sự kiện phải thận trọng; quy tắc lớp ở đây nói khăn/mũ vải là `no-helmet` ở mức *ảnh tĩnh*. Hai quy tắc có chủ đích khác nhau và **cần bạn xác nhận có muốn thống nhất** (nếu khăn trùm đầu là vi phạm thì dòng sự kiện phải sửa theo).

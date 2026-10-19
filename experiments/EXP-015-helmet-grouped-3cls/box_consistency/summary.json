@@ -1,0 +1,558 @@
+{
+  "quantiles": {
+    "helmet/train": {
+      "aspect": {
+        "n": 2105,
+        "mean": 1.292,
+        "q05": 0.942,
+        "q25": 1.175,
+        "median": 1.32,
+        "q75": 1.423,
+        "q95": 1.546
+      },
+      "rel_h": {
+        "n": 1985,
+        "mean": 0.244,
+        "q05": 0.144,
+        "q25": 0.197,
+        "median": 0.234,
+        "q75": 0.267,
+        "q95": 0.411
+      },
+      "matched_to_motorcycle": 1985
+    },
+    "helmet/val": {
+      "aspect": {
+        "n": 468,
+        "mean": 1.329,
+        "q05": 0.99,
+        "q25": 1.186,
+        "median": 1.385,
+        "q75": 1.455,
+        "q95": 1.559
+      },
+      "rel_h": {
+        "n": 445,
+        "mean": 0.228,
+        "q05": 0.13,
+        "q25": 0.199,
+        "median": 0.224,
+        "q75": 0.251,
+        "q95": 0.36
+      },
+      "matched_to_motorcycle": 445
+    },
+    "helmet/test": {
+      "aspect": {
+        "n": 258,
+        "mean": 1.3,
+        "q05": 0.978,
+        "q25": 1.178,
+        "median": 1.36,
+        "q75": 1.437,
+        "q95": 1.517
+      },
+      "rel_h": {
+        "n": 250,
+        "mean": 0.228,
+        "q05": 0.124,
+        "q25": 0.168,
+        "median": 0.23,
+        "q75": 0.256,
+        "q95": 0.371
+      },
+      "matched_to_motorcycle": 250
+    },
+    "helmet/extra_1080p": {
+      "aspect": {
+        "n": 4,
+        "mean": 1.131,
+        "q05": 1.061,
+        "q25": 1.107,
+        "median": 1.15,
+        "q75": 1.174,
+        "q95": 1.175
+      },
+      "rel_h": {
+        "n": 4,
+        "mean": 0.332,
+        "q05": 0.307,
+        "q25": 0.309,
+        "median": 0.319,
+        "q75": 0.342,
+        "q95": 0.374
+      },
+      "matched_to_motorcycle": 4
+    },
+    "helmet/all": {
+      "aspect": {
+        "n": 2835,
+        "mean": 1.299,
+        "q05": 0.955,
+        "q25": 1.177,
+        "median": 1.336,
+        "q75": 1.432,
+        "q95": 1.548
+      },
+      "rel_h": {
+        "n": 2684,
+        "mean": 0.24,
+        "q05": 0.136,
+        "q25": 0.197,
+        "median": 0.232,
+        "q75": 0.262,
+        "q95": 0.397
+      },
+      "matched_to_motorcycle": 2684
+    },
+    "motorcycle/train": {
+      "aspect": {
+        "n": 2102,
+        "mean": 1.287,
+        "q05": 0.912,
+        "q25": 1.24,
+        "median": 1.319,
+        "q75": 1.381,
+        "q95": 1.478
+      },
+      "rel_h": null,
+      "matched_to_motorcycle": 0
+    },
+    "motorcycle/val": {
+      "aspect": {
+        "n": 471,
+        "mean": 1.256,
+        "q05": 0.873,
+        "q25": 1.183,
+        "median": 1.293,
+        "q75": 1.359,
+        "q95": 1.501
+      },
+      "rel_h": null,
+      "matched_to_motorcycle": 0
+    },
+    "motorcycle/test": {
+      "aspect": {
+        "n": 304,
+        "mean": 1.291,
+        "q05": 0.99,
+        "q25": 1.248,
+        "median": 1.33,
+        "q75": 1.381,
+        "q95": 1.458
+      },
+      "rel_h": null,
+      "matched_to_motorcycle": 0
+    },
+    "motorcycle/extra_1080p": {
+      "aspect": {
+        "n": 14,
+        "mean": 1.537,
+        "q05": 1.248,
+        "q25": 1.451,
+        "median": 1.581,
+        "q75": 1.649,
+        "q95": 1.737
+      },
+      "rel_h": null,
+      "matched_to_motorcycle": 0
+    },
+    "motorcycle/all": {
+      "aspect": {
+        "n": 2891,
+        "mean": 1.284,
+        "q05": 0.912,
+        "q25": 1.233,
+        "median": 1.317,
+        "q75": 1.378,
+        "q95": 1.482
+      },
+      "rel_h": null,
+      "matched_to_motorcycle": 0
+    },
+    "no-helmet/train": {
+      "aspect": {
+        "n": 662,
+        "mean": 1.348,
+        "q05": 1.101,
+        "q25": 1.263,
+        "median": 1.358,
+        "q75": 1.437,
+        "q95": 1.557
+      },
+      "rel_h": {
+        "n": 638,
+        "mean": 0.234,
+        "q05": 0.139,
+        "q25": 0.199,
+        "median": 0.223,
+        "q75": 0.257,
+        "q95": 0.36
+      },
+      "matched_to_motorcycle": 638
+    },
+    "no-helmet/val": {
+      "aspect": {
+        "n": 140,
+        "mean": 1.472,
+        "q05": 1.277,
+        "q25": 1.404,
+        "median": 1.468,
+        "q75": 1.557,
+        "q95": 1.669
+      },
+      "rel_h": {
+        "n": 137,
+        "mean": 0.238,
+        "q05": 0.193,
+        "q25": 0.206,
+        "median": 0.219,
+        "q75": 0.247,
+        "q95": 0.383
+      },
+      "matched_to_motorcycle": 137
+    },
+    "no-helmet/test": {
+      "aspect": {
+        "n": 133,
+        "mean": 1.407,
+        "q05": 1.248,
+        "q25": 1.37,
+        "median": 1.412,
+        "q75": 1.468,
+        "q95": 1.555
+      },
+      "rel_h": {
+        "n": 131,
+        "mean": 0.229,
+        "q05": 0.185,
+        "q25": 0.201,
+        "median": 0.22,
+        "q75": 0.242,
+        "q95": 0.308
+      },
+      "matched_to_motorcycle": 131
+    },
+    "no-helmet/extra_1080p": {
+      "aspect": {
+        "n": 10,
+        "mean": 1.298,
+        "q05": 1.143,
+        "q25": 1.242,
+        "median": 1.289,
+        "q75": 1.381,
+        "q95": 1.441
+      },
+      "rel_h": {
+        "n": 10,
+        "mean": 0.29,
+        "q05": 0.25,
+        "q25": 0.265,
+        "median": 0.277,
+        "q75": 0.302,
+        "q95": 0.365
+      },
+      "matched_to_motorcycle": 10
+    },
+    "no-helmet/all": {
+      "aspect": {
+        "n": 945,
+        "mean": 1.374,
+        "q05": 1.13,
+        "q25": 1.292,
+        "median": 1.387,
+        "q75": 1.461,
+        "q95": 1.595
+      },
+      "rel_h": {
+        "n": 916,
+        "mean": 0.235,
+        "q05": 0.152,
+        "q25": 0.202,
+        "median": 0.221,
+        "q75": 0.253,
+        "q95": 0.358
+      },
+      "matched_to_motorcycle": 916
+    },
+    "plate/train": {
+      "aspect": {
+        "n": 2263,
+        "mean": 0.592,
+        "q05": 0.523,
+        "q25": 0.567,
+        "median": 0.593,
+        "q75": 0.618,
+        "q95": 0.657
+      },
+      "rel_h": {
+        "n": 1749,
+        "mean": 0.115,
+        "q05": 0.089,
+        "q25": 0.103,
+        "median": 0.114,
+        "q75": 0.125,
+        "q95": 0.143
+      },
+      "matched_to_motorcycle": 1749
+    },
+    "plate/val": {
+      "aspect": {
+        "n": 558,
+        "mean": 0.607,
+        "q05": 0.541,
+        "q25": 0.575,
+        "median": 0.599,
+        "q75": 0.635,
+        "q95": 0.694
+      },
+      "rel_h": {
+        "n": 432,
+        "mean": 0.11,
+        "q05": 0.086,
+        "q25": 0.098,
+        "median": 0.109,
+        "q75": 0.12,
+        "q95": 0.143
+      },
+      "matched_to_motorcycle": 432
+    },
+    "plate/test": {
+      "aspect": {
+        "n": 271,
+        "mean": 0.595,
+        "q05": 0.533,
+        "q25": 0.565,
+        "median": 0.587,
+        "q75": 0.616,
+        "q95": 0.707
+      },
+      "rel_h": {
+        "n": 220,
+        "mean": 0.113,
+        "q05": 0.094,
+        "q25": 0.104,
+        "median": 0.111,
+        "q75": 0.122,
+        "q95": 0.136
+      },
+      "matched_to_motorcycle": 220
+    },
+    "plate/extra_1080p": {
+      "aspect": {
+        "n": 12,
+        "mean": 0.812,
+        "q05": 0.763,
+        "q25": 0.792,
+        "median": 0.808,
+        "q75": 0.843,
+        "q95": 0.853
+      },
+      "rel_h": {
+        "n": 10,
+        "mean": 0.202,
+        "q05": 0.17,
+        "q25": 0.187,
+        "median": 0.197,
+        "q75": 0.205,
+        "q95": 0.251
+      },
+      "matched_to_motorcycle": 10
+    },
+    "plate/all": {
+      "aspect": {
+        "n": 3104,
+        "mean": 0.596,
+        "q05": 0.527,
+        "q25": 0.568,
+        "median": 0.594,
+        "q75": 0.621,
+        "q95": 0.667
+      },
+      "rel_h": {
+        "n": 2411,
+        "mean": 0.114,
+        "q05": 0.089,
+        "q25": 0.102,
+        "median": 0.113,
+        "q75": 0.124,
+        "q95": 0.143
+      },
+      "matched_to_motorcycle": 2411
+    }
+  },
+  "valley": {
+    "helmet": {
+      "aspect": {
+        "otsu_threshold": 1.269,
+        "share_above": 0.613,
+        "valley_count": 170,
+        "peak_below": 170,
+        "peak_above": 292,
+        "valley_depth_ratio": 1.0
+      },
+      "rel_h": {
+        "otsu_threshold": 0.317,
+        "share_above": 0.106,
+        "valley_count": 65,
+        "peak_below": 375,
+        "peak_above": 34,
+        "valley_depth_ratio": 1.912
+      }
+    },
+    "motorcycle": {
+      "aspect": {
+        "otsu_threshold": 1.173,
+        "share_above": 0.831,
+        "valley_count": 1017,
+        "peak_below": 255,
+        "peak_above": 1212,
+        "valley_depth_ratio": 3.988
+      },
+      "rel_h": null
+    },
+    "no-helmet": {
+      "aspect": {
+        "otsu_threshold": 1.361,
+        "share_above": 0.58,
+        "valley_count": 79,
+        "peak_below": 79,
+        "peak_above": 103,
+        "valley_depth_ratio": 1.0
+      },
+      "rel_h": {
+        "otsu_threshold": 0.293,
+        "share_above": 0.117,
+        "valley_count": 23,
+        "peak_below": 135,
+        "peak_above": 16,
+        "valley_depth_ratio": 1.438
+      }
+    },
+    "plate": {
+      "aspect": {
+        "otsu_threshold": 0.604,
+        "share_above": 0.391,
+        "valley_count": 366,
+        "peak_below": 366,
+        "peak_above": 280,
+        "valley_depth_ratio": 1.307
+      },
+      "rel_h": {
+        "otsu_threshold": 0.118,
+        "share_above": 0.365,
+        "valley_count": 301,
+        "peak_below": 366,
+        "peak_above": 253,
+        "valley_depth_ratio": 1.19
+      }
+    }
+  },
+  "flagged": {
+    "helmet/train": {
+      "boxes": 2105,
+      "flagged": 404,
+      "pct": 19.2,
+      "by_aspect": 174,
+      "by_rel_h": 281,
+      "unmatched_to_motorcycle": 120
+    },
+    "helmet/val": {
+      "boxes": 468,
+      "flagged": 90,
+      "pct": 19.2,
+      "by_aspect": 57,
+      "by_rel_h": 44,
+      "unmatched_to_motorcycle": 23
+    },
+    "helmet/test": {
+      "boxes": 258,
+      "flagged": 33,
+      "pct": 12.8,
+      "by_aspect": 15,
+      "by_rel_h": 21,
+      "unmatched_to_motorcycle": 8
+    },
+    "helmet/extra_1080p": {
+      "boxes": 4,
+      "flagged": 4,
+      "pct": 100.0,
+      "by_aspect": 0,
+      "by_rel_h": 4,
+      "unmatched_to_motorcycle": 0
+    },
+    "no-helmet/train": {
+      "boxes": 662,
+      "flagged": 117,
+      "pct": 17.7,
+      "by_aspect": 64,
+      "by_rel_h": 68,
+      "unmatched_to_motorcycle": 24
+    },
+    "no-helmet/val": {
+      "boxes": 140,
+      "flagged": 63,
+      "pct": 45.0,
+      "by_aspect": 55,
+      "by_rel_h": 13,
+      "unmatched_to_motorcycle": 3
+    },
+    "no-helmet/test": {
+      "boxes": 133,
+      "flagged": 24,
+      "pct": 18.0,
+      "by_aspect": 17,
+      "by_rel_h": 7,
+      "unmatched_to_motorcycle": 2
+    },
+    "no-helmet/extra_1080p": {
+      "boxes": 10,
+      "flagged": 3,
+      "pct": 30.0,
+      "by_aspect": 0,
+      "by_rel_h": 3,
+      "unmatched_to_motorcycle": 0
+    }
+  },
+  "thresholds": {
+    "aspect": 1.514,
+    "rel_h": 0.303,
+    "source": "aspect: q90 of helmet+no-helmet pooled (the distribution is unimodal, no valley); rel_h: Otsu valley of the pooled heads; override with --aspect-threshold/--rel-threshold"
+  },
+  "pooled_heads_valley": {
+    "aspect": {
+      "otsu_threshold": 1.269,
+      "share_above": 0.659,
+      "valley_count": 217,
+      "peak_below": 217,
+      "peak_above": 418,
+      "valley_depth_ratio": 1.0
+    },
+    "rel_h": {
+      "otsu_threshold": 0.303,
+      "share_above": 0.122,
+      "valley_count": 109,
+      "peak_below": 490,
+      "peak_above": 82,
+      "valley_depth_ratio": 1.329
+    }
+  },
+  "gallery": {
+    "helmet/body": {
+      "population": 527,
+      "shown": 30
+    },
+    "helmet/head_only": {
+      "population": 2304,
+      "shown": 30
+    },
+    "no-helmet/body": {
+      "population": 204,
+      "shown": 30
+    },
+    "no-helmet/head_only": {
+      "population": 731,
+      "shown": 30
+    }
+  }
+}

@@ -31,3 +31,4 @@ experiments/EXP-015-helmet-grouped-3cls/error_gallery/
 experiments/EXP-015-helmet-grouped-3cls/**/*batch*.jpg
 experiments/EXP-015-helmet-grouped-3cls/**/labels.jpg
 results_*.zip
+experiments/EXP-015-helmet-grouped-3cls/box_consistency/gallery/
