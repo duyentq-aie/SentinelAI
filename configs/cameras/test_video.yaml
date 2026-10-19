@@ -9,6 +9,6 @@ violation_zone: [[250, 250], [750, 250], [820, 380], [150, 380]]
 # Optional "wrong lane" polygon for cars/trucks/buses; null = disabled (as in the original code).
 wrong_lane_zone: null
 
-# Traffic-light region (pixels of the 1280x720 frame): the countdown display of the signal at the top centre. PROVISIONAL - waiting for the project owner to confirm
-# that it is the signal governing this approach (experiments/EXP-022-light-roi). With it the light state is read from this region with OpenCV instead of the COCO detector.
+# Traffic-light region (pixels of the 1280x720 frame): the countdown display of the signal at the top centre. Confirmed by the project owner on 2026-10-19 as the signal of this
+# approach (experiments/EXP-022-light-roi). The light state is read from this region with OpenCV instead of the COCO detector.
 light_roi: [590, 0, 632, 22]

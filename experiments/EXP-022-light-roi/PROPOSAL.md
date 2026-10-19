@@ -1,4 +1,4 @@
-# EXP-022 – trạng thái đèn từ ROI (đề xuất, CHỜ DUYỆT)
+# EXP-022 – trạng thái đèn từ ROI (đề xuất ban đầu; ĐÃ ĐƯỢC DUYỆT 2026-10-19, xem README.md)
 
 ## Đã làm trong mã (không đổi hành vi khi camera chưa có `light_roi`)
 `Pipeline` đọc trạng thái đèn từ `camera.light_roi` nếu có (cắt vùng cố định trên frame gốc, `sentinel/lights.py` = OpenCV HSV, không cần detector); nếu không thì dùng detector COCO như cũ. Nguồn đang dùng được ghi ra console khi khởi tạo (`[lights] traffic-light source: roi|coco`) và là `Pipeline.light_source`. Logic luật `red_light` không đổi (test). Khi dùng ROI, các box `traffic light` của COCO không còn quyết định trạng thái.
