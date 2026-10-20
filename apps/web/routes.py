@@ -24,6 +24,19 @@ class Context:
     evidence_url: Any = None   # URL prefix under which evidence_dir is served (e.g. "/static/violations"), None = thumbnails unavailable
 
 
+def file_sha256(path):
+    """sha256 of a model file, or None when it is not there (e.g. an .onnx that was not exported)."""
+    import hashlib
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return None
+
+
 def backend_info(cfg):
     """What the UI shows in the corner: runtime ('pytorch' / 'onnxruntime' / 'mixed') and device."""
     weights = [cfg.models.coco.weights, cfg.models.helmet.weights, cfg.models.plate.weights]
@@ -36,6 +49,7 @@ def backend_info(cfg):
         except Exception:
             device = "cpu"
     return {"runtime": kinds.pop() if len(kinds) == 1 else "mixed", "device": str(device), "models": [Path(w).name for w in weights],
+            "helmet_model": {"file": str(cfg.models.helmet.weights), "sha256": file_sha256(cfg.path(cfg.models.helmet.weights))},      # which helmet model is running, and exactly which file
             "rules": cfg.rules.engine, "tracker": [Path(t).name for t in (cfg.models.coco.tracker, cfg.models.helmet.tracker) if t]}
 
 

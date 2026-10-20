@@ -28,7 +28,9 @@ BASELINE = FIX / "baseline_events_v1_clean.json"
 BASELINE_V2 = FIX / "baseline_events_v2.json"
 BASELINE_V3 = FIX / "baseline_events_v3_windowed.json"
 BASELINE_V4 = FIX / "baseline_events_v4_gmc_none.json"      # windowed rules without hysteresis + BoT-SORT without GMC (temporary)
-BASELINE_V5 = FIX / "baseline_events_v5_hysteresis.json"    # current default config: v4 + hysteresis exit_ratio 0.3 (not tuned)
+BASELINE_V5 = FIX / "baseline_events_v5_hysteresis.json"    # old helmet model (helmet_best.pt), v4 + hysteresis exit_ratio 0.3 (not tuned)
+TRACKS_EXP015 = FIX / "tracks_test_video_exp015.jsonl"      # perception of the DEFAULT helmet model since 2026-10-20 (EXP-015 best.pt), recorded on CPU
+BASELINE_V6 = FIX / "baseline_events_v6_exp015.json"        # current default config: v5 rules + the EXP-015 helmet model
 
 pytestmark = pytest.mark.skipif(not TRACKS.exists(), reason="tracks fixture not recorded (tools/record_tracks.py)")
 
@@ -53,7 +55,7 @@ def test_fixture_metadata_is_complete(tracks):
     assert len(perceptions) == 787
 
 
-@pytest.fixture(scope="module", params=[TRACKS, TRACKS_SPARSE, TRACKS_V0], ids=["default", "gmc_sparse", "v0_overlay"])
+@pytest.fixture(scope="module", params=[TRACKS, TRACKS_SPARSE, TRACKS_V0, TRACKS_EXP015], ids=["old_model", "gmc_sparse", "v0_overlay", "exp015_default"])
 def any_tracks(request):
     return load_tracks(request.param)
 
@@ -113,6 +115,17 @@ def test_windowed_rules_reproduce_the_v3_label_events_exactly(sparse):
     assert d == {"missing": [], "added": [], "changed": []}, d
 
 
+def test_default_helmet_model_is_exp015_and_its_fixture_replay_reproduces_the_v6_label_events_exactly():
+    """Default since 2026-10-20: EXP-015. The old model's fixture and baseline v5 stay as they are (tests below)."""
+    cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
+    assert cfg.models.helmet.weights == "experiments/EXP-015-helmet-grouped-3cls/weights/best.pt" and cfg.models.helmet.conf == 0.55       # the threshold was not touched by the switch
+    meta, perceptions = load_tracks(TRACKS_EXP015)
+    assert meta["models"]["helmet"]["file"] == cfg.models.helmet.weights and len(perceptions) == 787
+    got = run_rules(perceptions, make_rules(cfg.rules, cam), violation_labels)
+    d = diff_events(_labels(BASELINE_V6), got, tol=0)
+    assert d == {"missing": [], "added": [], "changed": []}, d
+
+
 def test_default_config_replay_reproduces_the_v4_label_events_exactly(tracks):
     """The default config (windowed rules, BoT-SORT without GMC): regression snapshot, not ground truth."""
     cfg, cam = load_pipeline_config(), load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
@@ -161,7 +174,7 @@ def test_label_events_are_the_same_in_v0_and_v1_clean():
 
 
 def test_baseline_snapshot_shapes():
-    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15)), (BASELINE_V4, (14, 15)), (BASELINE_V5, (14, 15))):
+    for path, expected in ((BASELINE_V0, (20, 23)), (BASELINE, (21, 23)), (BASELINE_V2, (13, 15)), (BASELINE_V3, (14, 15)), (BASELINE_V4, (14, 15)), (BASELINE_V5, (14, 15)), (BASELINE_V6, (7, 8))):
         d = json.loads(path.read_text(encoding="utf-8"))
         kinds = [e["kind"] for e in d["events"]]
         assert (kinds.count("plate_capture"), kinds.count("label_first_seen")) == expected and d["video_sha256"], path.name

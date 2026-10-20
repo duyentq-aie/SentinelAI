@@ -1,0 +1,84 @@
+{
+  "impl": "default config 2026-10-20 (helmet model EXP-015 best.pt) + stop-line red-light rule",
+  "device": "cpu",
+  "video": "test_video.mp4",
+  "events": [
+    {
+      "frame": 72,
+      "kind": "plate_capture",
+      "track": "M_127"
+    },
+    {
+      "frame": 112,
+      "kind": "plate_capture",
+      "track": "M_172"
+    },
+    {
+      "frame": 292,
+      "kind": "plate_capture",
+      "track": "M_309"
+    },
+    {
+      "frame": 314,
+      "kind": "plate_capture",
+      "track": "M_330"
+    },
+    {
+      "frame": 529,
+      "kind": "plate_capture",
+      "track": "M_678"
+    },
+    {
+      "frame": 538,
+      "kind": "plate_capture",
+      "track": "M_693"
+    },
+    {
+      "frame": 592,
+      "kind": "plate_capture",
+      "track": "M_769"
+    },
+    {
+      "frame": 42,
+      "kind": "label_first_seen",
+      "label": "NO-HELMET"
+    },
+    {
+      "frame": 72,
+      "kind": "label_first_seen",
+      "label": "ID:M_127 NO-HELMET"
+    },
+    {
+      "frame": 112,
+      "kind": "label_first_seen",
+      "label": "ID:M_172 NO-HELMET"
+    },
+    {
+      "frame": 292,
+      "kind": "label_first_seen",
+      "label": "ID:M_309 NO-HELMET"
+    },
+    {
+      "frame": 314,
+      "kind": "label_first_seen",
+      "label": "ID:M_330 NO-HELMET"
+    },
+    {
+      "frame": 529,
+      "kind": "label_first_seen",
+      "label": "ID:M_678 NO-HELMET"
+    },
+    {
+      "frame": 538,
+      "kind": "label_first_seen",
+      "label": "ID:M_693 NO-HELMET"
+    },
+    {
+      "frame": 592,
+      "kind": "label_first_seen",
+      "label": "ID:M_769 NO-HELMET"
+    }
+  ],
+  "note": "Baseline v6 (CPU, test_video.mp4): the DEFAULT config since 2026-10-20, helmet model EXP-015 (sha256 20ce0694...). Perception fixture: tracks_test_video_exp015.jsonl. Baseline v5 (old helmet_best.pt, tracks_test_video.jsonl) is kept unchanged. Regression snapshot, NOT ground truth: all 7 no_helmet events of this run were graded wrong by eye (EXP-020).",
+  "video_sha256": "51fdf565a8c1242286e96041d72d2078a9da99ab872d211d9910bac817a16a1d"
+}

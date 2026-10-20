@@ -162,3 +162,20 @@ def test_the_page_shows_run_numbers_with_a_show_all_button_and_does_not_smooth_s
     assert "scope=" in html and "toggleEventScope" in html and "show all runs" in html and "'run ' +" in html
     assert "image-rendering: pixelated" in html and "plate-thumb" in html and "object-fit: contain" in html
     assert "/video_feed" in html and "api/events" in html                           # evidence thumbnails come from the saved files, the stream only feeds the video element
+
+
+def test_backend_info_names_the_helmet_model_and_its_sha256(tmp_path):
+    import hashlib
+    from apps.web.routes import backend_info
+    from sentinel.config import load_pipeline_config
+    cfg = load_pipeline_config(root=tmp_path)
+    w = tmp_path / "m" / "h.pt"
+    w.parent.mkdir()
+    w.write_bytes(b"weights")
+    cfg.models.helmet.weights = "m/h.pt"
+    info = backend_info(cfg)["helmet_model"]
+    assert info == {"file": "m/h.pt", "sha256": hashlib.sha256(b"weights").hexdigest()}
+    cfg.models.helmet.weights = "m/missing.pt"
+    assert backend_info(cfg)["helmet_model"]["sha256"] is None                 # not there: null, no crash
+    d = load_pipeline_config()
+    assert backend_info(d)["helmet_model"]["file"] == "experiments/EXP-015-helmet-grouped-3cls/weights/best.pt"

@@ -49,6 +49,31 @@ Không kèm ảnh (có người và biển số). Ảnh nằm ở `outputs/regre
 ## Cập nhật: phiên bản thứ 5 "hiện tại + model cũ @10 FPS" (2026-10-19)
 `contact5_1..7.jpg` (trong `outputs/regression_diag/`, gitignored) và `event_rows_5_versions.json`: cùng 28 hàng cũ (số hàng giữ nguyên) cộng cột thứ 5 là pipeline hiện tại + `helmet_best.pt` xử lý ở 10 FPS (mỗi frame thứ 3, EXP-021); ghép theo thời gian ±1 s + IoU; **3 hàng mới 29–31** (sự kiện của bản 10 FPS không khớp hàng cũ nào: M_372 @14.2 s, M_620 @15.8 s, M_725 @16.6 s). `grading_template.csv` có thêm cột cho phiên bản thứ 5 (cột "verdict" để trống cho bạn chấm). Số sự kiện: v0 22, hiện tại + model cũ 14, EXP-015 7, EXP-016 5, 10 FPS 10.
 
+## Kết luận (xác nhận bằng mắt, 2026-10-20)
+**Mọi sự kiện no_helmet và overload mà 5 phiên bản báo trên test_video đều là báo oan.** Chủ dự án xác nhận cả 23 người trong các hàng đã chấm đều đội mũ bảo hiểm (`grading_rows.csv`: 23/23 hàng "sai"). Clip (26 s, giờ đi làm buổi sáng) **không có vi phạm nào trong số các sự kiện được báo**.
+
+**Precision không còn là thước đo phù hợp cho clip này** (mọi phiên bản đều 0/n, nên không so sánh được). Số đo dùng: **báo oan mỗi phút** = số sự kiện / thời lượng clip (787 frame / 30 FPS = 26.233 s = 0.4372 phút):
+| phiên bản | báo oan (sự kiện) | báo oan / phút |
+|---|---|---|
+| v0 (mã gốc) | 14 | 32.0 |
+| hiện tại + model cũ | 14 | 32.0 |
+| hiện tại + model cũ @10 FPS | 10 | 22.9 |
+| EXP-015 (3 lớp) | 7 | 16.0 |
+| EXP-016 (4 lớp) | 5 | 11.4 |
+(Chỉ no_helmet và overload; wrong_way đã tắt. Một sự kiện là một cặp (track, loại): một người có thể sinh nhiều sự kiện nếu track bị vỡ.)
+
+**Không đo được recall.** Clip không có vi phạm thật nào được ghi nhận, nên không biết 5 phiên bản bỏ sót bao nhiêu; **có thể còn người không đội mũ mà cả 5 phiên bản đều không báo**, việc đó chưa được kiểm tra (cần xem toàn clip hoặc video có vi phạm thật).
+
+**Tỉ lệ nền (base rate):** khi vi phạm hiếm, dù xác suất nhầm trên mỗi người đã đội mũ nhỏ thì báo oan vẫn áp đảo vi phạm thật. Minh họa (giả định, KHÔNG phải số đo): độ nhạy 80%, tỉ lệ nhầm một người đội mũ thành no-helmet là 1% / 2% / 5%; độ chính xác của cảnh báo (tỉ lệ cảnh báo là vi phạm thật) theo tỉ lệ người không mũ trong số xe qua:
+| tỉ lệ no-helmet thật | nhầm 1% | nhầm 2% | nhầm 5% |
+|---|---|---|---|
+| 23.6% (tỉ lệ no-helmet trong nhãn đầu của tập test: 111 / (359 + 111)) | 96% | 93% | 83% |
+| 5% | 81% | 68% | 46% |
+| 1% | 45% | 29% | 14% |
+**mAP trên tập test không phản ánh điều này**: tập test của dataset có no-helmet chiếm 23.6% số nhãn đầu (DATA_CARD), cao hơn nhiều so với đường phố thật, nên các chỉ số trong miền (EXP-015: mAP50 0.934, no-helmet 0.844) cho độ chính xác cảnh báo cao hơn thực tế ngoài đường. Trên camera ngoài miền này, tỉ lệ nhầm đo được rất lớn so với tỉ lệ vi phạm thật (bằng 0 trong những gì quan sát).
+
+Giới hạn: một clip 26 s, luật (cửa sổ, bỏ phiếu, hysteresis) từng được chỉnh trên chính clip này, một góc camera, giờ đi làm; không tham số nào được chỉnh theo kết quả này. Bảng "Precision by eye" bên dưới do `tools/grade_rows.py` sinh tự động: mọi ô là 0 vì mọi hàng sai, hãy đọc kết luận ở trên.
+
 <!-- grade_rows:start -->
 ## Precision by eye (`tools/grade_rows.py`)
 

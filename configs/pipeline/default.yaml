@@ -7,7 +7,12 @@ models:
   # TEMPORARY (decision 2026-10-18): BoT-SORT with global motion compensation OFF (fixed camera): ~2x faster (EXP-006). NOT validated:
   # re-check event P/R and ID stability on dev videos. The Ultralytics default is configs/pipeline/exp/tracker_botsort_gmc.yaml.
   coco:   {weights: yolo11s.pt,     conf: 0.35, tracker: configs/trackers/botsort_gmc_none.yaml}
-  helmet: {weights: helmet_best.pt, conf: 0.55, tracker: configs/trackers/botsort_gmc_none.yaml}
+  # DEFAULT HELMET MODEL since 2026-10-20: EXP-015 (3 classes, grouped split A, trained on a clean split). sha256 20ce0694eb1d8d81d6f579ede9b4d81c1aa1fbdf1d46e9391a63d04960fd7817
+  # (the web app shows file name and sha256 in /api/status). Reason: in-domain metrics are measured on a leak-free split, and on the out-of-domain camera (test_video) it raised about half
+  # as many false no-helmet alarms as the old model (7 vs 14 events, all graded wrong by eye, EXP-020). The old model is still selectable: weights: helmet_best.pt
+  # (sha256 229700319e269ed19057bcedadb08f69881f6672024fdad85b8bde1ef9845f64). EXP-016 (4 classes) is NOT chosen: its in-domain no-helmet class is doubtful, waiting for EXP-016b.
+  # The conf thresholds below were NOT changed for this switch (no tuning on test_video).
+  helmet: {weights: experiments/EXP-015-helmet-grouped-3cls/weights/best.pt, conf: 0.55, tracker: configs/trackers/botsort_gmc_none.yaml}
   plate:  {weights: plate_best.pt,  conf: 0.35}
   # P4: to benchmark another tracker only change `tracker` (e.g. configs/trackers/bytetrack.yaml) or
   # gmc_method inside configs/trackers/botsort.yaml.

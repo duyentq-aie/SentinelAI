@@ -70,6 +70,7 @@ def test_perception_unchanged_on_cpu():
     from sentinel.pipeline import Detectors, Pipeline, SharedState
     meta, expected = load_tracks(TRACKS)
     cfg = load_pipeline_config(root=REPO, device="cpu")
+    cfg.models.helmet.weights = "helmet_best.pt"                  # the fixture was recorded with the old model; the default is EXP-015 since 2026-10-20 (fixture tracks_test_video_exp015.jsonl)
     camera = load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml")
     bad, n = [], 0
     with tempfile.TemporaryDirectory() as ev_dir:

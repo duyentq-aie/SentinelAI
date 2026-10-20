@@ -36,7 +36,8 @@ The original single-file prototype is kept at git tag `v0-baseline`.
 ```powershell
 python -m venv venv; .\venv\Scripts\activate
 pip install -r requirements.txt            # torch cu118 wheels: see the comment at the top of that file
-# model weights are not in git (*.pt): put helmet_best.pt, plate_best.pt, yolo11s.pt in the repo root; test_video.mp4 too
+# model weights are not in git (*.pt): put plate_best.pt, yolo11s.pt in the repo root, the default helmet model at experiments/EXP-015-helmet-grouped-3cls/weights/best.pt
+# (the old helmet_best.pt is still selectable in the config), and test_video.mp4
 python app.py                              # http://127.0.0.1:8000/   (loopback only by default; no auto-reload)
 $env:SENTINEL_CONFIG = "configs\pipeline\ocr.yaml"; python app.py     # with plate OCR (first run downloads the PaddleOCR model)
 ```

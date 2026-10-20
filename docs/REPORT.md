@@ -8,7 +8,7 @@ Written 2026-10-18 from the experiment folders in `experiments/` (every number b
 |---|---|
 | What it does | detects no-helmet / >2 riders on motorcycles (and, via the legacy zone rule, red-light running), tracks vehicles, saves evidence per event, optionally reads plate text, serves a demo UI |
 | What was improved on the original prototype | perception fixed (models no longer see overlays), rules rewritten as voting over a window, evidence + plate search made event-driven and bounded, security hardened, software optimised (default config +26% headless / +24% stream in the EXP-006 A/B, on top of the plate-policy gain in EXP-003; an unadopted tracker change would give ~2.4×), ONNX backend, OCR, tooling for recording/labelling |
-| What is **not** known | the precision/recall of the events (no labelled video), generalisation of the deployed detectors (their original test splits leak; a video-grouped helmet re-training exists but is not deployed, EXP-015), behaviour at night / rain / other cameras, red-light rule quality (no red-light event in the clip), Edge performance on real hardware |
+| What is **not** known | the precision/recall of the events (no labelled video), generalisation of the deployed detectors (their original test splits leak; a video-grouped helmet re-training (EXP-015) has been the default helmet model since 2026-10-20, EXP-025), behaviour at night / rain / other cameras, red-light rule quality (no red-light event in the clip), Edge performance on real hardware |
 | Biggest open risks | (1) no ground truth, (2) the detected plate box is only ~26×22 px at 720p so OCR cannot work on this footage, (3) tracker changes that give 2× speed need validation before adoption |
 
 ## 2. System
@@ -32,7 +32,7 @@ video/RTSP/file ──read──> raw frame (resized 1280x720, never drawn on)
 Design points that mattered: models and evidence use the **raw** frame (the v0 code fed drawn overlays into the helmet and plate models, EXP-002); rules never see pixels, so they are tested offline from recorded tracks (`tests/fixtures/tracks_test_video.jsonl`, replay in < 1 s); one inference worker serves every HTTP client.
 
 ## 3. Models and data (EXP-000)
-- Helmet (deployed `helmet_best.pt`): YOLO11s fine-tuned on a Roboflow export (1014/278/168 train/val/test images; classes helmet, motorcycle, no-helmet); reported test mAP50 0.994, mAP50-95 0.812 (per class mAP50-95 0.791 / 0.878 / 0.768). **These numbers are not evidence of generalisation**: the split is random over frames of 16 videos (EXP-011: all valid/test images belong to frame groups shared with train; 86% of test images are within 4 dHash bits of a train image).
+- Helmet (`helmet_best.pt`, the default until 2026-10-20; the default is now EXP-015, see EXP-025): YOLO11s fine-tuned on a Roboflow export (1014/278/168 train/val/test images; classes helmet, motorcycle, no-helmet); reported test mAP50 0.994, mAP50-95 0.812 (per class mAP50-95 0.791 / 0.878 / 0.768). **These numbers are not evidence of generalisation**: the split is random over frames of 16 videos (EXP-011: all valid/test images belong to frame groups shared with train; 86% of test images are within 4 dHash bits of a train image).
 - Helmet re-trained on a video-grouped split (EXP-015, split A of EXP-013, 3 classes, same hyper-parameters, run on Kaggle by the project owner; weights not adopted by the app). **Primary metric for helmet / no-helmet: mAP50.** Test (214 images, 5 videos): **mAP50 0.934** (helmet 0.962, motorcycle 0.995, no-helmet 0.844; no-helmet P/R 0.833/0.744); val (4 videos) mAP50 0.952. mAP50-95 is reported alongside (test 0.635; helmet 0.623, motorcycle 0.828, no-helmet 0.453) **but is limited by loose, inconsistent label boxes** (head boxes often include the shoulders; median box height ≈ 0.22–0.23 of the motorcycle height, with a continuous tail; EXP-015 `box_consistency`), so it is not used to compare the two head classes. **Decision (2026-10-19, taken after looking at the data): the existing boxes are not re-labelled** (no clusters in the distribution, ≈ 3 000–3 800 boxes to redo, unknown benefit); new labels follow `docs/LABELING_GUIDE.md`. The drop from the old numbers is *not* purely a leakage effect: the image sets, videos and training environment differ (EXP-015 README). The new test has no image with two no-helmet riders (train has 95 such motorcycles) and no 3-person motorcycle (the `overload` rule is not evaluated), 6 extra 1080p images (n = 6) are reported separately and support no conclusion, and 51 validation errors (46 images) cluster in three videos (23 in frame_14: one bare-headed passenger across many frames; head-scarf riders; overlapping heads). This is a detector score on still frames from one camera angle, **not** an accuracy claim for videos or for violation events.
 - Plate: YOLO11n (50 epochs, val mAP50 0.995 / 0.752). **The saved notebook does not correspond to the deployed weights** (10 of 19 training arguments differ; no outputs saved).
 - COCO YOLO11s for cars/trucks/buses and traffic lights. Datasets are not in the repo (`data/raw/` absent); their licences are unknown.
@@ -86,11 +86,37 @@ Chain (`sentinel/ocr/`): best crop of the track (size × sharpness) → tight cr
 - A synthetic probe (`tools/ocr_resolution_probe.py`) shows the chain reads a clean 2-line plate down to ~38 px height, but at 25 px a little blur or JPEG already breaks it: the footage, not the code, is the limit. No accuracy is claimed (no plate ground truth).
 - Next: 1080p footage with plate ≥ 40–50 px high, labelled `plate_text`, then exact-match/CER per condition.
 
+## 8b. Evaluation on an out-of-domain camera (test_video)
+Every `no_helmet` / `overload` event reported by the five versions on test_video (v0, current + old model, the same at 10 FPS, EXP-015, EXP-016) was **checked by eye by the project owner: all of them are false alarms** (all 23 riders in the graded rows wear a helmet; `experiments/EXP-020-regression-diag/`). The clip (26.2 s, morning rush hour) contains no violation among the events that were reported. Precision is therefore not a useful measure here (0 right out of n for every version); **false alarms per minute** is (clip = 787 frames / 30 FPS = 26.233 s = 0.4372 min):
+
+| version | false alarms (events) | per minute |
+|---|---|---|
+| v0 (mã gốc) | 14 | 32.0 |
+| hiện tại + model cũ | 14 | 32.0 |
+| hiện tại + model cũ @10 FPS | 10 | 22.9 |
+| EXP-015 (3 lớp) | 7 | 16.0 |
+| EXP-016 (4 lớp) | 5 | 11.4 |
+
+- **Recall cannot be measured:** no real violation is recorded in the clip, so how many riders without a helmet all five versions missed is unknown (not checked).
+- **Base rate:** when violations are rare, even a small per-rider error rate on helmeted riders makes false alarms outnumber real violations. Illustration with ASSUMED numbers (sensitivity 80%, false no-helmet rate on a helmeted rider 1% / 2% / 5%): share of alarms that are real violations =
+
+| real no-helmet share | 1% | 2% | 5% |
+|---|---|---|---|
+| 23.6% (no-helmet share of the head labels of the test split: 111 / (359 + 111)) | 96% | 93% | 83% |
+| 5% | 81% | 68% | 46% |
+| 1% | 45% | 29% | 14% |
+
+  The mAP of the test split does not reflect this: the dataset test split has a no-helmet share of 23.6% of the head labels (111 of 470, DATA_CARD), far above a real street, so in-domain metrics (EXP-015 mAP50 0.934, no-helmet 0.844) overstate the alarm precision on the street.
+- **Limits:** one 26-second clip, one camera, rules (windows, votes, hysteresis, time ratios) that were tuned on this very clip, no recall. **No threshold or parameter was adjusted from this clip.** Since 2026-10-20 the default helmet model is EXP-015 (7 false alarms instead of 14 on this clip, EXP-025): fewer, not zero.
+- A "hat colour = shirt colour" explanation was measured (EXP-024) and is not supported by that crude measure (median DeltaE 16.0 for the false alarms vs 16.3 for correctly recognised helmets, p = 0.61).
+
+Development directions (not done): (a) a second stage that confirms no-helmet on a high-resolution crop taken from the camera's main stream; (b) a separate threshold for the no-helmet class, set only on data other than this clip; (c) a human reviews every event before a fine is issued; (d) footage with real violations is needed to measure recall.
+
 ## 9. Limitations (honest list)
 1. No event-level ground truth; no P/R/F1 anywhere. Tools for recording and labelling exist (`docs/RECORDING_GUIDE.md`, `docs/LABELING_GUIDE.md`) but no data.
 2. One 26 s clip, daytime, one camera; dev/test not separated; tracker/rule parameters were never tuned on separate data.
-3. Red-light: legacy rule only; the clip has no red-light event and the light is detected in 14 detections. The stop-line rule needs the camera geometry (tool exists) and video.
-4. The deployed detectors' published metrics are leaky (helmet: EXP-011; plate: EXP-014); only the re-trained helmet model has a video-grouped score (EXP-015, 5 test videos, one camera angle) and it is not deployed; the plate detector has none; the plate notebook is missing.
+3. Red-light: the stop-line rule (COCO motorcycle tracks, lane signals, EXP-022/023) is the default; on test_video it reports 0 events and the clip has no ground-truth red-light violation, so only "no false alarm" is shown, not that real runners are caught.
+4. The deployed detectors' published metrics are leaky (helmet: EXP-011; plate: EXP-014); only the re-trained helmet model has a video-grouped score (EXP-015, 5 test videos, one camera angle) and it has been the default helmet model since 2026-10-20 (EXP-025); the plate detector has none; the plate notebook is missing.
 5. Edge: no real Edge device; proxies only (CPU ONNX, RTX 3050 Laptop ONNX-GPU FP32/FP16 in EXP-012); TensorRT/INT8 not measured; FP16 event equivalence only checked by counts.
 6. Licences: Ultralytics AGPL-3.0; dataset licences unknown. Plates and faces are personal data.
 

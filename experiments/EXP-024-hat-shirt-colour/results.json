@@ -1,0 +1,36 @@
+{
+ "n_A": 21,
+ "n_B": 60,
+ "candidates_B": 240,
+ "median_dE_A": 15.99,
+ "median_dE_B": 16.34,
+ "mean_dE_A": 17.63,
+ "mean_dE_B": 16.55,
+ "quartiles_A": [
+  8.93,
+  19.48
+ ],
+ "quartiles_B": [
+  7.84,
+  20.97
+ ],
+ "mannwhitney_A_less_than_B": {
+  "U": 655.0,
+  "p": 0.6083
+ },
+ "mannwhitney_two_sided": {
+  "p": 0.7918
+ },
+ "auc_prob_A_lower_than_B": 0.48,
+ "group_A_versions": {
+  "current+old model": 13,
+  "v0": 1,
+  "EXP-015 3cls": 1,
+  "EXP-016 4cls": 3,
+  "current+old model @10FPS": 3
+ },
+ "notes": [
+  "overload rows have no no-helmet head and are not in group A"
+ ],
+ "caveat": "crude: regions come from the box, nothing is segmented; hat region = upper half of the head box, body region = below the head box; DeltaE76 in Lab"
+}
