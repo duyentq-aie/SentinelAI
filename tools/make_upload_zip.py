@@ -62,7 +62,7 @@ def info_md(names, items, summ):
     for f in folders:
         lines.append(f"- {f}: " + ", ".join(sorted({i['video'] for i in items if i['folder'] == f}, key=lambda v: (len(v), v))))
     lines += ["", f"manifest.csv sha256 (split A, EXP-013): `{summ['manifest_sha256']}`",
-              "Labels keep the 4 original classes and ids; a 3-class run must drop class id 3 (`plate`) itself. Source: Roboflow `helmet-plate-detection-4` v1, declared CC BY 4.0 (not independently verified)."]
+              "Labels keep the 4 original classes and ids; a 3-class run must drop class id 3 (`plate`) itself. Source: 'helmet plate detection 4' by Rajab, Roboflow Universe 2024, CC BY 4.0 (verified), https://universe.roboflow.com/rajab/helmet-plate-detection-4; changes: split redone by video."]
     return "\n".join(lines) + "\n"
 
 

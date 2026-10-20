@@ -78,7 +78,7 @@ Do not bypass it with `--no-verify`: unstage the file (`git restore --staged <fi
 ## Data, models, licences
 - Models: YOLO11s (COCO, vehicles + traffic lights), YOLO11s fine-tuned for helmet / motorcycle / no-helmet, YOLO11n fine-tuned for licence plates (Kaggle runs; see `experiments/EXP-000-kaggle-original`).
   The notebook for the plate model does **not** match the deployed `plate_best.pt` (documented there).
-- **Ultralytics is AGPL-3.0**; this project is a portfolio piece and accepts that (derived code and weights follow AGPL-3.0). Dataset licences: both Roboflow exports *declare* CC BY 4.0 in `data.yaml`, **not independently verified (chưa xác minh)**; see `docs/DATA_CARD.md` (the helmet split leaks: random frame split of 16 videos) – check before any redistribution of data or weights. See `LICENSE` (AGPL-3.0) and `docs/PUBLISH_CHECKLIST.md`.
+- **Ultralytics is AGPL-3.0**; this project accepts that (derived code and weights follow AGPL-3.0). Data: the helmet set is **CC BY 4.0** (Rajab, Roboflow Universe, 2024, verified); the plate set is CC BY 4.0 too (school, 2023) but it is not verified that `plate_best.pt` was trained on it, so that file is not published. Attribution, changes made and BibTeX: README "Data & attribution" and `docs/DATA_CARD.md` (the original helmet split leaked: random frame split of 16 videos). See `LICENSE` and `docs/PUBLISH_CHECKLIST.md`.
 - Plate text, plate crops and vehicle video are personal data: raw videos and evidence stay out of git (`*.mp4`, `*.pt`, `data/`, `static/violations/` are ignored); blur plates and faces before publishing any image or clip (`docs/RECORDING_GUIDE.md`).
 
 ## Direction (2026-10-19)

@@ -6,7 +6,7 @@ Quét bằng `python tools/preflight_publish.py --history` (chỉ đọc, không
 - `LICENSE`: văn bản AGPL-3.0 chuẩn (661 dòng, sao từ bản đi kèm gói Ultralytics 8.4.26; Ultralytics là AGPL-3.0 nên dự án chọn AGPL-3.0). **Chưa có dòng bản quyền/tác giả riêng** – chủ repo thêm nếu muốn.
 - Không secret/token/khóa riêng trong cây làm việc lẫn lịch sử (các giá trị giả trong `tests/test_preflight_publish.py` mang nhãn `preflight-ignore`).
 - Không file lớn (> 5 MB) hay weights/video **được theo dõi** bởi git (`*.pt`, `*.onnx`, `*.mp4`... trong `.gitignore`); `venv-edge/` đã được thêm vào `.gitignore`.
-- License dataset ghi là **"chưa xác minh"** (README, DATA_CARD): cả hai export Roboflow *khai báo* CC BY 4.0 trong `data.yaml` nhưng chưa kiểm độc lập; hai dataset thuộc workspace Roboflow của người khác (`trans-workspace`, `school-fuhih`), nên cần ghi công tác giả nếu phân phối lại.
+- License dataset: **đã xác minh 2026-10-21** trên trang Roboflow Universe, cả hai là CC BY 4.0 (helmet: Rajab, 2024; plate: school, 2023). Ghi công, các thay đổi và BibTeX có trong README ("Data & attribution"), DATA_CARD và mô tả release. Chưa xác minh `plate_best.pt` train từ bộ plate nên weights đó không công bố.
 
 ## Cần bạn duyệt / quyết định
 | # | vấn đề | vị trí | gợi ý (chưa làm) |
@@ -17,7 +17,7 @@ Quét bằng `python tools/preflight_publish.py --history` (chỉ đọc, không
 | 4 | Đường dẫn cá nhân: thư mục home (`<HOME>`) và đường dẫn dự án (`<REPO>`) | `experiments/EXP-009|010|012/**/env.json` (do `sysprobe` ghi) | ghi `<HOME>` thay cho thư mục home (benchmark_pipeline làm tự động); dữ liệu thử của scanner được dựng lúc chạy, không ghi nguyên văn |
 | 5 | AGPL-3.0 ép phát hành mã nguồn cho dịch vụ mạng dùng code này | `LICENSE` | xác nhận chấp nhận (README đã ghi) |
 | 6 | Video mẫu `test_video.mp4`, ảnh bằng chứng, biển số thật | gitignored | giữ ngoài git; nếu đăng ví dụ phải làm mờ biển/mặt |
-| 7 | Dữ liệu gốc helmet/plate (`data/raw/`) | gitignored | không đăng khi license chưa xác minh |
+| 7 | Dữ liệu gốc helmet/plate (`data/raw/`) | gitignored | không phân phối lại ảnh gốc (giữ ngoài git); license CC BY 4.0 đã xác minh nhưng repo không đăng ảnh |
 | 8 | `.gitattributes`/kết thúc dòng: cảnh báo LF→CRLF khi commit trên Windows | toàn repo | tùy chọn: thêm `.gitattributes` `* text=auto` |
 
 Không có lệnh push nào đã được chạy; remote chưa được cấu hình hay dùng.

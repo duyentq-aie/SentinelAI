@@ -19,4 +19,22 @@ mAP50-95 (all classes): EXP-015 0.635, EXP-016 0.586 (the boxes of the dataset a
 ## Use
 Download both files and `SHA256SUMS`, then `python tools/verify_models.py <folder>`. Put `helmet_3cls_exp015.pt` at `experiments/EXP-015-helmet-grouped-3cls/weights/best.pt` (the path in `default.yaml`), or point `models.helmet.weights` at any path.
 
-Licence: Ultralytics YOLO is AGPL-3.0, so are these weights. The dataset licence is declared CC BY 4.0 by the Roboflow export but not independently verified. The files contain only `/kaggle/working/...` training paths as metadata.
+## Licence and data attribution
+- Code and weights: **AGPL-3.0** (Ultralytics YOLO is AGPL-3.0). Copyright (C) 2026 Trần Quang Duyên.
+- **Training data (both models are derivative works of it):** "helmet plate detection 4" by **Rajab**, Roboflow Universe, 2024, https://universe.roboflow.com/rajab/helmet-plate-detection-4, licensed under **CC BY 4.0** (https://creativecommons.org/licenses/by/4.0/); checked on the Roboflow Universe page (1,460 images, 4 classes).
+- **Changes:** the data was re-split by video (split A, EXP-013) for training and testing; EXP-015 (3 classes) drops the `plate` class, EXP-016 keeps all 4; the boxes were not relabelled. The original images are not redistributed here.
+- The plate class of EXP-016 was trained on the plate labels of the same dataset. `plate_best.pt` (a separate detector) is not part of this release: it is not verified that it was trained on the CC BY plate dataset "vietnamese license plate" (school, 2023, https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0).
+- The files contain only `/kaggle/working/...` training paths as metadata.
+
+```bibtex
+@misc{ helmet-plate-detection-4_dataset,
+    title = { helmet plate detection 4 Dataset },
+    type = { Open Source Dataset },
+    author = { Rajab },
+    howpublished = { \url{ https://universe.roboflow.com/rajab/helmet-plate-detection-4 } },
+    url = { https://universe.roboflow.com/rajab/helmet-plate-detection-4 },
+    journal = { Roboflow Universe },
+    publisher = { Roboflow },
+    year = { 2024 },
+}
+```

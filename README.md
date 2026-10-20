@@ -42,7 +42,7 @@ Details, method and caveats: [docs/REPORT.md](docs/REPORT.md).
 
 ## Run it
 ```powershell
-git clone https://github.com/duyentq-aie/SentinelAI.git; cd SentinelAI        # private for now: sign in first
+git clone https://github.com/duyentq-aie/SentinelAI.git; cd SentinelAI
 python -m venv venv; .\venv\Scripts\activate
 pip install -r requirements.txt                       # torch cu118 wheels: see the comment at the top of the file
 # helmet models: GitHub Release "models-v1" (helmet_3cls_exp015.pt = default, helmet_4cls_exp016.pt, SHA256SUMS)
@@ -62,7 +62,38 @@ More (Docker, configs, tools, the review/export flow, the pre-commit hook): [doc
 - **Not run on edge hardware.** Speed numbers come from one RTX 3050 Laptop and CPU/ONNX proxies; no Jetson/Rockchip device, no TensorRT.
 - **Every no-helmet alarm of the clip was wrong**, so the system is a candidate generator: nothing is a violation until a person confirms it. A second-stage head classifier and better data (relabelled by the review loop) are planned, not built ([PLAN](docs/PLAN.md)).
 - Light regions are small (15-22 px) and fixed: a moved camera misreads them, and there is no automatic check yet. The right-turn arrow never turned red in the clip.
-- **`plate_best.pt` is not published**: the provenance of its training data is not verified ([DATA_CARD](docs/DATA_CARD.md)). The plate layer is optional: without the file (or with `models.plate.enabled: false`) the app starts normally, records events without a plate search, and `/api/status` reports `plate: disabled` with the reason. Even with it, the plate text could not be read on this footage (~26x22 px plates).
+- **`plate_best.pt` is not published**: it is not verified that it was trained on the CC BY plate dataset below (its training notebook does not match the weights, [EXP-000](experiments/EXP-000-kaggle-original/NOTES.md)). The plate layer is optional: without the file (or with `models.plate.enabled: false`) the app starts normally, records events without a plate search, and `/api/status` reports `plate: disabled` with the reason. Even with it, the plate text could not be read on this footage (~26x22 px plates).
 
-## Licence and data
+## Data & attribution
+The helmet models are trained on **"helmet plate detection 4"** by **Rajab** (Roboflow Universe, 2024), https://universe.roboflow.com/rajab/helmet-plate-detection-4, licensed under **[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)** (checked on the Roboflow Universe page: 1,460 images, 4 classes, matching the data used here).
+The plate-detector experiments relate to **"vietnamese license plate"** by **school** (workspace school-fuhih, Roboflow Universe, 2023), https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0, also **CC BY 4.0**. It is **not verified** that `plate_best.pt` was trained on it (the notebook does not match the weights), so `plate_best.pt` is not published.
+
+**Changes made:** the train/validation/test split was redone **by video** (split A, [EXP-013](experiments/EXP-013-splits/NOTES.md)); the 3-class model (EXP-015) drops the `plate` class; the boxes were not relabelled. **The original images are not redistributed** in this repository. The released helmet weights (EXP-015, EXP-016) are derivative works of the first dataset. Details and the data card: [DATA_CARD](docs/DATA_CARD.md).
+
+```bibtex
+@misc{ helmet-plate-detection-4_dataset,
+    title = { helmet plate detection 4 Dataset },
+    type = { Open Source Dataset },
+    author = { Rajab },
+    howpublished = { \url{ https://universe.roboflow.com/rajab/helmet-plate-detection-4 } },
+    url = { https://universe.roboflow.com/rajab/helmet-plate-detection-4 },
+    journal = { Roboflow Universe },
+    publisher = { Roboflow },
+    year = { 2024 },
+}
+
+@misc{ vietnamese-license-plate-tptd0_dataset,
+    title = { vietnamese license plate Dataset },
+    type = { Open Source Dataset },
+    author = { school },
+    howpublished = { \url{ https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0 } },
+    url = { https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0 },
+    journal = { Roboflow Universe },
+    publisher = { Roboflow },
+    year = { 2023 },
+}
+```
+(BibTeX in the format of the Roboflow Universe page; the page's month and access-date fields were not recorded here and are left out.)
+
+## Licence
 Copyright (C) 2026 Trần Quang Duyên. Licensed under **AGPL-3.0**, kept on purpose: the project builds on Ultralytics YOLO, which is AGPL-3.0, so code and weights follow it ([LICENSE](LICENSE)). Raw videos, evidence images and weights stay out of git; the demo assets in `docs/assets/` are anonymised. Plates and faces are personal data: blur them before publishing any image or clip (`tools/anonymize.py`).

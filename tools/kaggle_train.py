@@ -67,8 +67,8 @@ def prepare(a):
     (out / "data.yaml").write_text("path: .\ntrain: train/images\nval: valid/images\ntest: test/images\nnc: 3\nnames: [helmet, motorcycle, no-helmet]\n", encoding="utf-8")
     meta = {"title": a.slug.replace("-", " "), "id": f"{PLACEHOLDER}/{a.slug}",
             "licenses": [{"name": "other"}],
-            "description": "Helmet/motorcycle/no-helmet detection, video-grouped split. Source images: Roboflow project 'helmet-plate-detection-4' v1 (declared CC BY 4.0, "
-                           "not independently verified); attribution to the original authors applies. Private; for re-training the SentinelAI helmet detector."}
+            "description": "Helmet/motorcycle/no-helmet detection, video-grouped split. Source images: 'helmet plate detection 4' by Rajab, Roboflow Universe 2024 (CC BY 4.0, verified), https://universe.roboflow.com/rajab/helmet-plate-detection-4; "
+                           "changes: split redone by video. Attribution to the original author applies. Private; for re-training the SentinelAI helmet detector."}
     (out / "dataset-metadata.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
     print(f"{len(rows)} images -> {out}; {dropped} `plate` label lines dropped; classes {list(KEEP)}")
 

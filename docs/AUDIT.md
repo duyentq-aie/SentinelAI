@@ -173,7 +173,7 @@ Phần "Quyền lợi" của JD thiên ERP/BA nên không đối chiếu.
 3. **"Độ chính xác vi phạm" chưa được đo:** không biết tỉ lệ báo nhầm. Ví dụ red-light: xe **đang dừng chờ** trong polygon lúc đèn đỏ sẽ bị gắn "RED-LIGHT RUNNER" (`app.py:238-243`). Wrong-way: bất kỳ xe đi "lên" trong ảnh bị coi ngược chiều → khác góc camera là sai hoàn toàn.
 4. **Không tái lập:** không dữ liệu, code train, requirements/lockfile, hay seed pipeline; checkpoint `git: None`. Chỉ còn hyperparameters (đã lấy được ở mục C).
 5. **Phiên bản/chuẩn bị môi trường:** venv chứa torch+paddle+2 bản OpenCV; `numpy 2.4.3` với paddle/OpenCV có thể xung đột [S].
-6. **Pháp lý:** Ultralytics AGPL-3.0 (cả code và weights phát sinh); dataset license **chưa biết** (Roboflow Universe thường CC BY 4.0 nhưng phải kiểm từng tập).
+6. **Pháp lý:** Ultralytics AGPL-3.0 (cả code và weights phát sinh); dataset license **chưa biết** (Roboflow Universe thường CC BY 4.0 nhưng phải kiểm từng tập). *[Cập nhật 2026-10-21: đã kiểm, cả hai bộ là CC BY 4.0; xem `docs/DATA_CARD.md`.]*
 7. **Bảo mật** demo (mục F). Nếu đưa lên public → phải sửa trước.
 8. **Quyền riêng tư:** ảnh biển số/người trong `static/violations` và `test_video.mp4` có thể là dữ liệu cá nhân; cần xem xét nếu công bố.
 

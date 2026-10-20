@@ -79,7 +79,7 @@
         "background_images": 2,
         "instances": 818
       },
-      "note": "counts from Ultralytics label-scan lines in the notebook log; 1460 images in total (about 69%/19%/12% train/val/test). Class names/ids: helmet, motorcycle, no-helmet. License/source of the Roboflow export: unknown."
+      "note": "counts from Ultralytics label-scan lines in the notebook log; 1460 images in total (about 69%/19%/12% train/val/test). Class names/ids: helmet, motorcycle, no-helmet. License/source of the Roboflow export: unknown at the time; checked 2026-10-21: 'helmet plate detection 4' by Rajab, Roboflow Universe 2024, CC BY 4.0 (see docs/DATA_CARD.md)."
     },
     "val_per_class_best_pt": {
       "all": {

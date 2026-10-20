@@ -29,7 +29,7 @@ def test_the_demo_gif_is_anonymised_sized_and_the_right_length():
 
 def test_the_readme_has_the_sections_in_the_order_a_recruiter_reads_them():
     heads = re.findall(r"^## (.+)$", README, re.M)
-    assert heads == ["Highlights", "Architecture", "Results at a glance", "Run it", "Limits (read before quoting any number)", "Licence and data"]
+    assert heads == ["Highlights", "Architecture", "Results at a glance", "Run it", "Limits (read before quoting any number)", "Data & attribution", "Licence"]
     assert README.index("demo.gif") < README.index("## Highlights") and "```mermaid" in README
     for must in ("not measured", "26 seconds", "edge hardware", "false alarm"):
         assert must in README

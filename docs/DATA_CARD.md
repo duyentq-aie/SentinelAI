@@ -2,11 +2,53 @@
 
 Đọc-only: `tools/leakage_check.py` không chia lại, không đổi tên, không xóa. Số liệu thô: `experiments/EXP-011-data-leakage/{helmet,plate}_leakage.json`. Dữ liệu nằm ở `data/raw/` (gitignored). **Chưa chia lại split, chưa train.**
 
+## Nguồn, giấy phép và ghi công (CC BY 4.0) – đã kiểm trên trang Roboflow Universe, 2026-10-21
+| | helmet | plate |
+|---|---|---|
+| tên bộ dữ liệu | **helmet plate detection 4** | **vietnamese license plate** |
+| tác giả | Rajab (Roboflow Universe, 2024) | school (workspace `school-fuhih`, Roboflow Universe, 2023) |
+| nguồn | https://universe.roboflow.com/rajab/helmet-plate-detection-4 | https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0 |
+| giấy phép | **CC BY 4.0** – https://creativecommons.org/licenses/by/4.0/ | **CC BY 4.0** – https://creativecommons.org/licenses/by/4.0/ |
+| quy mô trên trang | 1,460 ảnh, 4 lớp (helmet, motorcycle, plate, no-helmet) | khoảng 8.4k ảnh, 1 lớp |
+| quan hệ với dự án | **nguồn gốc bộ helmet ĐÃ XÁC MINH**: số ảnh (1014 + 278 + 168 = 1460) và 4 lớp khớp dữ liệu của dự án; `data.yaml` của bản export ghi project `trans-workspace/helmet-plate-detection-4-r3h7b` (bản sao trong workspace khác), trang gốc là của Rajab | **CHƯA xác minh** `plate_best.pt` được train từ bộ này (notebook huấn luyện không khớp weights, EXP-000), nên `plate_best.pt` **không được công bố** |
+
+**Thay đổi đã làm so với dữ liệu gốc (yêu cầu của CC BY 4.0):**
+- Chia lại train/val/test **theo video** (split A của EXP-013; bản gốc chia ngẫu nhiên theo frame và rò rỉ, xem mục "Rò rỉ" ở dưới).
+- Model 3 lớp (EXP-015) **bỏ lớp `plate`** (chỉ giữ helmet, motorcycle, no-helmet); model 4 lớp (EXP-016) giữ cả 4 lớp.
+- Ảnh gốc **không được phân phối lại** trong repo này (`data/` không được theo dõi bởi git). Một bản sao riêng tư đã được tải lên Kaggle chỉ để huấn luyện.
+- Hộp nhãn **không** được gán lại (mAP50-95 bị giới hạn vì hộp lỏng, xem EXP-015).
+- Weights EXP-015 và EXP-016 là **sản phẩm phái sinh** từ bộ helmet ở trên (ghi nguồn trong mô tả release `models-v1`).
+
+**BibTeX** (BibTeX in the format of the Roboflow Universe page; the page's month and access-date fields were not recorded here and are left out.):
+```bibtex
+@misc{ helmet-plate-detection-4_dataset,
+    title = { helmet plate detection 4 Dataset },
+    type = { Open Source Dataset },
+    author = { Rajab },
+    howpublished = { \url{ https://universe.roboflow.com/rajab/helmet-plate-detection-4 } },
+    url = { https://universe.roboflow.com/rajab/helmet-plate-detection-4 },
+    journal = { Roboflow Universe },
+    publisher = { Roboflow },
+    year = { 2024 },
+}
+
+@misc{ vietnamese-license-plate-tptd0_dataset,
+    title = { vietnamese license plate Dataset },
+    type = { Open Source Dataset },
+    author = { school },
+    howpublished = { \url{ https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0 } },
+    url = { https://universe.roboflow.com/school-fuhih/vietnamese-license-plate-tptd0 },
+    journal = { Roboflow Universe },
+    publisher = { Roboflow },
+    year = { 2023 },
+}
+```
+
 ## Helmet (`data/raw/helmet`, Roboflow export 2026-02-24)
 | | |
 |---|---|
-| nguồn | Roboflow `trans-workspace / helmet-plate-detection-4-r3h7b`, version 1 |
-| license | **khai báo trong `data.yaml`: CC BY 4.0** (do người đăng khai, *chưa xác minh độc lập*; cần ghi công tác giả khi phân phối lại) |
+| nguồn | Roboflow Universe `rajab / helmet-plate-detection-4` (Rajab, 2024); export ghi project `trans-workspace / helmet-plate-detection-4-r3h7b`, version 1 |
+| license | **CC BY 4.0, đã xác minh trên trang Roboflow Universe** (ghi công tác giả, xem mục "Nguồn, giấy phép và ghi công") |
 | ảnh | train 1014 / valid 278 / test 168 (tổng 1460); 1454 ảnh 3840×2160, 6 ảnh 1920×1080 |
 | lớp trong dataset | **`nc: 4`** = helmet, motorcycle, no-helmet, **plate** |
 | số nhãn (train / valid / test) | helmet 1870 / 606 / 359; motorcycle 1935 / 608 / 348; no-helmet 664 / 170 / 111; plate 2090 / 631 / 383 |
@@ -23,8 +65,8 @@ Tên file dạng `frame_<video>_<n>`: ảnh là các frame trích từ **16 vide
 ## Plate (`data/raw/plate`, Roboflow)
 | | |
 |---|---|
-| nguồn | Roboflow `school-fuhih / vietnamese-license-plate-tptd0`, version 1 (2023-07-11, "Provided by a Roboflow user") |
-| license | **khai báo CC BY 4.0** (chưa xác minh độc lập) |
+| nguồn | Roboflow Universe `school-fuhih / vietnamese-license-plate-tptd0`, version 1 (school, 2023-07-11, "Provided by a Roboflow user") |
+| license | **CC BY 4.0, đã kiểm trên trang Roboflow Universe**; nhưng **chưa xác minh** `plate_best.pt` được train từ bộ này (xem dòng "ghi chú") |
 | ảnh | train 5845 / valid 1680 / test 832; tất cả 640×640 |
 | lớp | `nc: 1`, tên `'0'`; nhãn 5989 / 1710 / 849 |
 | ghi chú | notebook huấn luyện `plate_best.pt` không khớp dataset này (xem EXP-000) – **chưa chứng minh** `plate_best.pt` được huấn luyện trên chính tập này |
@@ -35,7 +77,7 @@ Rò rỉ: tên file không có số frame nên không kiểm tra kề-frame đư
 1. Chốt ánh xạ lớp helmet (3 hay 4 lớp) và có train lại hay không.
 2. Chia lại theo video/nhóm cho helmet **hoặc** dùng video tự quay làm test (đề xuất: video tự quay, vì chỉ có 16 video nguồn).
 3. Với plate: kiểm tra nhóm cảnh (cần metadata hoặc phân cụm) trước khi tin vào số liệu test.
-4. Xác minh license thật trên Roboflow trước khi phân phối dữ liệu hay weights.
+4. ~~Xác minh license thật trên Roboflow~~ Đã làm 2026-10-21 (CC BY 4.0 cho cả hai bộ); còn lại: chưa chứng minh `plate_best.pt` train từ bộ plate, nên không công bố weights đó.
 
 ## Phụ lục (2026-10-18): dataset này có phải bản đã huấn luyện `helmet_best.pt`?
 | | `data/raw/helmet/data.yaml` (Roboflow export 2026-02-24) | checkpoint `helmet_best.pt` (`model.names`, `train_args`) |
