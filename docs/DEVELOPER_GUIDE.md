@@ -1,0 +1,86 @@
+# SentinelAI developer guide (moved out of the README on 2026-10-20)
+
+The README is the 2-minute overview; this file keeps the details: repository map, how to run, Docker, review queue, tests, pre-commit hook, data and licences.
+
+(Original opening of the old README follows.)
+
+Detects **no helmet**, **motorcycle carrying more than 2 people** and **red-light running** (stop-line crossing rule with per-lane signals; the old zone rule is kept as `legacy_zone`) in traffic video,
+tracks vehicles, saves **evidence** (raw frame, vehicle crop, plate crop, JSON record) per event and can read the **plate text** (OCR).
+A small FastAPI demo streams the annotated video and lists the events.
+
+Full detail: [REPORT.md](REPORT.md) · audit of the starting point: [AUDIT.md](AUDIT.md) · plan: [PLAN.md](PLAN.md) · log: [PROGRESS.md](PROGRESS.md).
+
+## What is in the repo
+```
+sentinel/            core package (no web dependency)
+  pipeline.py        frame -> perceive (YOLO + tracker) -> rules -> draw -> evidence/plates
+  rules/             legacy (v0 counters) and windowed (voting) no-helmet / overload rules; pure functions of tracks
+  evidence.py        events, evidence files, plate search policy, events.jsonl (schema: docs/EVIDENCE.md)
+  ocr/               plate crop quality, OpenCV preprocessing, VN plate normalisation, voting, PaddleOCR recogniser
+  config.py          typed config loaded from configs/*.yaml (unknown keys are errors)
+  security.py        upload / video-source whitelist for the demo
+apps/web/            FastAPI demo (routes, inference worker, server wiring); templates/index.html
+configs/             pipeline (default, ocr, onnx_cpu, ...), cameras, trackers, experiment variants (exp/)
+tools/               benchmark_pipeline, record_tracks, diff_events, diff_tracks, export_onnx, compare_backends,
+                     camera_config (click to draw stop line / ROI), label_events (event labelling GUI)
+tests/               fast tests (rules on synthetic tracks, evidence, security, web routes, review queue, OCR pieces ...) + 1 slow
+experiments/         every number in the report points to an EXP-xxx folder (notes + metrics.json + env.json)
+docs/                AUDIT, PLAN, REPORT, EVIDENCE schema, RECORDING_GUIDE, LABELING_GUIDE, PROGRESS
+```
+The original single-file prototype is kept at git tag `v0-baseline`.
+
+## Run the demo
+```powershell
+python -m venv venv; .\venv\Scripts\activate
+pip install -r requirements.txt            # torch cu118 wheels: see the comment at the top of that file
+# model weights are not in git (*.pt): put plate_best.pt, yolo11s.pt in the repo root, the default helmet model at experiments/EXP-015-helmet-grouped-3cls/weights/best.pt
+# (the old helmet_best.pt is still selectable in the config), and test_video.mp4
+python app.py                              # http://127.0.0.1:8000/   (loopback only by default; no auto-reload)
+$env:SENTINEL_CONFIG = "configs\pipeline\ocr.yaml"; python app.py     # with plate OCR (first run downloads the PaddleOCR model)
+```
+The page shows the live annotated stream with an **FPS / latency / backend** box, the **event panel** (type, time, raw frame, vehicle, plate crop, OCR text) and plate crops.
+Video sources are restricted: files inside `static/uploads` or the repo root, `rtsp://` and camera indexes only if enabled in `configs/pipeline/default.yaml` (`web:`). Uploads are limited in type and size.
+
+### Docker (CPU, ONNX Runtime) - written, **not yet built or run**
+`Dockerfile`, `requirements-docker.txt`, `.dockerignore`, `configs/pipeline/docker_cpu.yaml`. Weights, ONNX files and videos are mounted, never baked in. On the dev machine the Docker engine was not running and C: had < 6 GB free, so the image was not built and the demo was not run in a container (nothing was installed to work around it); `tests/test_docker_files.py` only checks the files statically.
+```powershell
+python tools/export_onnx.py --models coco helmet --imgsz 384 640; python tools/export_onnx.py --models plate --imgsz 640 --dynamic
+docker build -t sentinel-cpu .
+docker run --rm -p 127.0.0.1:8000:8000 -v ${PWD}\models:/app/models:ro -v ${PWD}	est_video.mp4:/app/test_video.mp4:ro sentinel-cpu
+```
+
+### Review queue (human in the loop)
+Every new event is `pending`; only **confirmed** events count as violations (the event panel marks pending events amber and rejected ones dimmed; the plate gallery shows confirmed events only).
+Open **http://127.0.0.1:8000/review** (same loopback-only server): one event at a time with the vehicle crop, the whole frame, the plate if there is one, type, time, track and the model that made it; keys **c** confirm, **r** reject, **u** unclear, plus an optional short note.
+- Decisions are appended to `<evidence dir>/reviews.jsonl` (`static/violations/reviews.jsonl`, append-only; reviewing an event again appends a newer line, the old line is never edited; the last line is the decision). Each line has the event id, decision, note, time, and the model file + sha256 stamped in the event (events made before the stamp existed have `model: null`: no guessing).
+- API: `GET /api/review/next`, `POST /api/review/{event_id}` (JSON `{"decision": "confirmed|rejected|unclear", "note": "..."}`; 404 unknown event, 422 bad input, 403 for a request from another site), `GET /api/review/stats` (pending / confirmed / rejected / unclear, and **precision per violation type and per model, computed from the decisions only**: confirmed / (confirmed + rejected)).
+- The by-eye grading of EXP-020 is imported (`python tools/import_exp020_reviews.py`): 23 rows -> 50 `rejected` review lines (one per model event; all 23 riders wear a helmet), so the stats have real data from the start.
+- **What a decision means for a no_helmet event:** confirmed = the right label is `no-helmet`; **rejected = the model was wrong and the right label is `helmet`** (default); the extra button "Reject: not a head / wrong person" (key `n`) = the right label is background; unclear = not exported. The review line stores it as `corrected_label`. Since 2026-10-20 a no_helmet event also stores `head_box` / `head_class` (the no-helmet head that triggered it in the key frame; `null` for older events).
+- `python tools/export_reviews.py` writes the reviewed no_helmet events as YOLO data into a **new** folder `data/review_export/`: the **whole frame** + one label line for the reviewed head with the **corrected** label (helmet 0 / no-helmet 2). "Not a head", events without a head box, and overload / red_light reviews get **no label** (they are listed in `background.csv`, `needs_head_box.csv`, `metadata_only.csv`); an empty label file is never written for a frame with a head in it. **Rejecting a no-helmet event means relabelling the head as HELMET, not "background"**: an empty label would tell the trainer that the helmet there is a false positive and push the model to stop detecting helmets. Each image carries only the reviewed head (**partial labels**: pre-label the other riders before training) and the data **must be split by video / camera (`group` column), never by image**, or the scores leak (EXP-011).
+
+## Tests and experiments
+```powershell
+python -m pytest                           # fast suite (~20 s, no GPU, no models needed)
+python -m pytest -m slow                   # re-runs detectors+trackers on CPU and checks perception == tests/fixtures/tracks_test_video.jsonl (5-15 min)
+python tools/benchmark_pipeline.py --repeats 3 --configs configs/pipeline/exp/p4b_roi_jpeg80.yaml configs/pipeline/exp/p4c_gmc_none.yaml --out experiments/my_run
+python tools/diff_events.py tests/fixtures/baseline_events_v3_windowed.json <events.json>   # what changed between two runs
+```
+Configs are interleaved by the benchmark tool (round 1: every config, round 2 ...) so drift of the machine hits all of them equally; median and range of 3 runs are reported.
+
+### Pre-commit hook
+`scripts/hooks/pre-commit` refuses a commit that stages: model/data/archive files (`*.pt *.onnx *.engine *.mp4 *.zip *.bundle`); images (`*.jpg *.jpeg *.png *.gif`) outside the allowed folders (allow-list: `docs/assets/` (README demo assets), `docs/charts/`, `docs/figures/`, `experiments/*/charts/`, `experiments/*/plots/`, `experiments/*/figures/`, `experiments/*/box_consistency/`, `experiments/*/eval_*/`, `experiments/*/helmet_*/`); and file content with the author's mail domain, a Windows home path or the original local project path (only file and line number are printed). Git does not version hooks, so install it once per clone:
+```sh
+cp scripts/hooks/pre-commit .git/hooks/pre-commit      # Git for Windows runs it with its bundled sh; on Linux/macOS also: chmod +x .git/hooks/pre-commit
+```
+Do not bypass it with `--no-verify`: unstage the file (`git restore --staged <file>`). To change the allow-list edit `ALLOWED_IMAGE_DIRS` in the script and re-copy it. Tested in a throw-away repository by `tests/test_pre_commit_hook.py`.
+
+## Data, models, licences
+- Models: YOLO11s (COCO, vehicles + traffic lights), YOLO11s fine-tuned for helmet / motorcycle / no-helmet, YOLO11n fine-tuned for licence plates (Kaggle runs; see `experiments/EXP-000-kaggle-original`).
+  The notebook for the plate model does **not** match the deployed `plate_best.pt` (documented there).
+- **Ultralytics is AGPL-3.0**; this project is a portfolio piece and accepts that (derived code and weights follow AGPL-3.0). Dataset licences: both Roboflow exports *declare* CC BY 4.0 in `data.yaml`, **not independently verified (chưa xác minh)**; see `docs/DATA_CARD.md` (the helmet split leaks: random frame split of 16 videos) – check before any redistribution of data or weights. See `LICENSE` (AGPL-3.0) and `docs/PUBLISH_CHECKLIST.md`.
+- Plate text, plate crops and vehicle video are personal data: raw videos and evidence stay out of git (`*.mp4`, `*.pt`, `data/`, `static/violations/` are ignored); blur plates and faces before publishing any image or clip (`docs/RECORDING_GUIDE.md`).
+
+## Direction (2026-10-19)
+- **Target: AI on the camera** (assumed Rockchip RK3588, with RV1126 as the harsh case; no hardware, device speeds are sourced estimates only): >= 10 FPS for the helmet rule with a single detector, see PLAN G7-G12.
+- **M1 scope for `red_light`: motorcycles only**; the light state is read from a fixed ROI with OpenCV. **Cars are future work**: auto-label a `car` class on the helmet set with the COCO model (then review by hand) and train a 5-class model (helmet, motorcycle, no-helmet, plate, car).
+- **Pipeline settings are durations, not frame counts**: windows, close delays, plate-search budget ... are in seconds or ratios and become frame counts from the frame rate the pipeline sees (`docs/TIME_BASED_PARAMETERS.md`); old configs written in frames still load (with a warning, `tools/convert_config_to_seconds.py` converts them).

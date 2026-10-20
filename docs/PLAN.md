@@ -432,3 +432,9 @@ Hệ thống phát hiện vi phạm dùng để phạt nguội: một báo oan t
 - điểm cắt vạch nằm ngoài mọi làn: không báo, đếm vào `unassigned_crossings` và ghi vào danh sách cắt vạch;
 - thiếu `stop_line`, `direction` hoặc `light_roi`: luật **INACTIVE**, không báo gì, nhưng phải hiện rõ: dòng đầu log, dòng trên HUD của video, trường `red_light` trong `/api/status` (`state`: active | inactive | disabled | legacy_zone, kèm `reasons`).
 Chi phí chấp nhận: recall thấp hơn (xem EXP-022: trên test_video luật mới không có ca cắt vạch nào).
+
+## 9. Hướng phát triển: bộ phân loại crop đầu (tầng 2) – chưa làm (2026-10-20)
+Thêm một **bộ phân loại crop đầu** (helmet / no-helmet / không phải đầu) chạy sau detector, chỉ trên các box mà detector gọi là no-helmet, và chỉ phát cảnh báo khi cả hai tầng cùng đồng ý. Train từ hai nguồn: **`data/review_export/`** (đầu đã được người duyệt sửa nhãn: rejected no-helmet = helmet, confirmed = no-helmet; xem `tools/export_reviews.py`) và **crop đầu cắt từ bộ ảnh helmet** (từ các hộp helmet / no-helmet đã có nhãn).
+Lý do: (1) **tránh vấn đề nhãn từng phần của detector**: ảnh xuất từ hàng đợi chỉ có nhãn cho một đầu, còn người khác trong khung chưa được gán nhãn, nên train detector trực tiếp sẽ dạy nó coi họ là nền; bộ phân loại học từ crop từng đầu nên không bị ảnh hưởng; (2) **nhắm thẳng vào báo oan no-helmet** (mọi cảnh báo no-helmet trên test_video đều sai, EXP-020): đây chính là lỗi mà tầng 2 phải sửa; (3) crop đầu độ phân giải cao lấy từ luồng chính của camera (hướng (a) trong `docs/REPORT.md` §8b) giúp phân biệt mũ với tóc/khăn tốt hơn.
+Điều kiện khi làm: chia dữ liệu theo video/camera (không chia theo crop, tránh rò rỉ như EXP-011); đánh giá trên video khác test_video; không chỉnh ngưỡng dựa trên test_video. Chưa làm: chưa có dữ liệu đủ lớn và chưa có video có vi phạm thật để đo recall.
+

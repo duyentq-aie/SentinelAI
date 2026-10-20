@@ -50,13 +50,13 @@ def test_model_video_and_archive_files_are_refused(repo, name):
     assert code != 0 and "blocked file type" in out and name in out
 
 
-@pytest.mark.parametrize("name", ["frame.jpg", "a/b/crop.png", "x.jpeg", "experiments/EXP-1/frames/f.jpg", "static/uploads/p.png"])
+@pytest.mark.parametrize("name", ["frame.jpg", "a/b/crop.png", "x.jpeg", "experiments/EXP-1/frames/f.jpg", "static/uploads/p.png", "demo.gif", "docs/other/demo.gif", "static/x.gif"])
 def test_images_outside_the_chart_folders_are_refused(repo, name):
     code, out = try_commit(repo, name, b"\x89PNG\x00")
     assert code != 0 and "image outside the chart folders" in out
 
 
-@pytest.mark.parametrize("name", ["docs/charts/a.png", "docs/figures/a.jpg", "experiments/EXP-1/charts/a.png", "experiments/EXP-015-x/eval_3cls_val/confusion_matrix.png",
+@pytest.mark.parametrize("name", ["docs/assets/demo.gif", "docs/assets/review.png", "docs/charts/a.png", "docs/figures/a.jpg", "experiments/EXP-1/charts/a.png", "experiments/EXP-015-x/eval_3cls_val/confusion_matrix.png",
                                   "experiments/EXP-015-x/box_consistency/hist.png", "experiments/EXP-015-x/helmet_3cls_splitA/results.png"])
 def test_images_in_the_allow_listed_chart_folders_are_accepted(repo, name):
     code, out = try_commit(repo, name, b"\x89PNG\x00")

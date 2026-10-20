@@ -1,16 +1,16 @@
 #!/bin/sh
 # SentinelAI pre-commit hook: refuses a commit that stages
 #   1. model / data / archive files: *.pt *.onnx *.engine *.mp4 *.zip *.bundle
-#   2. images (*.jpg *.jpeg *.png) outside the chart folders in ALLOWED_IMAGE_DIRS below (frames and crops show people and plates)
+#   2. images (*.jpg *.jpeg *.png *.gif) outside the chart folders in ALLOWED_IMAGE_DIRS below (frames and crops show people and plates)
 #   3. file content with the author's mail domain, a Windows home path or the original project path (PATTERNS below; they are assembled from
 #      pieces so that this file does not match itself)
 # Install: cp scripts/hooks/pre-commit .git/hooks/pre-commit   (README, "Pre-commit hook"). Tested by tests/test_pre_commit_hook.py.
 # Do not bypass with --no-verify: unstage the file instead (git restore --staged <file>).
 
 BLOCKED_EXT="pt onnx engine mp4 zip bundle"
-IMAGE_EXT="jpg jpeg png"
+IMAGE_EXT="jpg jpeg png gif"
 # a staged image is accepted only if its path matches one of these shell patterns (everything else is refused)
-ALLOWED_IMAGE_DIRS="docs/charts/* docs/figures/* experiments/*/charts/* experiments/*/plots/* experiments/*/figures/* experiments/*/box_consistency/* experiments/*/eval_*/* experiments/*/helmet_*/*"
+ALLOWED_IMAGE_DIRS="docs/assets/* docs/charts/* docs/figures/* experiments/*/charts/* experiments/*/plots/* experiments/*/figures/* experiments/*/box_consistency/* experiments/*/eval_*/* experiments/*/helmet_*/*"
 P1="gmail.""com"
 P2="C:""\\Users\\"
 P3="Q:""\\SentinelAI"
