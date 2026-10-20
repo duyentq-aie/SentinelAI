@@ -26,7 +26,7 @@
         .none { width: 160px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b; border: 1px dashed #334155; border-radius: 4px; }
         .actions { margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         button { color: #fff; border: none; padding: 12px 22px; border-radius: 5px; font-weight: bold; font-size: 15px; cursor: pointer; }
-        .b-confirmed { background: #dc2626; } .b-rejected { background: #16a34a; } .b-unclear { background: #64748b; }
+        .b-confirmed { background: #dc2626; } .b-rejected { background: #16a34a; } .b-rejected2 { background: #0f766e; } .b-unclear { background: #64748b; }
         button:disabled { opacity: 0.5; cursor: default; }
         input[type="text"] { background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; padding: 10px; width: 320px; font-size: 14px; }
         .keys { font-size: 12px; color: #94a3b8; margin-top: 8px; }
@@ -76,13 +76,17 @@
                         fig('img-plate', 'plate' + (ev.plate_pred && ev.plate_pred.text ? ' (OCR ' + ev.plate_pred.text + ', not verified)' : ''), u.plate, 'plate'));
             card.appendChild(imgs);
             const actions = el('div', 'actions');
-            for (const [d, label] of [['confirmed', 'Confirm (c)'], ['rejected', 'Reject (r)'], ['unclear', 'Unclear (u)']]) {
-                const b = el('button', 'b-' + d, label); b.onclick = () => decide(d); actions.appendChild(b);
+            const isHead = ev.type === 'no_helmet';
+            for (const [d, label, nh] of [['confirmed', isHead ? 'Confirm: no helmet (c)' : 'Confirm (c)', false], ['rejected', isHead ? 'Reject: it wears a helmet (r)' : 'Reject (r)', false],
+                                          ['rejected', 'Reject: not a head / wrong person (n)', true], ['unclear', 'Unclear (u)', false]]) {
+                if (nh && !isHead) continue;
+                const b = el('button', 'b-' + (nh ? 'rejected2' : d), label); b.onclick = () => decide(d, nh); actions.appendChild(b);
             }
             const note = el('input'); note.type = 'text'; note.id = 'note'; note.maxLength = 300; note.placeholder = 'short note (optional)'; note.autocomplete = 'off';
             actions.appendChild(note);
             card.appendChild(actions);
-            card.appendChild(el('div', 'keys', 'Keys: c = confirm, r = reject, u = unclear (not while typing a note). Only confirmed events count as violations. ' + pending + ' pending.'));
+            card.appendChild(el('div', 'keys', 'Keys: c = confirm, r = reject, n = reject (not a head), u = unclear (not while typing a note). Only confirmed events count as violations. ' + pending + ' pending.'
+                + (isHead ? ' For a no-helmet event: confirm = the label is no-helmet; reject = the model was wrong, the right label is HELMET; "not a head" = the right label is background.' : '')));
             const msg = el('div'); msg.id = 'msg'; card.appendChild(msg);
         }
 
@@ -94,13 +98,13 @@
             counts();
         }
 
-        async function decide(decision) {
+        async function decide(decision, notHead) {
             if (!current || busy) return;
             busy = true;
             const note = document.getElementById('note').value;
             const msg = document.getElementById('msg');
             try {
-                const r = await fetch('/api/review/' + current.id.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ decision: decision, note: note }) });
+                const r = await fetch('/api/review/' + current.id.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ decision: decision, note: note, not_head: !!notHead }) });
                 if (!r.ok) { let d = r.statusText; try { d = JSON.stringify((await r.json()).detail); } catch (e) {} msg.textContent = 'Not saved: ' + d; busy = false; return; }
             } catch (e) { msg.textContent = 'Not saved: ' + e.message; busy = false; return; }
             busy = false;
@@ -120,7 +124,7 @@
         document.addEventListener('keydown', (e) => {
             if (e.target && e.target.tagName === 'INPUT') return;
             const k = e.key.toLowerCase();
-            if (k === 'c') decide('confirmed'); else if (k === 'r') decide('rejected'); else if (k === 'u') decide('unclear');
+            if (k === 'c') decide('confirmed'); else if (k === 'r') decide('rejected'); else if (k === 'n' && current && current.type === 'no_helmet') decide('rejected', true); else if (k === 'u') decide('unclear');
         });
         load();
     </script>

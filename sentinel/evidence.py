@@ -73,6 +73,8 @@ class _Event:
     written: bool = False
     frame_size: list = None
     plate_pred: dict = None
+    head_box: list = None                     # no_helmet events: the box of the no-helmet head that was attached to the vehicle in the key frame (null when it was not detected that frame / not applicable)
+    head_class: str = None                    # ... and the class the model gave it ("no-helmet")
     linked: dict = None                       # red_light events only: {"track": "M_<id>", "reason": "NO-HELMET"} of the overlapping helmet-model track
 
 
@@ -289,6 +291,10 @@ class EvidenceRecorder:
                     key_box=list(v.coords), vehicle_cls=v.type, light=light,
                     created_at=time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(self.clock())))
         ev.frame_end = ev.last_seen = frame_idx
+        if etype == "no_helmet":
+            bad = [b for b, c in getattr(v, "heads", []) if c == "no-helmet"]
+            if bad:
+                ev.head_box, ev.head_class = [int(x) for x in max(bad, key=lambda b: (b[2] - b[0]) * (b[3] - b[1]))], "no-helmet"       # several: the biggest one
         if getattr(v, "linked", ""):
             ev.linked = {"track": v.linked, "reason": v.linked_reason}
         ev.frame_size = [int(raw.shape[1]), int(raw.shape[0])]
@@ -339,6 +345,7 @@ class EvidenceRecorder:
             "vehicle": {"cls": ev.vehicle_cls, "box_size": [ev.key_box[2] - ev.key_box[0], ev.key_box[3] - ev.key_box[1]]},
             "light": ev.light, "video_id": self.video_id, "camera_id": self.camera_id, "run": ev.run, "created_at": ev.created_at,
         }
+        out["head_box"], out["head_class"] = ev.head_box, ev.head_class
         if self.models:
             out["models"] = self.models
         if ev.linked:

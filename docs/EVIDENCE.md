@@ -56,6 +56,9 @@ used as the A/B reference in `experiments/EXP-003-evidence/`.
 ## Reviews (`reviews.jsonl`, schema `sentinel.review/1`)
 Next to `events.jsonl`, append-only, written by the review page / `POST /api/review/{event_id}` (docs: README "Review queue"). One JSON object per line:
 `event_id`, `decision` (`confirmed` | `rejected` | `unclear`), `note` (<= 300 characters), `reviewed_at` (local time), `event_type`, `track_id`, `run`, `video_id`, `camera_id`,
+`corrected_label` (no_helmet events: `no-helmet` if confirmed, `helmet` if rejected, `background` if rejected with `not_head`, `null` if unclear / other types), `not_head`, `head_box`, `head_class`,
 `model` = `{role, file, sha256, source}` of the model that made the event (from the `models` stamp that every event record carries since 2026-10-20; `null` file/sha256 when the event predates the stamp).
 The last line of an event is its decision; earlier lines are history. Imported reviews (EXP-020) also carry `source`, `version`, `row`, `video`, `frame`, `box` (their `event_id` is `exp020/<version>/<track>/<type>`).
 Event records have an extra `models` object `{helmet, coco, plate}: {file, sha256}`.
+Event records of type `no_helmet` carry `head_box` `[x1, y1, x2, y2]` (the biggest no-helmet head attached to the vehicle in the key frame, resized-frame pixels) and `head_class` (`"no-helmet"`, what the model called it); both are `null` for other types, for events whose head was not detected in the key frame, and for events made before 2026-10-20.
+Imported EXP-020 reviews (`import_rev` 2) have a RECONSTRUCTED head box: `head_reconstructed` = `{method: "fixture:<file>" | "model_rerun:<weights>", frame, event_frame}`.

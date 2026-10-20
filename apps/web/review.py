@@ -4,6 +4,11 @@ An event is `pending` until somebody decides: confirmed | rejected | unclear. On
 APPENDED as a new line {schema, event_id, decision, note, reviewed_at, event_type, track_id, run, model{role, file, sha256}, ...}; reviewing an event again appends a newer line
 and never edits an older one: the LAST line of an event is its decision, the earlier lines are its history.
 Precision (per violation type and per model) is computed from these decisions only: confirmed / (confirmed + rejected), `unclear` left out.
+
+What a decision MEANS for a no_helmet event (the model said "this head has no helmet"), written as `corrected_label` = the right label of the head:
+  confirmed -> "no-helmet"    rejected -> "helmet" (the model was wrong: the head wears a helmet; NOT "background")
+  rejected + not_head -> "background" (special case: it is not a head at all / the wrong person)    unclear -> null (not exported)
+Other event types (overload, red_light) have no corrected_label: their decisions are metadata only.
 """
 import json
 import re
@@ -16,6 +21,15 @@ SCHEMA = "sentinel.review/1"
 EVENT_ID = re.compile(r"^[A-Za-z0-9._:/-]{1,160}$")
 NOTE_MAX = 300
 MODEL_OF_TYPE = {"red_light": "coco"}              # which model produced the event of this type; every other type comes from the helmet model
+
+
+def corrected_label(event_type, decision, not_head=False):
+    """The right label of the head of a reviewed no_helmet event (see the module docstring); None for every other case."""
+    if event_type != "no_helmet" or decision == "unclear":
+        return None
+    if decision == "confirmed":
+        return "no-helmet"
+    return "background" if not_head else "helmet"
 
 
 def clean_note(note):
@@ -76,8 +90,8 @@ class ReviewStore:
         closed = [e for e in pend if e.get("status") == "closed"]
         return (closed or pend or [None])[0], len(pend)
 
-    def submit(self, event_id, decision, note=""):
-        """Append a decision. -> the stored record. KeyError: unknown event; ValueError: bad decision / id."""
+    def submit(self, event_id, decision, note="", not_head=False):
+        """Append a decision. -> the stored record. KeyError: unknown event; ValueError: bad decision / id / not_head."""
         if not isinstance(event_id, str) or not EVENT_ID.match(event_id):
             raise ValueError("event_id must be 1-160 characters of [A-Za-z0-9._:/-]")
         if decision not in DECISIONS:
@@ -85,9 +99,12 @@ class ReviewStore:
         event = next((e for e in self.events() if e["id"] == event_id), None)
         if event is None:
             raise KeyError(event_id)
+        if not_head and (decision != "rejected" or event.get("type") != "no_helmet"):
+            raise ValueError("not_head is only for a rejected no_helmet event")
         rec = {"schema": SCHEMA, "event_id": event_id, "decision": decision, "note": clean_note(note),
                "reviewed_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(self.clock())), "event_type": event.get("type"), "track_id": event.get("track_id"),
-               "run": event.get("run"), "video_id": event.get("video_id"), "camera_id": event.get("camera_id"), "model": model_of(event)}
+               "run": event.get("run"), "video_id": event.get("video_id"), "camera_id": event.get("camera_id"), "model": model_of(event),
+               "corrected_label": corrected_label(event.get("type"), decision, not_head), "not_head": bool(not_head), "head_box": event.get("head_box"), "head_class": event.get("head_class")}
         self.append(rec)
         return rec
 
@@ -123,5 +140,6 @@ class ReviewStore:
             return f"{m.get('file') or '?'} ({(m.get('sha256') or 'no sha256')[:12]})"
 
         return {"pending": pending, **counts, "reviewed_events": len(latest), "review_lines": len(self.history()), "imported": sum(1 for r in latest.values() if r.get("source")),
-                "reviewed_of_current_events": len(known & set(latest)), "by_type": table(lambda r: r.get("event_type") or "?"), "by_model": table(model_key),
+                "reviewed_of_current_events": len(known & set(latest)), "corrected_labels": {k: sum(1 for r in latest.values() if r.get("corrected_label") == k) for k in ("no-helmet", "helmet", "background")},
+                "by_type": table(lambda r: r.get("event_type") or "?"), "by_model": table(model_key),
                 "note": "precision = confirmed / (confirmed + rejected) from the review decisions only; unclear is left out; pending events are not in it"}

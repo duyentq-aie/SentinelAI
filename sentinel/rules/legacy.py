@@ -5,7 +5,7 @@ image, red light = vehicle bottom-centre inside a fixed zone while the light is 
 They are replaced by the new rules in P2 steps 3.2/3.3; this module stays as the reference for diffs.
 """
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Tuple
 
 import cv2
@@ -28,6 +28,7 @@ class Vehicle:
     reason: str = ""
     linked: str = ""                         # K_ (red-light) vehicle only: id of the overlapping helmet-model track M_, if any
     linked_reason: str = ""                  # ... and that track's own reason (e.g. "NO-HELMET"), shown next to the red-light reason
+    heads: list = field(default_factory=list)  # M_ vehicle only: the heads attached to it THIS frame, [((x1, y1, x2, y2), "helmet" | "no-helmet")]; the evidence keeps the no-helmet one that triggered an event
 
 
 @dataclass
@@ -135,7 +136,7 @@ class LegacyRules:
 
             violator, reason = self._judge_motorcycle(m.id, len(associated), no_helmet_now)
             heads_drawn.extend(associated)
-            vehicles.append(Vehicle(f"M_{m.id}", m.box, "motorcycle", violator, reason))
+            vehicles.append(Vehicle(f"M_{m.id}", m.box, "motorcycle", violator, reason, heads=list(associated)))
 
         # --- red light ---
         if rules.red_light.enabled and self.stop_line_rule is not None:        # mode "stop_line_crossing": track crosses the stop line while its lane's signal is RED

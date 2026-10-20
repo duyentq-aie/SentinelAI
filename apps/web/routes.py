@@ -31,6 +31,7 @@ class Context:
 class ReviewIn(BaseModel):
     decision: Literal["confirmed", "rejected", "unclear"]
     note: Optional[str] = Field(default="", max_length=NOTE_MAX)
+    not_head: bool = False         # rejected no_helmet only: "not a head / the wrong person" -> the right label is background (default for a rejection: helmet)
 
 
 LOCAL_HOSTS = {"127.0.0.1", "localhost", "[::1]", "::1"}
@@ -163,7 +164,7 @@ def create_app(ctx: Context) -> FastAPI:
         if not local_origin(request):
             raise HTTPException(status_code=403, detail="cross-site request refused")
         try:
-            return reviews.submit(event_id, body.decision, body.note or "")
+            return reviews.submit(event_id, body.decision, body.note or "", body.not_head)
         except KeyError:
             raise HTTPException(status_code=404, detail=f"unknown event {event_id!r}")
         except ValueError as e:
