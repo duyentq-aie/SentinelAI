@@ -48,3 +48,21 @@ Không kèm ảnh (có người và biển số). Ảnh nằm ở `outputs/regre
 
 ## Cập nhật: phiên bản thứ 5 "hiện tại + model cũ @10 FPS" (2026-10-19)
 `contact5_1..7.jpg` (trong `outputs/regression_diag/`, gitignored) và `event_rows_5_versions.json`: cùng 28 hàng cũ (số hàng giữ nguyên) cộng cột thứ 5 là pipeline hiện tại + `helmet_best.pt` xử lý ở 10 FPS (mỗi frame thứ 3, EXP-021); ghép theo thời gian ±1 s + IoU; **3 hàng mới 29–31** (sự kiện của bản 10 FPS không khớp hàng cũ nào: M_372 @14.2 s, M_620 @15.8 s, M_725 @16.6 s). `grading_template.csv` có thêm cột cho phiên bản thứ 5 (cột "verdict" để trống cho bạn chấm). Số sự kiện: v0 22, hiện tại + model cũ 14, EXP-015 7, EXP-016 5, 10 FPS 10.
+
+<!-- grade_rows:start -->
+## Precision by eye (`tools/grade_rows.py`)
+
+Graded by the project owner by eye, 23 of 23 rows (no_helmet / overload; wrong_way rows skipped: that rule is off). The verdict of a row applies to every version that has an event in it, unless the row was marked as different people (then each version was graded on its own). Precision = right / (right + wrong), unclear left out.
+
+| version | events graded | right | wrong | unclear | precision | relative coverage |
+|---|---|---|---|---|---|---|
+| v0 | 14 | 0 | 14 | 0 | 0.00 (0/14) | 0/0 |
+| current+old model | 14 | 0 | 14 | 0 | 0.00 (0/14) | 0/0 |
+| EXP-015 3cls | 7 | 0 | 7 | 0 | 0.00 (0/7) | 0/0 |
+| EXP-016 4cls | 5 | 0 | 5 | 0 | 0.00 (0/5) | 0/0 |
+| current+old model @10FPS | 10 | 0 | 10 | 0 | 0.00 (0/10) | 0/0 |
+
+Relative coverage = among the 0 rows where at least one version was graded right, how many each version caught. **It is NOT recall**: a violation that all five versions missed is in nobody's denominator, so the true number of violations in the clip is unknown.
+
+**Read with care:** n is small (every precision above rests on a handful of events), the whole evidence is ONE 26-second clip, and the rules (windows, votes, hysteresis, the ratios) were adjusted on this very clip, so the numbers say little about new footage. The versions differ in model AND settings (see the table above), so a difference between them is not attributed to one cause. The default model is not changed by this table.
+<!-- grade_rows:end -->
