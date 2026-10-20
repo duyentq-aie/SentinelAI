@@ -1,14 +1,14 @@
 n,time_s,frame,track,lane,light,reported,reason,merged_into,point_x,point_y
-1,0.8,24,K_21,right-turn,RED,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,879.5,279.0
-2,1.67,50,K_28,right-turn,RED,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,1027.0,273.0
-3,5.4,162,K_230,right-turn,RED,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,988.5,271.0
-4,7.7,231,K_247,right-turn,RED,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,984.0,273.0
+1,0.8,24,K_21,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,879.5,279.0
+2,1.67,50,K_28,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,1027.0,273.0
+3,5.4,162,K_230,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,988.5,271.0
+4,7.7,231,K_247,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,984.0,273.0
 5,9.93,298,K_12,through,GREEN,no,light is GREEN,,756.5,284.0
-6,14.67,440,K_302,right-turn,GREEN,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,976.0,274.0
+6,14.67,440,K_302,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,976.0,274.0
 7,15.83,475,K_357,through,GREEN,no,light is GREEN,,758.5,282.0
-8,17.7,531,K_655,right-turn,GREEN,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,1011.5,273.0
+8,17.7,531,K_655,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,1011.5,273.0
 9,18.8,564,K_19,through,GREEN,no,light is GREEN,,633.0,287.0
 10,19.5,585,K_580,through,GREEN,no,light is GREEN,,735.5,280.0
-11,23.17,695,K_745,right-turn,GREEN,no,lane 'right-turn' is exempt (own signal / phase not confirmed): no red-light rule,,965.0,274.0
+11,23.17,695,K_745,right-turn,GREEN,no,light is GREEN (lane 'right-turn' own light),,965.0,274.0
 12,24.17,725,K_652,through,GREEN,no,light is GREEN,,699.0,285.0
-13,24.23,727,K_770,left-turn,GREEN,no,lane 'left-turn' is exempt (own signal / phase not confirmed): no red-light rule,,445.5,295.0
+13,24.23,727,K_770,left-turn,GREEN,no,light is GREEN (lane 'left-turn' own light),,445.5,295.0

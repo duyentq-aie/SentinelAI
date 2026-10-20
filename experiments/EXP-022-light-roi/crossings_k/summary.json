@@ -15,47 +15,18 @@
   "through": 5
  },
  "by_light": {
-  "GREEN": 9,
-  "RED": 4
+  "GREEN": 13
  },
  "by_lane_and_light": {
   "left-turn/GREEN": 1,
-  "right-turn/GREEN": 3,
-  "right-turn/RED": 4,
+  "right-turn/GREEN": 7,
   "through/GREEN": 5
  },
- "red_in_check_lane": [
-  {
-   "n": 1,
-   "time_s": 0.8,
-   "track": "K_21",
-   "reported": "no"
-  },
-  {
-   "n": 2,
-   "time_s": 1.67,
-   "track": "K_28",
-   "reported": "no"
-  },
-  {
-   "n": 3,
-   "time_s": 5.4,
-   "track": "K_230",
-   "reported": "no"
-  },
-  {
-   "n": 4,
-   "time_s": 7.7,
-   "track": "K_247",
-   "reported": "no"
-  }
- ],
+ "red_in_check_lane": [],
  "red_light_events": [],
  "pages": [
   "crossings_1.jpg",
   "crossings_2.jpg"
  ],
- "check_pages": [
-  "red_in_right-turn.jpg"
- ]
+ "check_pages": []
 }

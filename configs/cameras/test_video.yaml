@@ -17,14 +17,16 @@ light_roi: [590, 0, 632, 22]
 # stop_line: just below the near edge of the zebra crossing (the queue waits below it). direction: entry direction (tail -> head), up the image.
 stop_line: [[400, 302], [1040, 277]]
 direction: [[650, 430], [665, 200]]
-# A vehicle belongs to the lane that contains its crossing point. Precision first: lanes whose signal is not known are "exempt" (never reported); a crossing outside every lane is only counted/logged.
+# A vehicle belongs to the lane that contains its crossing point. Lane signal: {roi: [x1, y1, x2, y2]} = the lane's own light (arrow), "shared" = light_roi, "exempt" = no light.
+# Approved by the project owner on 2026-10-20 (experiments/EXP-022-light-roi/lane_signals): the arrow on the lane sign is the light that controls that lane.
+# Precision first: a lane light that reads UNKNOWN never produces a violation; a crossing outside every lane is only counted/logged.
 lanes:
   - name: left-turn
-    signal: exempt          # chưa xác nhận pha đèn mũi tên rẽ trái (own arrow signal; not known to match the countdown in light_roi)
+    signal: {roi: [466, 0, 530, 16]}      # arrow housing over the "LÀN RẼ TRÁI" sign; its green is thin and reads UNKNOWN now and then (harmless: UNKNOWN never raises a violation)
     polygon: [[400, 420], [400, 235], [560, 235], [560, 420]]
   - name: through
-    signal: roi             # governed by the countdown in light_roi
+    signal: shared          # governed by the countdown in light_roi
     polygon: [[560, 420], [560, 235], [873, 235], [738, 420]]
   - name: right-turn
-    signal: exempt          # own green-arrow signal
+    signal: {roi: [845, 3, 898, 16]}      # three green arrows over the "LÀN RẼ PHẢI" sign (green all through test_video: the red case is untested)
     polygon: [[873, 235], [1048, 235], [1048, 420], [738, 420]]

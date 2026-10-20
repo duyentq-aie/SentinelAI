@@ -428,7 +428,7 @@ Lưu ý về quay video:
 
 ## 8. Nguyên tắc thiết kế: phạt nguội ưu tiên precision (2026-10-19)
 Hệ thống phát hiện vi phạm dùng để phạt nguội: một báo oan tốn hơn một ca bỏ sót. Vì vậy, **khi không chắc thì không báo, chỉ đếm và ghi log**. Áp dụng cho luật `red_light` kiểu `stop_line_crossing`:
-- làn chưa rõ pha đèn (ví dụ làn rẽ trái của test_video: "chưa xác nhận pha đèn mũi tên rẽ trái") đặt `signal: exempt`;
+- làn chưa rõ pha đèn (trước 2026-10-20, làn rẽ trái của test_video là `exempt` vì chưa xác nhận pha đèn mũi tên; nay các làn có đèn riêng `{roi: ...}`) đặt `signal: exempt`;
 - điểm cắt vạch nằm ngoài mọi làn: không báo, đếm vào `unassigned_crossings` và ghi vào danh sách cắt vạch;
 - thiếu `stop_line`, `direction` hoặc `light_roi`: luật **INACTIVE**, không báo gì, nhưng phải hiện rõ: dòng đầu log, dòng trên HUD của video, trường `red_light` trong `/api/status` (`state`: active | inactive | disabled | legacy_zone, kèm `reasons`).
 Chi phí chấp nhận: recall thấp hơn (xem EXP-022: trên test_video luật mới không có ca cắt vạch nào).
