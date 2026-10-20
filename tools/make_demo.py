@@ -7,6 +7,11 @@ The current DEFAULT pipeline runs over the whole video (so the trackers are warm
 Banner = "PENDING REVIEW": events are candidates until a person confirms them (on this clip every reported event was a false alarm, EXP-020).
 Writes <out>/demo.gif, <out>/frames_checked/ (the frames that are listed for the visual check), <out>/review_evidence/ (events.jsonl + blurred frame.jpg / vehicle.jpg, NO plate crops).
 Nothing here is committed except what you copy into docs/assets/ after looking at it.
+
+--mode helmet_demo --mp4 docs/assets/demo.mp4 [--gif-light docs/assets/demo_light.gif]: the README demo VIDEO. The anonymiser runs in its "helmet_demo" mode (plates pixelated, only the faces blurred, the
+helmet stays visible, no tiled scan), the annotations (boxes, ids, status line, banner "PENDING REVIEW") are drawn AFTER the blur on the blurred frame so they are always sharp. H.264, yuv420p,
+30 FPS, 1280 px wide, <= 10 MB (GitHub plays a video in a README only up to 10 MB on a free account), encoded with the ffmpeg binary that ships with imageio-ffmpeg; the light GIF (10 FPS, 800 px,
+<= 5 MB) is made from the video.
 """
 import argparse
 import json
@@ -22,6 +27,57 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 sys.path.insert(0, str(REPO / "tools"))
 from anonymize import Anonymizer  # noqa: E402
+
+
+def render_annotated(pipe, r, blurred):
+    """The annotated frame built on the BLURRED frame: the pipeline's overlays (status, stop line, lane signals, vehicle and head boxes with their labels) are drawn after the blur,
+    so text and lines stay sharp while what is underneath is blurred. `r` = the FrameResult of pipe.process on the clean frame."""
+    disp = blurred.copy()
+    if pipe.light_source == "roi":
+        pipe._read_light_roi(r.raw, disp)
+    if pipe.stop_line_active():
+        pipe._read_lane_lights(r.raw, disp)
+    pipe._draw(disp, r.perception, r.rules)
+    return disp
+
+
+def open_master(path, fps, size):
+    """ffmpeg process that takes raw BGR frames on stdin and writes a near-lossless H.264 master (frames are not kept in memory)."""
+    import subprocess
+
+    import imageio_ffmpeg
+    cmd = [imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{size[0]}x{size[1]}", "-r", str(fps), "-i", "-",
+           "-c:v", "libx264", "-preset", "veryfast", "-crf", "8", "-pix_fmt", "yuv444p", str(path)]
+    return subprocess.Popen(cmd, stdin=subprocess.PIPE)
+
+
+def encode_mp4(master, path, fps, max_bytes):
+    """Final video from the master: libx264, yuv420p, `fps` FPS, +faststart; a higher CRF while the file is above max_bytes."""
+    import subprocess
+
+    import imageio_ffmpeg
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    for crf in (22, 24, 26, 28, 30, 32):
+        cmd = [exe, "-y", "-loglevel", "error", "-i", str(master), "-c:v", "libx264", "-preset", "slow", "-crf", str(crf), "-pix_fmt", "yuv420p", "-r", str(fps), "-movflags", "+faststart", "-an", str(path)]
+        subprocess.run(cmd, check=True)
+        if Path(path).stat().st_size <= max_bytes:
+            return {"crf": crf, "bytes": Path(path).stat().st_size}
+    raise SystemExit(f"{path} does not fit in {max_bytes} bytes even at crf 32")
+
+
+def mp4_to_gif(mp4, gif, fps=10, width=800, max_bytes=5_000_000, seconds=None):
+    """Light GIF from the video with an ffmpeg palette; fewer colours, then a shorter clip, until it is <= max_bytes. -> dict"""
+    import subprocess
+
+    import imageio_ffmpeg
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    for colors, secs in ((32, seconds), (32, 10), (32, 8), (32, 7), (32, 6.5), (32, 6), (32, 5)):                                          # 10 FPS / 800 px / <= 5 MB: the only knob left is the length (15 s do not fit)
+        vf = f"fps={fps},scale={width}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors={colors}:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
+        cmd = [exe, "-y", "-loglevel", "error", "-i", str(mp4)] + (["-t", str(secs)] if secs else []) + ["-vf", vf, "-loop", "0", str(gif)]
+        subprocess.run(cmd, check=True)
+        if Path(gif).stat().st_size <= max_bytes:
+            return {"colors": colors, "seconds": secs, "bytes": Path(gif).stat().st_size, "fps": fps, "width": width}
+    raise SystemExit(f"{gif} does not fit in {max_bytes} bytes")
 
 
 def banner(img, open_events, t):
@@ -48,6 +104,36 @@ def to_gif(frames, path, fps, max_bytes):
     raise SystemExit(f"{path} does not fit in {max_bytes} bytes even at the smallest setting")
 
 
+def make_video(a, pipe, anon, cfg, fps):
+    from sentinel.characterize import read_frames
+    mp4 = Path(a.mp4)
+    if mp4.exists() or (a.gif_light and Path(a.gif_light).exists()):
+        sys.exit("an output file exists: nothing is overwritten (use new names)")
+    f0, f1 = int(a.start * fps), int((a.start + a.seconds) * fps)
+    kept, master, proc = [], Path(a.out) / "master.mp4", None
+    for i, frame in enumerate(read_frames(a.video)):
+        r = pipe.process(frame)
+        if f0 <= i < f1:
+            blurred = r.raw.copy()
+            anon.apply(blurred, regions=anon.regions(r.raw))                          # blur first ...
+            disp = render_annotated(pipe, r, blurred)                                 # ... then draw the annotations on the blurred frame
+            banner(disp, [(e.track_id, e.type) for e in pipe.recorder._open.values()], i / fps)
+            if proc is None:
+                proc = open_master(master, int(round(fps)), (disp.shape[1], disp.shape[0]))
+            proc.stdin.write(disp.tobytes())
+            kept.append(i)
+    pipe.flush()
+    proc.stdin.close()
+    proc.wait()
+    mp4.parent.mkdir(parents=True, exist_ok=True)
+    info = encode_mp4(master, mp4, int(round(fps)), int(a.max_mb * 1000 * 1000))
+    out = {"video_frames": [kept[0], kept[-1]], "frames": len(kept), "mp4": str(mp4), **info}
+    if a.gif_light:
+        out["gif_light"] = mp4_to_gif(mp4, a.gif_light)
+    (Path(a.out) / "demo_video.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
+    print(json.dumps(out, indent=1))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--video", default=str(REPO / "test_video.mp4"))
@@ -57,6 +143,9 @@ def main():
     ap.add_argument("--width", type=int, default=960)
     ap.add_argument("--gif-fps", type=float, default=7.5)
     ap.add_argument("--max-mb", type=float, default=8.0)
+    ap.add_argument("--mode", choices=("full", "helmet_demo"), default="full")
+    ap.add_argument("--mp4", help="write the README demo VIDEO here (helmet_demo flow; the GIF / evidence flow is skipped)")
+    ap.add_argument("--gif-light", help="with --mp4: also write the light GIF (10 FPS, 800 px, <= 5 MB) made from the video")
     a = ap.parse_args()
     out = Path(a.out)
     if out.exists() and any(out.iterdir()):
@@ -70,8 +159,10 @@ def main():
     cfg = load_pipeline_config(root=REPO)
     cfg.evidence.dir = str(out / "evidence")
     pipe = Pipeline(Detectors(cfg), SharedState(), cfg, load_camera_config(REPO / "configs" / "cameras" / "test_video.yaml"))
-    anon = Anonymizer.from_config(persons=True, cfg=cfg)
+    anon = Anonymizer.from_config(persons=True, cfg=cfg, mode=a.mode)
     fps = cv2.VideoCapture(a.video).get(cv2.CAP_PROP_FPS) or 30.0
+    if a.mp4:
+        return make_video(a, pipe, anon, cfg, fps)
     f0, f1 = int(a.start * fps), int((a.start + a.seconds) * fps)
     step = max(1, int(round(fps / a.gif_fps)))
     frames, kept = [], []

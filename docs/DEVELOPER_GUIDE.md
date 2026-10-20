@@ -77,6 +77,16 @@ A second hook, `scripts/hooks/commit-msg`, removes AI-tool attribution lines (`C
 
 Do not bypass it with `--no-verify`: unstage the file (`git restore --staged <file>`). To change the allow-list edit `ALLOWED_IMAGE_DIRS` in the script and re-copy it. Tested in a throw-away repository by `tests/test_pre_commit_hook.py`.
 
+## README demo video
+`python tools/make_demo.py --out outputs/demo_helmet --mode helmet_demo --start 9 --seconds 15.5 --max-mb 10 --mp4 docs/assets/demo.mp4 --gif-light docs/assets/demo_light.gif` makes the demo from `test_video.mp4`:
+`demo.mp4` (H.264, yuv420p, 30 FPS, 1280 px, <= 10 MB, banner "PENDING REVIEW") and a light GIF (10 FPS, 800 px, <= 5 MB). The anonymiser runs in its `helmet_demo` mode: plates pixelated, only the face part of every
+head box blurred (the helmet stays visible), pedestrians blurred, annotations drawn after the blur. Look at the video frame by frame before publishing it.
+
+**Getting the video into the README.** GitHub plays a video in a README only when the file was uploaded through the web interface (it becomes a `https://github.com/user-attachments/assets/...` link; a `.mp4` committed to the
+repository is shown as a plain link, and a free account allows 10 MB per video). So: open `README.md` on github.com -> the pencil (edit) -> delete the line with the old `demo.gif` image -> drag `docs/assets/demo.mp4` from your
+file explorer into the editor at that place (GitHub uploads it and inserts the link) -> "Commit changes" on the web -> then `git pull` on your machine. The pre-commit hook refuses `*.mp4` on purpose, so the video itself is never
+committed from this machine; keep `docs/assets/demo_light.gif` as the fallback image if you prefer.
+
 ## Data, models, licences
 - Models: YOLO11s (COCO, vehicles + traffic lights), YOLO11s fine-tuned for helmet / motorcycle / no-helmet, YOLO11n fine-tuned for licence plates (Kaggle runs; see `experiments/EXP-000-kaggle-original`).
   The notebook for the plate model does **not** match the deployed `plate_best.pt` (documented there).

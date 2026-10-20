@@ -17,14 +17,16 @@ def test_every_relative_link_and_image_of_the_readme_exists():
     assert not missing, missing
 
 
-def test_the_demo_gif_is_anonymised_sized_and_the_right_length():
+def test_the_demo_gif_is_the_light_excerpt_of_the_demo_video():
     gif = REPO / "docs" / "assets" / "demo.gif"
-    assert gif.stat().st_size <= 8_000_000
+    assert gif.stat().st_size <= 5_000_000
     im = Image.open(gif)
-    assert im.size[0] == 960 and im.n_frames >= 40
+    assert im.size[0] == 800 and im.n_frames >= 50
     seconds = sum(im.seek(i) or im.info["duration"] for i in range(im.n_frames)) / 1000
-    assert 12 <= seconds <= 15, seconds
+    assert 5 <= seconds <= 8, seconds
+    assert round(im.n_frames / seconds) == 10                      # 10 FPS
     assert (REPO / "docs" / "assets" / "review.png").stat().st_size > 10_000
+    assert not (REPO / "docs" / "assets" / "demo_light.gif").exists()
 
 
 def test_the_readme_has_the_sections_in_the_order_a_recruiter_reads_them():

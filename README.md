@@ -4,7 +4,7 @@ Detects riders without a helmet, motorcycles carrying more than two people and r
 
 ![demo: annotated test_video, anonymised](docs/assets/demo.gif)
 
-*The 12.5 s clip is anonymised (heads, pedestrians and plates blurred with `tools/anonymize.py`). The banner says "pending review": **on this clip every no-helmet alarm was a false alarm** (see below).*
+*A 6.5 s excerpt of the 15 s demo video, anonymised with `tools/anonymize.py` (plates pixelated, faces and pedestrians blurred, helmets left visible). The banner says "pending review": **on this clip every no-helmet alarm was a false alarm** (see below).*
 
 ## Highlights
 Every number links to the experiment it comes from.
