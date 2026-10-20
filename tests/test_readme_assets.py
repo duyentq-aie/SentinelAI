@@ -42,3 +42,12 @@ def test_headline_numbers_are_the_ones_of_the_experiment_readmes():
     for number in ("0.934", "0.844"):
         assert number in README
     assert "0.8438" in (REPO / "experiments" / "EXP-015-helmet-grouped-3cls" / "metrics_3cls.json").read_text(encoding="utf-8")        # no-helmet test mAP50 0.8438 -> 0.844
+
+
+def test_the_readme_has_direct_download_links_of_the_release_assets_and_the_verify_step():
+    base = "https://github.com/duyentq-aie/SentinelAI/releases/download/models-v1/"
+    for f in ("helmet_3cls_exp015.pt", "helmet_4cls_exp016.pt", "SHA256SUMS"):
+        assert base + f in README, f
+    assert "python tools/verify_models.py models_dl" in README
+    sums = (REPO / "docs" / "releases" / "models-v1.sha256").read_text(encoding="utf-8")
+    assert "helmet_3cls_exp015.pt" in sums and "helmet_4cls_exp016.pt" in sums

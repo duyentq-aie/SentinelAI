@@ -46,8 +46,11 @@ git clone https://github.com/duyentq-aie/SentinelAI.git; cd SentinelAI
 python -m venv venv; .\venv\Scripts\activate
 pip install -r requirements.txt                       # torch cu118 wheels: see the comment at the top of the file
 # helmet models: GitHub Release "models-v1" (helmet_3cls_exp015.pt = default, helmet_4cls_exp016.pt, SHA256SUMS)
-gh release download models-v1 -R duyentq-aie/SentinelAI -D models_dl              # or download the files in the browser
-python tools/verify_models.py models_dl                                           # every line must say ok (sha256 check)
+mkdir models_dl; cd models_dl
+curl -LO https://github.com/duyentq-aie/SentinelAI/releases/download/models-v1/helmet_3cls_exp015.pt     # default model (no login needed)
+curl -LO https://github.com/duyentq-aie/SentinelAI/releases/download/models-v1/helmet_4cls_exp016.pt     # optional
+curl -LO https://github.com/duyentq-aie/SentinelAI/releases/download/models-v1/SHA256SUMS; cd ..           # or: gh release download models-v1 -D models_dl, or the Releases page
+python tools/verify_models.py models_dl                                           # every line must say ok (sha256 check; the same links were downloaded and verified on 2026-10-21)
 mkdir experiments\EXP-015-helmet-grouped-3cls\weights; copy models_dl\helmet_3cls_exp015.pt experiments\EXP-015-helmet-grouped-3cls\weights\best.pt
 # also needed in the repo root: yolo11s.pt (COCO, Ultralytics downloads it) and a video such as test_video.mp4.
 # plate_best.pt is OPTIONAL and not published: without it the app runs normally, just without the plate search (/api/status shows "plate": disabled and why)
