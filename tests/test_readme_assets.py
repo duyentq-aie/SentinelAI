@@ -51,3 +51,13 @@ def test_the_readme_has_direct_download_links_of_the_release_assets_and_the_veri
     assert "python tools/verify_models.py models_dl" in README
     sums = (REPO / "docs" / "releases" / "models-v1.sha256").read_text(encoding="utf-8")
     assert "helmet_3cls_exp015.pt" in sums and "helmet_4cls_exp016.pt" in sums
+
+
+def test_the_architecture_diagram_is_grouped_by_layer_coloured_and_has_the_flywheel_arrow():
+    block = re.search(r"```mermaid\n(.*?)```", README, re.S).group(1)
+    for layer in ('subgraph IN["Input"]', 'subgraph PER["Perception"]', 'subgraph RUL["Rules"]', 'subgraph EVR["Evidence & Review"]', 'subgraph FLY["Data flywheel"]'):
+        assert layer in block, layer
+    assert len(re.findall(r"^\s*classDef \w+ fill:#[0-9A-Fa-f]{6},stroke:#[0-9A-Fa-f]{6},color:#[0-9A-Fa-f]{6}", block, re.M)) == 5
+    assert len(re.findall(r"^\s*style (IN|PER|RUL|EVR|FLY) fill:", block, re.M)) == 5
+    assert re.search(r"RT -\. .* \.-> DH", block)                                   # dashed arrow from the flywheel back to perception
+    assert all(word in block for word in ("Helmet detector", "COCO detector", "Tracker", "No-helmet vote + hysteresis", "Overload", "Red light: stop line per lane", "Export corrected labels"))

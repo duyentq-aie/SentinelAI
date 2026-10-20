@@ -1,0 +1,12 @@
+#!/bin/sh
+# SentinelAI commit-msg hook: removes AI-tool attribution lines from the commit message if they slipped in:
+#   "Co-Authored-By: Claude ...", "Claude-Session: ...", "Generated with [Claude Code] ..." (also with the robot emoji in front) and any line with a claude.ai/ link;
+# then drops the blank lines left at the end of the message. Other lines are never touched.
+# Install: cp scripts/hooks/commit-msg .git/hooks/commit-msg   (README, "Git hooks"). Tested by tests/test_commit_msg_hook.py.
+
+msg="$1"
+tmp="$msg.attr.$$"
+grep -v -i -E '^[[:space:]]*Co-Authored-By:.*(claude|anthropic)|^[[:space:]]*Claude-Session:|generated with .*claude|claude\.ai/|^[[:space:]]*🤖' "$msg" > "$tmp"
+awk '{ a[NR] = $0 } END { n = NR; while (n > 0 && a[n] ~ /^[[:space:]]*$/) n--; for (i = 1; i <= n; i++) print a[i] }' "$tmp" > "$msg"    # an empty result stays empty: git then refuses the empty message
+rm -f "$tmp"
+exit 0

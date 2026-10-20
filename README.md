@@ -15,15 +15,56 @@ Every number links to the experiment it comes from.
 - **Engineering you can check.** Stream throughput 2.42x the original prototype, measured as same-session ratios ([EXP-009](experiments/EXP-009-session-variance/NOTES.md), [EXP-010](experiments/EXP-010-ratios-vs-v0/NOTES.md)); rule parameters in seconds so they follow the frame rate ([EXP-019](experiments/EXP-019-timebase/NOTES.md), [EXP-021](experiments/EXP-021-10fps/README.md)); a fast test suite on synthetic tracks, a loopback-only server with an upload whitelist, a pre-commit hook against leaking weights, videos or personal paths.
 
 ## Architecture
+Colours mark the layers; the dashed arrow is the data flywheel: reviewed, corrected labels feed the next training round.
 ```mermaid
 flowchart LR
-    V[video / RTSP] --> D[detectors<br/>helmet model + COCO + plate]
-    D --> T[trackers<br/>BoT-SORT]
-    T --> R[rules<br/>no-helmet and overload voting<br/>stop-line red light per lane]
-    R --> E[events<br/>evidence + plate crop + OCR]
-    E --> H[human review<br/>/review, reviews.jsonl]
-    H --> X[export<br/>corrected YOLO labels]
-    X -.next training round.-> D
+    subgraph IN["Input"]
+        V["Video / camera"]:::input
+    end
+    subgraph PER["Perception"]
+        DH["Helmet detector"]:::perc
+        DC["COCO detector"]:::perc
+        TR["Tracker"]:::perc
+    end
+    subgraph RUL["Rules"]
+        R1["No-helmet vote + hysteresis"]:::rule
+        R2["Overload"]:::rule
+        R3["Red light: stop line per lane"]:::rule
+    end
+    subgraph EVR["Evidence & Review"]
+        EV["Events + evidence images"]:::rev
+        RQ["Human review queue"]:::rev
+    end
+    subgraph FLY["Data flywheel"]
+        EX["Export corrected labels"]:::fly
+        RT["Retrain"]:::fly
+    end
+
+    V --> DH
+    V --> DC
+    DH --> TR
+    DC --> TR
+    TR --> R1
+    TR --> R2
+    TR --> R3
+    R1 --> EV
+    R2 --> EV
+    R3 --> EV
+    EV --> RQ
+    RQ --> EX
+    EX --> RT
+    RT -. "better models" .-> DH
+
+    classDef input fill:#BBDEFB,stroke:#0D47A1,color:#0B1F3A,stroke-width:2px
+    classDef perc fill:#C8E6C9,stroke:#1B5E20,color:#0E2A12,stroke-width:2px
+    classDef rule fill:#FFE0B2,stroke:#E65100,color:#3A1C00,stroke-width:2px
+    classDef rev fill:#E1BEE7,stroke:#6A1B9A,color:#26082F,stroke-width:2px
+    classDef fly fill:#CFD8DC,stroke:#37474F,color:#101C24,stroke-width:2px
+    style IN fill:#E3F2FD,stroke:#0D47A1,color:#0B1F3A
+    style PER fill:#E8F5E9,stroke:#1B5E20,color:#0E2A12
+    style RUL fill:#FFF3E0,stroke:#E65100,color:#3A1C00
+    style EVR fill:#F3E5F5,stroke:#6A1B9A,color:#26082F
+    style FLY fill:#ECEFF1,stroke:#37474F,color:#101C24
 ```
 
 ## Results at a glance

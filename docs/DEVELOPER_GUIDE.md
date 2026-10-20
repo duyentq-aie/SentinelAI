@@ -73,6 +73,8 @@ Configs are interleaved by the benchmark tool (round 1: every config, round 2 ..
 ```sh
 cp scripts/hooks/pre-commit .git/hooks/pre-commit      # Git for Windows runs it with its bundled sh; on Linux/macOS also: chmod +x .git/hooks/pre-commit
 ```
+A second hook, `scripts/hooks/commit-msg`, removes AI-tool attribution lines (`Co-Authored-By: ...` of an AI assistant, `Claude-Session:`, "Generated with ..." and claude.ai links) from a commit message if they slip in, and the blank lines they leave at the end; nothing else in the message is touched. Install it the same way: `cp scripts/hooks/commit-msg .git/hooks/commit-msg`. Tested by `tests/test_commit_msg_hook.py`.
+
 Do not bypass it with `--no-verify`: unstage the file (`git restore --staged <file>`). To change the allow-list edit `ALLOWED_IMAGE_DIRS` in the script and re-copy it. Tested in a throw-away repository by `tests/test_pre_commit_hook.py`.
 
 ## Data, models, licences

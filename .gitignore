@@ -45,3 +45,6 @@ experiments/EXP-022-light-roi/crossings_k/*.jpg
 experiments/EXP-022-light-roi/crossings_k/evidence*/
 experiments/EXP-022-light-roi/lane_signals/*.jpg
 experiments/EXP-024-hat-shirt-colour/*.jpg
+
+# Claude Code personal settings of this clone (attribution switched off)
+.claude/settings.local.json
