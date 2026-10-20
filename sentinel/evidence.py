@@ -106,10 +106,11 @@ def enforce_dir_limit(root, max_bytes, protect=("events.jsonl",)):
 
 
 class EvidenceRecorder:
-    def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time, ocr=None, fps=REFERENCE_FPS):
+    def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time, ocr=None, fps=REFERENCE_FPS, models=None):
         """cfg: EvidenceCfg. plate_boxes(crop_bgr) -> [(x1, y1, x2, y2, conf)] relative to the crop, best first.
         ocr: PlateOCR or None (None = plates are only cropped, never read)."""
         self.cfg, self.plate_boxes, self.ocr = cfg, plate_boxes, ocr
+        self.models = models                      # {"helmet": {"file", "sha256"}, "coco": ..., "plate": ...}: written into every event record (which model made the event; the review queue reads it)
         self.set_fps(fps)
         self.ocr_latencies_ms = []
         self.video_id, self.camera_id = video_id, camera_id
@@ -338,6 +339,8 @@ class EvidenceRecorder:
             "vehicle": {"cls": ev.vehicle_cls, "box_size": [ev.key_box[2] - ev.key_box[0], ev.key_box[3] - ev.key_box[1]]},
             "light": ev.light, "video_id": self.video_id, "camera_id": self.camera_id, "run": ev.run, "created_at": ev.created_at,
         }
+        if self.models:
+            out["models"] = self.models
         if ev.linked:
             out["linked"] = ev.linked
         return out

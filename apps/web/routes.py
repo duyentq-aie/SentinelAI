@@ -3,13 +3,17 @@ import json
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel, Field
 
+from apps.web.review import NOTE_MAX, ReviewStore, model_of
+
+from sentinel.modelinfo import file_sha256
 from sentinel.security import SourceRejected, UploadRejected, UploadTooLarge, save_upload, validate_source
 
 
@@ -24,17 +28,19 @@ class Context:
     evidence_url: Any = None   # URL prefix under which evidence_dir is served (e.g. "/static/violations"), None = thumbnails unavailable
 
 
-def file_sha256(path):
-    """sha256 of a model file, or None when it is not there (e.g. an .onnx that was not exported)."""
-    import hashlib
-    try:
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(1 << 20), b""):
-                h.update(chunk)
-        return h.hexdigest()
-    except OSError:
-        return None
+class ReviewIn(BaseModel):
+    decision: Literal["confirmed", "rejected", "unclear"]
+    note: Optional[str] = Field(default="", max_length=NOTE_MAX)
+
+
+LOCAL_HOSTS = {"127.0.0.1", "localhost", "[::1]", "::1"}
+
+
+def local_origin(request):
+    """A browser page of another site must not be able to post a review to this local server: when an Origin header is present its host has to be local."""
+    from urllib.parse import urlsplit
+    origin = request.headers.get("origin")
+    return origin is None or (urlsplit(origin).hostname or "") in {h.strip("[]") for h in LOCAL_HOSTS}
 
 
 def backend_info(cfg):
@@ -129,9 +135,43 @@ def create_app(ctx: Context) -> FastAPI:
         ctx.worker.set_source(str(saved))
         return {"status": "success", "filename": saved.name}
 
+    reviews = ReviewStore(ctx.evidence_dir, read_events)
+
+    @app.get("/review", response_class=HTMLResponse)
+    async def review_page(request: Request):
+        return templates.TemplateResponse(request=request, name="review.html")
+
     @app.get("/api/violations")
     async def get_violations():
-        return {"images": ctx.records}
+        """Plate crops of CONFIRMED events only: a pending or rejected event is not a violation (yet)."""
+        latest = reviews.latest()
+        confirmed = [k for k, r in latest.items() if r["decision"] == "confirmed"]
+        return {"images": [r for r in ctx.records if any(f"/{k}/" in r for k in confirmed)]}
+
+    @app.get("/api/review/next")
+    async def review_next():
+        ev, pending = reviews.next_pending()
+        if ev is None:
+            return {"event": None, "pending": 0}
+        ev = with_urls([dict(ev)], ctx.evidence_url)[0]
+        ev["review_status"] = "pending"
+        ev["model"] = model_of(ev)
+        return {"event": ev, "pending": pending}
+
+    @app.post("/api/review/{event_id:path}")
+    async def review_post(event_id: str, body: ReviewIn, request: Request):
+        if not local_origin(request):
+            raise HTTPException(status_code=403, detail="cross-site request refused")
+        try:
+            return reviews.submit(event_id, body.decision, body.note or "")
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f"unknown event {event_id!r}")
+        except ValueError as e:
+            raise HTTPException(status_code=422, detail=str(e))
+
+    @app.get("/api/review/stats")
+    async def review_stats():
+        return reviews.stats()
 
     @app.get("/api/status")
     async def get_status():
@@ -142,6 +182,10 @@ def create_app(ctx: Context) -> FastAPI:
         """scope=current (default): only the events of the run in progress (the current pass over the video); scope=all: every run, newest first."""
         run = ctx.worker.status().get("run") if scope != "all" else None
         evs = read_events(ctx.evidence_dir, max(1, min(limit, 200)), run)
+        latest = reviews.latest()
+        for e in evs:
+            e["review_status"] = latest[e["id"]]["decision"] if e["id"] in latest else "pending"
+            e["review_note"] = latest[e["id"]]["note"] if e["id"] in latest else ""
         return {"events": with_urls(evs, ctx.evidence_url), "scope": "all" if run is None else "current", "current_run": ctx.worker.status().get("run")}
 
     return app

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel AI - Review queue</title>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 16px; }
+        a { color: #38bdf8; }
+        .top { display: flex; justify-content: space-between; align-items: baseline; max-width: 1300px; margin: 0 auto 12px; }
+        h1 { margin: 0; font-size: 1.4em; color: #38bdf8; }
+        .counts { font-size: 13px; color: #94a3b8; }
+        .counts b { color: #e2e8f0; }
+        .card { max-width: 1300px; margin: 0 auto; background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; }
+        .meta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 10px; font-size: 14px; }
+        .badge { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: #fff; text-transform: uppercase; background: #64748b; }
+        .badge.no_helmet { background: #dc2626; } .badge.overload { background: #ea580c; } .badge.red_light { background: #991b1b; }
+        .meta small { color: #94a3b8; }
+        .imgs { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+        .imgs figure { margin: 0; }
+        .imgs figcaption { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+        .imgs img { display: block; background: #000; border: 1px solid #334155; border-radius: 4px; }
+        #img-vehicle { height: 380px; max-width: 420px; object-fit: contain; }
+        #img-frame { height: 380px; max-width: 700px; object-fit: contain; }
+        #img-plate { height: 90px; image-rendering: pixelated; object-fit: contain; }
+        .none { width: 160px; height: 90px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b; border: 1px dashed #334155; border-radius: 4px; }
+        .actions { margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        button { color: #fff; border: none; padding: 12px 22px; border-radius: 5px; font-weight: bold; font-size: 15px; cursor: pointer; }
+        .b-confirmed { background: #dc2626; } .b-rejected { background: #16a34a; } .b-unclear { background: #64748b; }
+        button:disabled { opacity: 0.5; cursor: default; }
+        input[type="text"] { background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; padding: 10px; width: 320px; font-size: 14px; }
+        .keys { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+        #msg { margin-top: 8px; font-size: 13px; color: #f59e0b; min-height: 1.2em; }
+        .empty { text-align: center; padding: 40px 0; color: #94a3b8; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="top">
+        <h1>Event review queue</h1>
+        <div class="counts" id="counts">loading&hellip;</div>
+    </div>
+    <div class="card" id="card"><div class="empty">loading&hellip;</div></div>
+
+    <script>
+        // Server data is put into the page with textContent / properties, never as HTML.
+        function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+        let current = null, busy = false;
+
+        function fig(id, caption, url, alt) {
+            const f = el('figure');
+            f.appendChild(el('figcaption', null, caption));
+            if (url) { const a = el('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; const img = el('img'); img.id = id; img.src = url; img.alt = alt; a.appendChild(img); f.appendChild(a); }
+            else f.appendChild(el('div', 'none', caption + ': none'));
+            return f;
+        }
+
+        function show(ev, pending) {
+            const card = document.getElementById('card');
+            card.replaceChildren();
+            current = ev;
+            if (!ev) { card.appendChild(el('div', 'empty', 'No pending events. Everything is reviewed.')); return; }
+            const meta = el('div', 'meta');
+            const t = ['no_helmet', 'overload', 'red_light'].includes(ev.type) ? ev.type : '';
+            meta.appendChild(el('span', 'badge ' + t, String(ev.type || '?').replace('_', ' ')));
+            meta.appendChild(el('span', null, 'track ' + ev.track_id));
+            meta.appendChild(el('span', null, String(ev.created_at || '').replace('T', ' ')));
+            meta.appendChild(el('span', null, 'frames ' + ev.frame_start + '–' + ev.frame_end + (ev.light && ev.light !== 'UNKNOWN' ? ' · light ' + ev.light : '') + ' · run ' + ev.run));
+            const m = ev.model || {};
+            meta.appendChild(el('small', null, 'model ' + (m.file || '?') + ' · sha256 ' + (m.sha256 ? m.sha256.slice(0, 12) : '?')));
+            if (ev.status !== 'closed') meta.appendChild(el('small', null, 'event still open (evidence incomplete)'));
+            if (ev.linked) meta.appendChild(el('small', null, 'same rider as ' + ev.linked.track + (ev.linked.reason ? ' (' + ev.linked.reason + ')' : '')));
+            card.appendChild(meta);
+            const u = ev.urls || {};
+            const imgs = el('div', 'imgs');
+            imgs.append(fig('img-vehicle', 'person / vehicle', u.vehicle, 'vehicle'), fig('img-frame', 'whole frame', u.frame, 'frame'),
+                        fig('img-plate', 'plate' + (ev.plate_pred && ev.plate_pred.text ? ' (OCR ' + ev.plate_pred.text + ', not verified)' : ''), u.plate, 'plate'));
+            card.appendChild(imgs);
+            const actions = el('div', 'actions');
+            for (const [d, label] of [['confirmed', 'Confirm (c)'], ['rejected', 'Reject (r)'], ['unclear', 'Unclear (u)']]) {
+                const b = el('button', 'b-' + d, label); b.onclick = () => decide(d); actions.appendChild(b);
+            }
+            const note = el('input'); note.type = 'text'; note.id = 'note'; note.maxLength = 300; note.placeholder = 'short note (optional)'; note.autocomplete = 'off';
+            actions.appendChild(note);
+            card.appendChild(actions);
+            card.appendChild(el('div', 'keys', 'Keys: c = confirm, r = reject, u = unclear (not while typing a note). Only confirmed events count as violations. ' + pending + ' pending.'));
+            const msg = el('div'); msg.id = 'msg'; card.appendChild(msg);
+        }
+
+        async function load() {
+            try {
+                const data = await (await fetch('/api/review/next')).json();
+                show(data.event, data.pending);
+            } catch (e) { document.getElementById('card').replaceChildren(el('div', 'empty', 'server not reachable')); }
+            counts();
+        }
+
+        async function decide(decision) {
+            if (!current || busy) return;
+            busy = true;
+            const note = document.getElementById('note').value;
+            const msg = document.getElementById('msg');
+            try {
+                const r = await fetch('/api/review/' + current.id.split('/').map(encodeURIComponent).join('/'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ decision: decision, note: note }) });
+                if (!r.ok) { let d = r.statusText; try { d = JSON.stringify((await r.json()).detail); } catch (e) {} msg.textContent = 'Not saved: ' + d; busy = false; return; }
+            } catch (e) { msg.textContent = 'Not saved: ' + e.message; busy = false; return; }
+            busy = false;
+            load();
+        }
+
+        async function counts() {
+            try {
+                const s = await (await fetch('/api/review/stats')).json();
+                const c = document.getElementById('counts');
+                c.replaceChildren();
+                for (const [k, v] of [['pending', s.pending], ['confirmed', s.confirmed], ['rejected', s.rejected], ['unclear', s.unclear]]) { c.append(k + ' ', el('b', null, String(v)), ' · '); }
+                const a = el('a', null, 'live view'); a.href = '/'; c.appendChild(a);
+            } catch (e) {}
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target && e.target.tagName === 'INPUT') return;
+            const k = e.key.toLowerCase();
+            if (k === 'c') decide('confirmed'); else if (k === 'r') decide('rejected'); else if (k === 'u') decide('unclear');
+        });
+        load();
+    </script>
+</body>
+</html>

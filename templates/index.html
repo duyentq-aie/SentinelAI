@@ -46,6 +46,13 @@
         .events-container { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-height: 640px; overflow-y: auto; }
         .events-title { font-size: 1.2em; font-weight: bold; color: #f59e0b; margin-bottom: 12px; text-align: center; border-bottom: 1px solid #475569; padding-bottom: 10px; }
         .event-card { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px; margin-bottom: 10px; }
+        /* review state: only CONFIRMED events are violations; pending ones are candidates (amber), rejected ones are dimmed */
+        .event-card.s-pending { border-color: #f59e0b; border-style: dashed; }
+        .event-card.s-confirmed { border-color: #dc2626; border-width: 2px; }
+        .event-card.s-rejected { opacity: 0.45; }
+        .event-card.s-unclear { border-color: #64748b; opacity: 0.8; }
+        .review-badge { padding: 1px 7px; border-radius: 8px; font-size: 10px; font-weight: bold; text-transform: uppercase; background: #475569; color: #fff; }
+        .rs-pending { background: #b45309; } .rs-confirmed { background: #b91c1c; } .rs-rejected { background: #166534; }
         .event-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; color: #fff; text-transform: uppercase; }
         .t-no_helmet { background: #dc2626; } .t-overload { background: #ea580c; } .t-red_light { background: #991b1b; } .t-other { background: #64748b; }
@@ -98,12 +105,13 @@
 
         <div class="side-column">
             <div class="events-container">
-                <div class="events-title">&#9888; VIOLATION EVENTS</div>
+                <div class="events-title">&#9888; EVENTS <small style="font-weight:normal;color:#94a3b8">(a violation = confirmed by a reviewer)</small></div>
+                <div class="events-bar"><span id="review-counts">review: &hellip;</span><a href="/review" style="color:#38bdf8">open the review queue</a></div>
                 <div class="events-bar"><span id="events-scope">current run</span><button id="events-toggle" onclick="toggleEventScope()">show all runs</button></div>
                 <div id="events"><div class="empty">no events yet</div></div>
             </div>
             <div class="gallery-container">
-                <div class="gallery-title">&#128248; PLATE CROPS</div>
+                <div class="gallery-title">&#128248; PLATE CROPS OF CONFIRMED EVENTS</div>
                 <div class="gallery-grid" id="gallery"></div>
             </div>
         </div>
@@ -182,10 +190,12 @@
             return a;
         }
         function eventCard(e) {
-            const card = el('div', 'event-card');
+            const status = e.review_status || 'pending';
+            const card = el('div', 'event-card s-' + status);
             const head = el('div', 'event-head');
             const t = ['no_helmet', 'overload', 'red_light'].includes(e.type) ? e.type : 'other';
             head.append(el('span', 'badge t-' + t, String(e.type || '?').replace('_', ' ')), el('span', 'event-meta', 'run ' + (e.run != null ? e.run : '?') + ' · ' + (e.status || '') + ' · ' + (e.track_id || '')));
+            head.insertBefore(el('span', 'review-badge rs-' + status, status), head.children[1] || null);
             const when = String(e.created_at || '').replace('T', ' ');
             const meta = el('div', 'event-meta', when + '  ·  frames ' + e.frame_start + '–' + e.frame_end + (e.light && e.light !== 'UNKNOWN' ? '  ·  light ' + e.light : ''));
             const imgs = el('div', 'event-imgs');
@@ -213,6 +223,8 @@
                 box.replaceChildren();
                 if (!data.events.length) box.appendChild(el('div', 'empty', 'no events yet'));
                 data.events.forEach(e => box.appendChild(eventCard(e)));
+                const rs = await (await fetch('/api/review/stats')).json();
+                document.getElementById('review-counts').textContent = 'confirmed ' + rs.confirmed + ' · pending ' + rs.pending + ' · rejected ' + rs.rejected + ' · unclear ' + rs.unclear;
             } catch (error) { console.error('Error fetching events:', error); }
         }
 

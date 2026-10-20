@@ -52,6 +52,14 @@ docker build -t sentinel-cpu .
 docker run --rm -p 127.0.0.1:8000:8000 -v ${PWD}\models:/app/models:ro -v ${PWD}	est_video.mp4:/app/test_video.mp4:ro sentinel-cpu
 ```
 
+### Review queue (human in the loop)
+Every new event is `pending`; only **confirmed** events count as violations (the event panel marks pending events amber and rejected ones dimmed; the plate gallery shows confirmed events only).
+Open **http://127.0.0.1:8000/review** (same loopback-only server): one event at a time with the vehicle crop, the whole frame, the plate if there is one, type, time, track and the model that made it; keys **c** confirm, **r** reject, **u** unclear, plus an optional short note.
+- Decisions are appended to `<evidence dir>/reviews.jsonl` (`static/violations/reviews.jsonl`, append-only; reviewing an event again appends a newer line, the old line is never edited; the last line is the decision). Each line has the event id, decision, note, time, and the model file + sha256 stamped in the event (events made before the stamp existed have `model: null`: no guessing).
+- API: `GET /api/review/next`, `POST /api/review/{event_id}` (JSON `{"decision": "confirmed|rejected|unclear", "note": "..."}`; 404 unknown event, 422 bad input, 403 for a request from another site), `GET /api/review/stats` (pending / confirmed / rejected / unclear, and **precision per violation type and per model, computed from the decisions only**: confirmed / (confirmed + rejected)).
+- The by-eye grading of EXP-020 is imported (`python tools/import_exp020_reviews.py`): 23 rows -> 50 `rejected` review lines (one per model event; all 23 riders wear a helmet), so the stats have real data from the start.
+- `python tools/export_reviews.py` writes the reviewed events as YOLO crops into a **new** folder `data/review_export/` (`positives/` = confirmed with a one-line label, `hard_negatives/` = rejected with an empty label, `manifest.csv`, `dataset.yaml`) as data for the next training round. **These are vehicle-level crops (no head boxes) and must be split by video / camera when used to train (the `group` column), never by crop or by frame, or the scores leak** (see EXP-011).
+
 ## Tests and experiments
 ```powershell
 python -m pytest                           # fast suite (~20 s, no GPU, no models needed)

@@ -22,6 +22,7 @@ from ultralytics import YOLO
 from sentinel.config import CameraConfig, PipelineConfig
 from sentinel.evidence import EvidenceRecorder
 from sentinel.lights import detect_traffic_light_color
+from sentinel.modelinfo import models_info
 from sentinel.perception import Perception, tracks_from_results
 from sentinel.rules.legacy import RuleResult, vehicle_label, violation_labels
 from sentinel.rules.windowed import make_rules
@@ -150,7 +151,7 @@ class Pipeline:
         if ocr is None and cfg.evidence.ocr.enabled:
             ocr = build_ocr(cfg)
         self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
-                                         camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune, ocr=ocr, fps=self.fps)
+                                         camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune, ocr=ocr, fps=self.fps, models=models_info(cfg))
         self.prev_frame_time = 0
         self.violation_zone = CameraConfig.polygon(camera.violation_zone)
         self.bike_lane_zone = CameraConfig.polygon(camera.wrong_lane_zone)

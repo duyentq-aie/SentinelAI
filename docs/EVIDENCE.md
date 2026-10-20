@@ -52,3 +52,10 @@ used as the A/B reference in `experiments/EXP-003-evidence/`.
 - Plate OCR exists (`evidence.ocr`, off by default) but on the 720p test clip it read **0 of 14** plates: the plate box returned by the detector is only ~26x22 px (`mean_plate_box_wh`, EXP-010); the saved `plate.jpg` is that box plus a 10 px margin on each side, ~46x40 px. See experiments/EXP-008-ocr.
 - The `PLATE` overlay is only drawn on frames where the detector ran (it no longer runs on every frame).
 - Track ids are device-specific; events from a GPU run and a CPU run of the same video are not byte-identical.
+
+## Reviews (`reviews.jsonl`, schema `sentinel.review/1`)
+Next to `events.jsonl`, append-only, written by the review page / `POST /api/review/{event_id}` (docs: README "Review queue"). One JSON object per line:
+`event_id`, `decision` (`confirmed` | `rejected` | `unclear`), `note` (<= 300 characters), `reviewed_at` (local time), `event_type`, `track_id`, `run`, `video_id`, `camera_id`,
+`model` = `{role, file, sha256, source}` of the model that made the event (from the `models` stamp that every event record carries since 2026-10-20; `null` file/sha256 when the event predates the stamp).
+The last line of an event is its decision; earlier lines are history. Imported reviews (EXP-020) also carry `source`, `version`, `row`, `video`, `frame`, `box` (their `event_id` is `exp020/<version>/<track>/<type>`).
+Event records have an extra `models` object `{helmet, coco, plate}: {file, sha256}`.
