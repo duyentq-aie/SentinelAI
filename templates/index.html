@@ -205,7 +205,7 @@
             const plate = el('div', 'plate-text');
             if (pred && pred.text) plate.append(pred.text, el('small', null, '  OCR' + (pred.score != null ? ' · ' + Math.round(pred.score * 100) + '%' : '') + ' · not verified'));
             else if (pred) plate.append('?', el('small', null, '  OCR could not read a plate'));
-            else plate.append('—', el('small', null, e.plate && e.plate.found ? '  plate found, OCR off' : e.plate && e.plate.searching ? '  searching plate…' : '  no plate found'));
+            else plate.append('—', el('small', null, e.plate && e.plate.found ? '  plate found, OCR off' : e.plate && e.plate.disabled ? '  plate layer off' : e.plate && e.plate.searching ? '  searching plate…' : '  no plate found'));
             card.append(head, meta, imgs, plate);
             return card;
         }
@@ -240,6 +240,7 @@
                 line('latency', s.latency_ms != null ? s.latency_ms.toFixed(0) + ' ms' : '–');
                 line('backend', (b.runtime || '?') + ' · ' + (b.device || '?'));
                 line('rules', b.rules || '?');
+                line('plate', s.plate && s.plate.state === 'disabled' ? 'off' : 'on');
                 line('state', s.running ? 'running' : 'idle');
             } catch (error) { /* server restarting */ }
         }

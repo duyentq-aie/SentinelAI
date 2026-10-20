@@ -22,7 +22,7 @@ from ultralytics import YOLO
 from sentinel.config import CameraConfig, PipelineConfig
 from sentinel.evidence import EvidenceRecorder
 from sentinel.lights import detect_traffic_light_color
-from sentinel.modelinfo import models_info
+from sentinel.modelinfo import models_info, plate_layer_status
 from sentinel.perception import Perception, tracks_from_results
 from sentinel.rules.legacy import RuleResult, vehicle_label, violation_labels
 from sentinel.rules.windowed import make_rules
@@ -46,12 +46,18 @@ class Detectors:
     """The three YOLO models, built from PipelineConfig."""
     fps = REFERENCE_FPS                          # frame rate the trackers are configured for (class defaults so test doubles need not call __init__)
     _derived = None
+    plate = None
+    plate_disabled_reason = None                 # None = the plate layer is on; else why it is off (config switch or missing file)
 
     def __init__(self, cfg: PipelineConfig):
         self.cfg = cfg
         self.helmet = YOLO(str(cfg.path(cfg.models.helmet.weights)))
         self.coco = YOLO(str(cfg.path(cfg.models.coco.weights)))
-        self.plate = YOLO(str(cfg.path(cfg.models.plate.weights)))
+        st = plate_layer_status(cfg)                                         # optional layer: no plate model, no plate search, everything else runs
+        if st["state"] == "enabled":
+            self.plate = YOLO(str(cfg.path(cfg.models.plate.weights)))
+        else:
+            self.plate, self.plate_disabled_reason = None, st["reason"]
         self.kw = {} if cfg.device is None else {"device": cfg.device}
         self._derived = {}                       # (tracker path, fps) -> tracker yaml with track_buffer rescaled
 
@@ -98,7 +104,9 @@ class Detectors:
         return tracks_from_results(self.helmet.track(frame, persist=True, **self._track_kw(self.cfg.models.helmet)), self.helmet.names)
 
     def plate_boxes(self, crop):
-        """Plate detections in a vehicle crop, best first: [(x1, y1, x2, y2, conf)] relative to the crop."""
+        """Plate detections in a vehicle crop, best first: [(x1, y1, x2, y2, conf)] relative to the crop. [] when the plate layer is off."""
+        if self.plate is None:
+            return []
         boxes = self.plate(crop, stream=False, **self._track_kw(self.cfg.models.plate))[0].boxes
         return [(*map(int, xyxy), float(conf)) for xyxy, conf in zip(boxes.xyxy, boxes.conf)]
 
@@ -148,9 +156,12 @@ class Pipeline:
         self.frame_idx = 0
         for lane in camera.lanes or []:
             print(f"[lights] lane {lane.name!r}: signal " + (f"own light, roi {lane.roi}" if lane.kind == "own" else ("exempt (no light)" if lane.kind == "exempt" else "shared (light_roi)")))
-        if ocr is None and cfg.evidence.ocr.enabled:
+        self.plate_disabled_reason = getattr(detectors, "plate_disabled_reason", None)
+        if self.plate_disabled_reason:
+            print(f"[plate] plate layer DISABLED: {self.plate_disabled_reason}. Events are recorded without a plate search (and without OCR).")
+        if ocr is None and cfg.evidence.ocr.enabled and not self.plate_disabled_reason:
             ocr = build_ocr(cfg)
-        self.recorder = EvidenceRecorder(cfg.evidence, detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
+        self.recorder = EvidenceRecorder(cfg.evidence, None if self.plate_disabled_reason else detectors.plate_boxes, video_id=Path(camera.source).stem or camera.camera_id,
                                          camera_id=camera.camera_id, on_plate_saved=self._gallery_add, on_evicted=self._gallery_prune, ocr=ocr, fps=self.fps, models=models_info(cfg))
         self.prev_frame_time = 0
         self.violation_zone = CameraConfig.polygon(camera.violation_zone)
@@ -249,6 +260,10 @@ class Pipeline:
     def stop_line_active(self):
         slr = getattr(self.rules, "stop_line_rule", None)
         return slr is not None and slr.active
+
+    def plate_status(self):
+        """{"state": "enabled" | "disabled", "reason": None | str}: shown in /api/status. The HUD shows nothing alarming for a disabled plate layer: it is a choice, not a fault."""
+        return {"state": "disabled" if self.plate_disabled_reason else "enabled", "reason": self.plate_disabled_reason}
 
     def red_light_status(self):
         """{"state": "active" | "inactive" | "disabled" | "legacy_zone", "mode", "reasons": [...], ...}: shown on the HUD and in /api/status."""

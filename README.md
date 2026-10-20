@@ -38,6 +38,8 @@ flowchart LR
 
 Details, method and caveats: [docs/REPORT.md](docs/REPORT.md).
 
+*Experiment logs (`experiments/*/README.md`) are written in Vietnamese; `REPORT.md` is in English.*
+
 ## Run it
 ```powershell
 git clone https://github.com/duyentq-aie/SentinelAI.git; cd SentinelAI        # private for now: sign in first
@@ -47,7 +49,8 @@ pip install -r requirements.txt                       # torch cu118 wheels: see 
 gh release download models-v1 -R duyentq-aie/SentinelAI -D models_dl              # or download the files in the browser
 python tools/verify_models.py models_dl                                           # every line must say ok (sha256 check)
 mkdir experiments\EXP-015-helmet-grouped-3cls\weights; copy models_dl\helmet_3cls_exp015.pt experiments\EXP-015-helmet-grouped-3cls\weights\best.pt
-# also needed in the repo root: yolo11s.pt (COCO, Ultralytics downloads it), plate_best.pt (see Limits: not published) and a video such as test_video.mp4
+# also needed in the repo root: yolo11s.pt (COCO, Ultralytics downloads it) and a video such as test_video.mp4.
+# plate_best.pt is OPTIONAL and not published: without it the app runs normally, just without the plate search (/api/status shows "plate": disabled and why)
 python app.py                                         # http://127.0.0.1:8000/  (loopback only)   review queue: http://127.0.0.1:8000/review
 python -m pytest                                      # fast tests, no GPU or models needed
 ```
@@ -59,7 +62,7 @@ More (Docker, configs, tools, the review/export flow, the pre-commit hook): [doc
 - **Not run on edge hardware.** Speed numbers come from one RTX 3050 Laptop and CPU/ONNX proxies; no Jetson/Rockchip device, no TensorRT.
 - **Every no-helmet alarm of the clip was wrong**, so the system is a candidate generator: nothing is a violation until a person confirms it. A second-stage head classifier and better data (relabelled by the review loop) are planned, not built ([PLAN](docs/PLAN.md)).
 - Light regions are small (15-22 px) and fixed: a moved camera misreads them, and there is no automatic check yet. The right-turn arrow never turned red in the clip.
-- The plate detector weights (`plate_best.pt`) and the original data are **not published** (dataset licences are unverified, [DATA_CARD](docs/DATA_CARD.md)); the plate text could not be read on this footage.
+- **`plate_best.pt` is not published**: the provenance of its training data is not verified ([DATA_CARD](docs/DATA_CARD.md)). The plate layer is optional: without the file (or with `models.plate.enabled: false`) the app starts normally, records events without a plate search, and `/api/status` reports `plate: disabled` with the reason. Even with it, the plate text could not be read on this footage (~26x22 px plates).
 
 ## Licence and data
-AGPL-3.0 (Ultralytics YOLO is AGPL-3.0, so code and weights follow it): [LICENSE](LICENSE). Raw videos, evidence images and weights stay out of git; the demo assets in `docs/assets/` are anonymised. Plates and faces are personal data: blur them before publishing any image or clip (`tools/anonymize.py`).
+Copyright (C) 2026 Trần Quang Duyên. Licensed under **AGPL-3.0**, kept on purpose: the project builds on Ultralytics YOLO, which is AGPL-3.0, so code and weights follow it ([LICENSE](LICENSE)). Raw videos, evidence images and weights stay out of git; the demo assets in `docs/assets/` are anonymised. Plates and faces are personal data: blur them before publishing any image or clip (`tools/anonymize.py`).

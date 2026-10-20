@@ -62,3 +62,6 @@ The last line of an event is its decision; earlier lines are history. Imported r
 Event records have an extra `models` object `{helmet, coco, plate}: {file, sha256}`.
 Event records of type `no_helmet` carry `head_box` `[x1, y1, x2, y2]` (the biggest no-helmet head attached to the vehicle in the key frame, resized-frame pixels) and `head_class` (`"no-helmet"`, what the model called it); both are `null` for other types, for events whose head was not detected in the key frame, and for events made before 2026-10-20.
 Imported EXP-020 reviews (`import_rev` 2) have a RECONSTRUCTED head box: `head_reconstructed` = `{method: "fixture:<file>" | "model_rerun:<weights>", frame, event_frame}`.
+
+## Plate layer off
+When the plate model is not available (`models.plate.enabled: false`, or the weights file is missing) events are still recorded; their `plate` object is `{"found": false, "attempts": 0, "disabled": true}` and no plate crop exists. `/api/status` has `"plate": {"state": "disabled", "reason": "..."}`.

@@ -111,7 +111,7 @@ class EvidenceRecorder:
     def __init__(self, cfg, plate_boxes, video_id, camera_id, on_plate_saved=None, on_evicted=None, clock=time.time, ocr=None, fps=REFERENCE_FPS, models=None):
         """cfg: EvidenceCfg. plate_boxes(crop_bgr) -> [(x1, y1, x2, y2, conf)] relative to the crop, best first.
         ocr: PlateOCR or None (None = plates are only cropped, never read)."""
-        self.cfg, self.plate_boxes, self.ocr = cfg, plate_boxes, ocr
+        self.cfg, self.plate_boxes, self.ocr = cfg, plate_boxes, ocr          # plate_boxes None = the plate layer is off: no search, events say so
         self.models = models                      # {"helmet": {"file", "sha256"}, "coco": ..., "plate": ...}: written into every event record (which model made the event; the review queue reads it)
         self.set_fps(fps)
         self.ocr_latencies_ms = []
@@ -186,6 +186,8 @@ class EvidenceRecorder:
         return self.ocr is not None and tid not in self._pred and len(self._cands.get(tid, [])) < self.cfg.ocr.candidates
 
     def _maybe_detect_plate(self, frame_idx, raw, v, res):
+        if self.plate_boxes is None:
+            return
         cfg = self.cfg.plate
         found = v.id in self._plates
         if found and cfg.stop_when_found and not self._collecting(v.id):
@@ -322,7 +324,7 @@ class EvidenceRecorder:
         if ev.plate_pred is None:
             ev.plate_pred = self._pred.get(ev.track_id)
         if ev.plate is None:
-            ev.plate = {"found": False, "attempts": self._attempts.get(ev.track_id, 0)}
+            ev.plate = {"found": False, "attempts": 0, "disabled": True} if self.plate_boxes is None else {"found": False, "attempts": self._attempts.get(ev.track_id, 0)}
         ev.closed = True
         self._done.add((ev.track_id, ev.type))
         self._open.pop((ev.track_id, ev.type), None)
@@ -340,7 +342,8 @@ class EvidenceRecorder:
             "key_box": ev.key_box, "plate_text": None, "difficulty": None, "notes": "",
             "schema": SCHEMA, "status": status, "frame_size": ev.frame_size, "track_id": ev.track_id, "trigger_frame": ev.frame_start, "confidence": None,
             "plate_pred": ev.plate_pred, "boxes": ev.boxes if status != "open" else {str(ev.frame_start): ev.key_box},
-            "plate": ev.plate if ev.plate is not None else {"found": False, "attempts": self._attempts.get(ev.track_id, 0), "searching": True},
+            "plate": ev.plate if ev.plate is not None else ({"found": False, "attempts": 0, "disabled": True} if self.plate_boxes is None else
+                                                          {"found": False, "attempts": self._attempts.get(ev.track_id, 0), "searching": True}),
             "evidence": {k: (self._rel(p) if p.exists() else None) for k, p in files.items()},
             "vehicle": {"cls": ev.vehicle_cls, "box_size": [ev.key_box[2] - ev.key_box[0], ev.key_box[3] - ev.key_box[1]]},
             "light": ev.light, "video_id": self.video_id, "camera_id": self.camera_id, "run": ev.run, "created_at": ev.created_at,

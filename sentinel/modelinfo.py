@@ -22,6 +22,16 @@ def file_sha256(path):
         return None
 
 
+def plate_layer_status(cfg):
+    """The plate layer is OPTIONAL: {"state": "enabled" | "disabled", "reason": None | str}. Disabled when models.plate.enabled is false or the weights file does not exist."""
+    m = cfg.models.plate
+    if not m.enabled:
+        return {"state": "disabled", "reason": "models.plate.enabled is false"}
+    if not Path(cfg.path(m.weights)).is_file():
+        return {"state": "disabled", "reason": f"plate model file not found: {m.weights} (plate_best.pt is not published)"}
+    return {"state": "enabled", "reason": None}
+
+
 def models_info(cfg):
     """{"helmet": {"file", "sha256"}, "coco": {...}, "plate": {...}} of a PipelineConfig (sha256 None when the file is missing)."""
     return {n: {"file": str(getattr(cfg.models, n).weights), "sha256": file_sha256(cfg.path(getattr(cfg.models, n).weights))} for n in ("helmet", "coco", "plate")}

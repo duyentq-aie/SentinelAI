@@ -55,6 +55,7 @@ class InferenceWorker:
                 "fps": round(fps, 1) if fps else None,                                   # processing rate over the last <= 60 frames
                 "latency_ms": round(1000 * sum(d for _, d in t) / len(t), 1) if t else None,   # mean time inside pipeline.process
                 "backend": self.backend, "jpeg_quality": self.jpeg_quality,
+                "plate": self.pipeline.plate_status() if hasattr(self.pipeline, "plate_status") else None,                  # {state: enabled | disabled, reason}: the plate layer is optional
                 "red_light": self.pipeline.red_light_status() if hasattr(self.pipeline, "red_light_status") else None,   # state active | inactive | disabled | legacy_zone (+ reasons)
                 "run": getattr(getattr(self.pipeline, "recorder", None), "run", None)}      # evidence run number = pass over the video since the source was opened
 

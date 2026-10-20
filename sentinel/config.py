@@ -19,6 +19,7 @@ class ModelCfg:
     weights: str
     conf: float
     tracker: Optional[str] = None      # path to an Ultralytics tracker yaml; None = no tracking
+    enabled: bool = True               # only models.plate may be switched off (the plate layer is optional); a missing plate file disables it as well
 
 
 @dataclass
@@ -157,6 +158,8 @@ class PipelineConfig:
             m = getattr(self.models, name)
             if not 0 < m.conf <= 1:
                 raise ValueError(f"models.{name}.conf must be in (0, 1], got {m.conf}")
+            if not m.enabled and name != "plate":
+                raise ValueError(f"models.{name}.enabled: false is not allowed, only the plate layer is optional")
         r = self.rules
         if r.engine not in ("legacy", "windowed"):
             raise ValueError(f"rules.engine must be 'legacy' or 'windowed', got {r.engine!r}")
