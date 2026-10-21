@@ -9,7 +9,6 @@
     "experiments/EXP-007-onnx/NOTES.md": "d09f576fba15e18655205284a8b7fcc909d3f52608d4a7cd1c03b6ceca683054",
     "experiments/EXP-012-onnx-gpu/NOTES.md": "28b183ea09aed9933c0b668a78405708fa75565094e0e6e425344b3f1b8affd7",
     "experiments/EXP-014-plate-groups/NOTES.md": "c064b8c60a8c7e43de288a5f3ffcc6f13529889ac030a3286e5eaba7c69d0208",
-    "experiments/EXP-016-helmet-grouped-4cls/README.md": "1ab140be0370c974d791d54b3ad0908bd6a9af16b3004dddd16f5ff8b4216bed",
     "experiments/EXP-017-field-inventory/NOTES.md": "78a82a1b0ae80890a8d35e2a918c3eb798a873b428c629042d99a6f823225ea6",
     "experiments/EXP-018-ood-eval/README.md": "3c3f854d13f2a6aaf1360c3ed6ff209b9a18030b383a81252c0432dbaae3ca3e",
     "experiments/EXP-024-hat-shirt-colour/README.md": "8b74898ca1748ebc1ff22c0fff52bc9d2cccd05fe26fbd81ee6b4e0856eb4edf"
@@ -22,6 +21,8 @@
     "experiments/EXP-011-data-leakage/NOTES.vi.md": "b9e9898ef9296f9e04d33697a92aaf0d626055d28db6ba4a8d16ac504216511a",
     "experiments/EXP-013-splits/NOTES.vi.md": "0794a4243e6a2b8c9d1c606e1d2de0a8017b1223703286d51034315773cfb526",
     "experiments/EXP-015-helmet-grouped-3cls/README.vi.md": "5090da596863cbc751dbd50d25a90d38aeb3d49bb8e7fca35e2b8f337cd33ec1",
+    "experiments/EXP-016-helmet-grouped-4cls/NOTES.vi.md": "416494552c47a52be32095fba6ce926b622d13a7dc648442ed8a2de5f085474f",
+    "experiments/EXP-016-helmet-grouped-4cls/README.vi.md": "1ab140be0370c974d791d54b3ad0908bd6a9af16b3004dddd16f5ff8b4216bed",
     "experiments/EXP-019-timebase/NOTES.vi.md": "0b9683d2ffab7ca80631720a3f42af64300f79e5059ea8362c96ae5b8ee3365a",
     "experiments/EXP-020-regression-diag/README.vi.md": "802acd5b0101681d9b090d97cec6cbf8f024a857d491c0dee4529161c31a098f",
     "experiments/EXP-021-10fps/README.vi.md": "ba55956b305d032ae59399678c88b38b74799684ef3b932f7761c01acb57fc15",
