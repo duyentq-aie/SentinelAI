@@ -1,5 +1,11 @@
 # EXP-001 – Baseline pipeline gốc (app.py @ v0-baseline)
 
+## Summary (English)
+- Purpose: measure the original pipeline (app.py @ v0-baseline) per stage on test_video.mp4 (787 frames, RTX 3050 Laptop, FP32).
+- Result: median 7.38 FPS in the High-performance run (repeats 6.74 / 7.38 / 7.38, spread 8.7%, above the 5% target and not relaxed); one frame takes 135.57 ms, of which GPU inference is about 34% and CPU work (BoT-SORT trackers about 40 ms, drawing 15 ms, JPEG 14.6 ms) about 54%.
+- Conclusion: v0 is mostly CPU/Python-bound, not GPU-bound; speeding up the models alone would reach at most about 11 FPS.
+- Limits: the High-performance plan did not measurably change FPS (inside the noise); the tracker-cost explanation (GMC) was a guess at this point; events.json is a behaviour snapshot, not ground truth.
+
 Lệnh: `venv/Scripts/python.exe tools/benchmark.py --repeats 3` (từ thư mục gốc repo).
 Giao thức: 1 lượt qua `test_video.mp4` (757 frame đo, 30 frame warm-up bỏ), mỗi lần lặp trong process mới;
 thời gian frame = `next(generate_frames())` (đọc + 3 model + vẽ + lưu bằng chứng + JPEG encode); FP32, batch 1, 1280x720.

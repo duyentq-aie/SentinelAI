@@ -1,5 +1,11 @@
 # EXP-006 – P4 tối ưu phần mềm (đêm 2026-10-18, mục 4)
 
+## Summary (English)
+- Purpose: software speed-ups measured as 5 interleaved configurations (3 rounds, GPU): local-only blending for drawing, JPEG quality 80, BoT-SORT without GMC, ByteTrack.
+- Result: headless FPS 12.05 -> 14.64 (drawing) -> 15.22 (JPEG 80) -> 28.73 (gmc_method none, 28.21 for ByteTrack); gmc_none keeps all 29 events, ByteTrack shifts one event by 7 frames.
+- Conclusion: tracker motion compensation (GMC) was the largest cost (about 15 ms per model); the tracker change is provisional and the default was not changed (ID changes affect the rules).
+- Limits: absolute FPS is not comparable between sessions; the claim 'reaches 15 FPS' was withdrawn (see EXP-009); accuracy of the tracker change is not validated (no labelled dev video).
+
 Mỗi thay đổi là một cấu hình riêng (`configs/pipeline/exp/p4*.yaml`), đo bằng `tools/benchmark_pipeline.py` với **5 cấu hình chạy xen kẽ** (vòng 1: cả 5, vòng 2: ..., 3 vòng) để hiện tượng nóng dần/biến thiên của máy ảnh hưởng đều.
 GPU (RTX 3050 Laptop 4 GB), PyTorch FP32, 720p, batch 1, High performance. Đã bỏ 30 frame warm-up. `headless` = đọc + `Pipeline.process` (có vẽ, không encode); `stream` = + JPEG encode (chưa tính truyền HTTP).
 Bảng: trung vị 3 lượt, (khoảng min–max).

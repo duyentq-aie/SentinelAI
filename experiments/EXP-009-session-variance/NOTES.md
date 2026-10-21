@@ -1,46 +1,48 @@
-# EXP-009 – Vì sao FPS tuyệt đối đổi giữa các phiên đo, và vì sao phải đo kèm v0 (2026-10-18)
+English translation of NOTES.vi.md (original, Vietnamese).
 
-## Quy ước đo mới (từ đây trở đi)
-`tools/benchmark_pipeline.py` **luôn chạy kèm `v0`** (code gốc `app.py` ở tag `v0-baseline`, không sửa) trong cùng phiên, xen kẽ từng vòng với các cấu hình khác, và báo
-**tỉ lệ so với v0 đo trong cùng vòng** (trung vị các vòng + khoảng). FPS tuyệt đối chỉ để tham khảo. Telemetry (`tools/sysprobe.py`) được lấy mẫu mỗi 2 s trong từng lượt:
-xung nhịp SM/bộ nhớ GPU, công suất, nhiệt độ, các bit lý do throttle của NVIDIA, "% Processor Performance" của CPU (tần số hiệu dụng; `psutil.cpu_freq()` cố định trên Windows nên không dùng),
-tải CPU của **các tiến trình khác** và tiến trình nặng nhất. `env.json` ghi power plan, AC, GPU và các tiến trình đang dùng GPU lúc bắt đầu.
+# EXP-009 – Why absolute FPS changes between measurement sessions, and why v0 must be measured alongside (2026-10-18)
 
-## Thí nghiệm có kiểm soát: tải nền CPU
-Cùng cấu hình, cùng mã, hai phiên liền nhau: **yên tĩnh** (5 vòng) và **có 6 tiến trình đốt CPU** (`tools/cpu_burn.py --procs 6`, 6 trên 12 luồng logic; 3 vòng).
-`default` = cấu hình mặc định hiện tại (BoT-SORT không GMC); `tracker_botsort_gmc` = cùng cấu hình nhưng tracker mặc định của Ultralytics.
+## New measurement convention (from here on)
+`tools/benchmark_pipeline.py` **always runs `v0`** (the original `app.py` code at tag `v0-baseline`, unmodified) in the same session, interleaved round by round with the other configurations, and reports the
+**ratio to v0 measured in the same round** (median of the rounds + range). Absolute FPS is for reference only. Telemetry (`tools/sysprobe.py`) is sampled every 2 s during each run:
+GPU SM/memory clocks, power, temperature, NVIDIA throttle reason bits, CPU "% Processor Performance" (effective frequency; `psutil.cpu_freq()` is fixed on Windows so it is not used),
+CPU load of **other processes** and the heaviest process. `env.json` records the power plan, AC, GPU and the processes that use the GPU at the start.
 
-| | stream FPS yên tĩnh | stream FPS có tải nền | đổi | tỉ lệ vs v0 yên tĩnh | tỉ lệ vs v0 có tải |
+## Controlled experiment: CPU background load
+Same configuration, same code, two consecutive sessions: **quiet** (5 rounds) and **with 6 CPU-burning processes** (`tools/cpu_burn.py --procs 6`, 6 of the 12 logical threads; 3 rounds).
+`default` = the current default configuration (BoT-SORT without GMC); `tracker_botsort_gmc` = the same configuration but the Ultralytics default tracker.
+
+| | stream FPS quiet | stream FPS with background load | change | ratio vs v0 quiet | ratio vs v0 with load |
 |---|---|---|---|---|---|
-| v0 (code gốc) | 8.61 (8.37–8.70) | 5.28 (5.16–5.33) | **−39%** | – | – |
-| default (không GMC) | 20.86 (20.63–21.08) | 12.60 (12.47–12.73) | **−40%** | **2.42×** (2.40–2.46) | **2.39×** (2.36–2.44) |
-| tracker mặc định Ultralytics (GMC) | 12.57 (12.49–12.59) | 7.58 (7.54–7.61) | **−40%** | **1.46×** (1.45–1.50) | **1.44×** (1.42–1.46) |
+| v0 (original code) | 8.61 (8.37–8.70) | 5.28 (5.16–5.33) | **−39%** | – | – |
+| default (no GMC) | 20.86 (20.63–21.08) | 12.60 (12.47–12.73) | **−40%** | **2.42×** (2.40–2.46) | **2.39×** (2.36–2.44) |
+| Ultralytics default tracker (GMC) | 12.57 (12.49–12.59) | 7.58 (7.54–7.61) | **−40%** | **1.46×** (1.45–1.50) | **1.44×** (1.42–1.46) |
 
-headless (đọc + xử lý + vẽ, không JPEG): v0 9.72 → 6.00 (−38%), default 27.86 → 17.02 (−39%), GMC 14.84 → 8.96 (−40%).
+headless (read + process + draw, no JPEG): v0 9.72 → 6.00 (−38%), default 27.86 → 17.02 (−39%), GMC 14.84 → 8.96 (−40%).
 
-Telemetry hai phiên:
-| | yên tĩnh | có tải nền |
+Telemetry of the two sessions:
+| | quiet | with background load |
 |---|---|---|
-| CPU performance (tần số hiệu dụng) | **150%** (turbo) | **114%** |
-| tải CPU của tiến trình khác | 4% | 55% |
-| xung nhịp SM GPU | 1500 MHz (tối đa 2100) | 1500 MHz |
-| công suất / nhiệt độ GPU | 19–22 W / ≤ 61 °C | 17–19 W / ≤ 61 °C |
-| bit throttle (power cap, thermal, brake…) | không có (ngoài `gpu_idle`) | không có |
+| CPU performance (effective frequency) | **150%** (turbo) | **114%** |
+| CPU load of other processes | 4% | 55% |
+| GPU SM clock | 1500 MHz (max 2100) | 1500 MHz |
+| GPU power / temperature | 19–22 W / ≤ 61 °C | 17–19 W / ≤ 61 °C |
+| throttle bits (power cap, thermal, brake…) | none (apart from `gpu_idle`) | none |
 | GPU util | 21–32% | 11–20% |
 
-**Kết luận đo được:** (1) pipeline bị giới hạn bởi **CPU**: khi ~50% CPU bị chiếm, tần số hiệu dụng giảm 150% → 114% và mọi cấu hình giảm ~40% FPS, trong khi GPU (xung nhịp, nhiệt, công suất) không đổi và còn rảnh;
-(2) **tỉ lệ so với v0 cùng phiên gần như không đổi** (2.42× → 2.39×, 1.46× → 1.44×, chênh ≤ 2%) nên đây là cách báo đáng tin; (3) GPU không phải nguyên nhân của biến thiên giữa phiên trên máy này.
+**Measured conclusion:** (1) the pipeline is limited by the **CPU**: when ~50% of the CPU is taken, the effective frequency drops 150% → 114% and every configuration loses ~40% FPS, while the GPU (clock, temperature, power) does not change and stays idle;
+(2) **the ratio to v0 in the same session is almost unchanged** (2.42× → 2.39×, 1.46× → 1.44×, difference ≤ 2%), so this is the trustworthy way to report; (3) the GPU is not the cause of the variation between sessions on this machine.
 
-## Còn "7 vs 12 FPS" thì sao? (sửa nhận định trước đây)
-Tôi từng viết "cùng mã chạy 7 FPS ở phiên này, 12 FPS ở phiên khác". **Nhận định đó sai một phần**: 7.0–7.4 là pipeline **v0** (EXP-001, 1.73 lần gọi plate/frame, wrong-way bật, vẽ toàn khung) còn 12.05 là pipeline mới ở EXP-006
-(luật windowed, wrong-way tắt, 0.018 lần gọi plate/frame). Phần lớn chênh lệch là **khối lượng việc khác nhau**, không phải máy. Phiên đo yên tĩnh hôm nay cho thấy riêng việc đó đã là 1.46× (GMC bật) tới 2.42× (GMC tắt) so với v0.
-Biến thiên **thật** giữa phiên với cùng mã vẫn tồn tại, nhưng nhỏ hơn:
-- v0: 7.38 (EXP-001, tối 17/10, plan High performance; harness cũ `tools/benchmark.py`, nên chỉ mang tính tham khảo) → 8.61 (phiên yên tĩnh hôm nay, harness mới) = +17%; bản chạy ngắn 60 frame cho 10.04 (không dùng: quá ngắn, khởi động lạnh).
-- cùng cấu hình `attempts30` (wrong-way bật): 8.88 (EXP-003, ~00:00) so với 10.58 (EXP-004, ~00:30) = +19%.
-**Nguyên nhân của biến thiên này không xác định lại được** vì thời đó chưa có telemetry. Thí nghiệm trên chứng minh một tác nhân đủ lớn (tải nền CPU ~50% → −40%) và loại trừ tác nhân GPU (xung nhịp luôn 1500 MHz — kể cả trong các phiên cũ,
-`gpu_min_sm_clock_mhz = 1500` ở mọi EXP — không throttle, nhiệt 58–66 °C). Các tiến trình nền thường thấy lúc đo: `sqlservr.exe`, `MsMpEng.exe` (Defender), `Code.exe`, `claude.exe`, `esrv_svc.exe` (mỗi cái 1–6% tổng CPU).
-GPU được dùng: duy nhất RTX 3050 Laptop (`nvidia-smi -L`), chỉ vài tiến trình đồ họa Windows (dwm, WebView, VS Code) có mặt trên GPU lúc bắt đầu, chiếm ~170 MiB.
-Những gì **chưa kiểm tra**: chế độ tiết kiệm năng lượng theo tiến trình của Windows (EcoQoS) khi cửa sổ không ở foreground; giới hạn công suất CPU (PL1/PL2) khi nóng dài; nhiệt độ CPU (không đọc được bằng công cụ có sẵn).
+## What about "7 vs 12 FPS"? (correction of an earlier statement)
+I once wrote "the same code runs at 7 FPS in this session, 12 FPS in another". **That statement was partly wrong**: 7.0–7.4 is the **v0** pipeline (EXP-001, 1.73 plate calls/frame, wrong-way on, whole-frame drawing) while 12.05 is the new pipeline in EXP-006
+(windowed rules, wrong-way off, 0.018 plate calls/frame). Most of the difference is **different amounts of work**, not the machine. Today's quiet session shows that this alone is 1.46× (GMC on) up to 2.42× (GMC off) over v0.
+A **real** variation between sessions with the same code still exists, but it is smaller:
+- v0: 7.38 (EXP-001, evening of 17/10, High performance plan; old harness `tools/benchmark.py`, so for reference only) → 8.61 (today's quiet session, new harness) = +17%; a short 60-frame run gave 10.04 (not used: too short, cold start).
+- the same `attempts30` configuration (wrong-way on): 8.88 (EXP-003, ~00:00) versus 10.58 (EXP-004, ~00:30) = +19%.
+**The cause of this variation cannot be determined again** because there was no telemetry then. The experiment above proves one factor that is large enough (CPU background load ~50% → −40%) and rules out the GPU factor (the clock was always 1500 MHz — including in the old sessions,
+`gpu_min_sm_clock_mhz = 1500` in every EXP — no throttling, temperature 58–66 °C). Background processes commonly seen during measurements: `sqlservr.exe`, `MsMpEng.exe` (Defender), `Code.exe`, `claude.exe`, `esrv_svc.exe` (each 1–6% of the total CPU).
+GPU in use: only the RTX 3050 Laptop (`nvidia-smi -L`), only a few Windows graphics processes (dwm, WebView, VS Code) were on the GPU at the start, taking ~170 MiB.
+What has **not been checked**: Windows per-process power saving (EcoQoS) when the window is not in the foreground; CPU power limits (PL1/PL2) during long hot periods; CPU temperature (cannot be read with the available tools).
 
-## Hệ quả cho các tài liệu
-`docs/REPORT.md`, `README.md` bỏ mọi "đạt 15 FPS" và mọi so sánh FPS tuyệt đối giữa phiên; dùng tỉ lệ so với v0 (EXP-010). `docs/MORNING_REPORT.md` và EXP-006 có chú thích đính chính.
+## Consequences for the documents
+`docs/REPORT.md` and `README.md` drop every "reaches 15 FPS" and every comparison of absolute FPS between sessions; they use ratios to v0 (EXP-010). `docs/MORNING_REPORT.md` and EXP-006 carry correction notes.

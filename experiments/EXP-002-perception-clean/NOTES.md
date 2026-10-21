@@ -1,5 +1,11 @@
 # EXP-002 – Perception sạch: mọi model chạy trên frame gốc (P2 3.0b)
 
+## Summary (English)
+- Purpose: fix the v0 flaw that drew overlays on the same frame that is fed to the models (the plate crops stored as evidence contained the drawn PLATE box).
+- Result: on test_video the perception output is practically unchanged (COCO 21005 / 21005 and helmet 5164 / 5164 detections matched, 0 track-id changes); the 23 violation labels are unchanged and plate captures go from 20 to 21.
+- Conclusion: the fix is correct in principle but nearly harmless in the numbers here, because the light is detected in only 14 detections; the evidence crops are now clean.
+- Limits: comparisons are only against the pipeline's own snapshot; there is no ground truth, so it is not known which events are right.
+
 ## Vấn đề (lỗi perception tồn tại từ code gốc)
 Code gốc vẽ mọi thứ lên **cùng một frame** đang đưa vào model:
 1. Khung đèn giao thông (`LIGHT: …`) được vẽ ngay sau COCO và **trước khi helmet model chạy**.

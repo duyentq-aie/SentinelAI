@@ -1,22 +1,24 @@
-# EXP-013 – đề xuất chia lại helmet theo video (2026-10-18)
+English translation of NOTES.vi.md (original, Vietnamese).
 
-**Chưa chia lại gì**: `tools/make_splits.py` chỉ đọc dataset và xuất manifest (không di chuyển/copy/đổi tên ảnh). Chọn phương án rồi mới tạo thư mục split.
-Lệnh: `python tools/make_splits.py --data data/raw/helmet --out experiments/EXP-013-splits --classes helmet motorcycle no-helmet plate --balance no-helmet --seed 0`
+# EXP-013 – proposals for re-splitting helmet by video (2026-10-18)
 
-## Nhóm
-17 nhóm: 16 video (`frame_1` … `frame_16`, 21–343 ảnh) + 1 nhóm `other:testing_images` (6 ảnh 1920×1080 tên `testing_images_<n>`, nguồn không rõ; hiện cả 6 nằm ở train). Mỗi nhóm đi nguyên vào một split. Khác 16 nhóm bạn nói: 6 ảnh 1080p không thuộc video nào đánh số.
-Tìm kiếm có seed (tối thiểu hóa độ lệch so với tỉ lệ mục tiêu của số ảnh và của instance `no-helmet`; phạt nếu split nào thiếu một class); cùng seed cho cùng kết quả (test).
+**Nothing was re-split**: `tools/make_splits.py` only reads the dataset and writes a manifest (it does not move/copy/rename images). Choose a variant first, then create the split folders.
+Command: `python tools/make_splits.py --data data/raw/helmet --out experiments/EXP-013-splits --classes helmet motorcycle no-helmet plate --balance no-helmet --seed 0`
 
-## Ba phương án (seed 0; số instance gồm cả `plate` vì dataset có 4 lớp, xem DATA_CARD)
-| | train | valid | test | no-helmet (train/val/test) | ghi chú |
+## Groups
+17 groups: 16 videos (`frame_1` … `frame_16`, 21–343 images) + 1 group `other:testing_images` (6 images of 1920×1080 named `testing_images_<n>`, unknown source; currently all 6 are in train). Each group goes whole into one split. This differs from the 16 groups you mentioned: the 6 1080p images do not belong to any numbered video.
+Seeded search (minimises the deviation from the target proportions of the number of images and of `no-helmet` instances; penalises a split that lacks a class); the same seed gives the same result (test).
+
+## Three variants (seed 0; instance counts include `plate` because the dataset has 4 classes, see DATA_CARD)
+| | train | valid | test | no-helmet (train/val/test) | note |
 |---|---|---|---|---|---|
-| **A** 70/15/15, ảnh và no-helmet cân bằng như nhau | 1026 ảnh, 7 nhóm | 214, 4 nhóm | 220, 6 nhóm (có 6 ảnh 1080p) | 662 / 140 / 143 | mặc định tôi đề xuất |
-| **B** 70/15/15, ưu tiên no-helmet | 1014, 8 nhóm | 226, 3 nhóm | 220, 6 nhóm | 660 / 142 / 143 | gần như A (khác 2 video); valid chỉ 3 video → phương sai cao |
-| **C** 60/20/20, val/test lớn hơn | 875, 7 nhóm | 294, 6 nhóm | 291, 4 nhóm | 565 / 187 / 193 | ít dữ liệu train hơn, số đo ổn định hơn; test có `frame_2`, `frame_3`, `frame_7` + 1080p |
-Chi tiết từng class/video: `A|B|C/summary.md`, `summary.json`, `manifest.csv` (sha256 từng ảnh + sha256 của manifest). So với split cũ (no-helmet 664/170/111) cả ba cân bằng hơn.
+| **A** 70/15/15, images and no-helmet balanced equally | 1026 images, 7 groups | 214, 4 groups | 220, 6 groups (includes the 6 1080p images) | 662 / 140 / 143 | the default I propose |
+| **B** 70/15/15, priority to no-helmet | 1014, 8 groups | 226, 3 groups | 220, 6 groups | 660 / 142 / 143 | almost the same as A (differs by 2 videos); valid has only 3 videos → high variance |
+| **C** 60/20/20, larger val/test | 875, 7 groups | 294, 6 groups | 291, 4 groups | 565 / 187 / 193 | less train data, more stable measurements; test has `frame_2`, `frame_3`, `frame_7` + 1080p |
+Detail per class/video: `A|B|C/summary.md`, `summary.json`, `manifest.csv` (sha256 of every image + sha256 of the manifest). Compared with the old split (no-helmet 664/170/111) all three are better balanced.
 
-## Lưu ý
-- Mức tương đồng còn lại giữa video khác nhau (dHash tới ảnh train gần nhất, `cross_video_dhash.json`): test A 26.8% ≤ 4, B 24.5%, **C 9.6%**; split ngẫu nhiên cũ là 86%. Camera tĩnh cùng chỗ nên vẫn còn giống nhau giữa các video; C ít nhất, nhưng cũng là phương án có ít train nhất.
-- Chỉ 16 video: kết quả test phụ thuộc mạnh vào video nào rơi vào test; nên báo CI bootstrap theo video, và video tự quay vẫn là test độc lập đáng tin hơn.
-- 6 ảnh 1080p (nguồn khác) rơi vào test ở cả ba phương án vì được coi là một nhóm: ảnh hưởng nhỏ (≈ 2–3% số ảnh test) nhưng nên biết.
-- Phương án nào cũng chỉ giải quyết rò rỉ kề-frame; không đảm bảo các video không cùng một cảnh.
+## Notes
+- Remaining similarity between different videos (dHash to the nearest train image, `cross_video_dhash.json`): test A 26.8% ≤ 4, B 24.5%, **C 9.6%**; the old random split was 86%. The cameras are static at the same place so videos still look alike; C the least, but it is also the variant with the least train data.
+- Only 16 videos: the test result depends strongly on which videos fall into test; a bootstrap CI over videos should be reported, and self-recorded video remains the more trustworthy independent test.
+- The 6 1080p images (other source) fall into test in all three variants because they are treated as one group: small effect (≈ 2–3% of the test images) but worth knowing.
+- Every variant only solves adjacent-frame leakage; none guarantees that the videos do not show the same scene.

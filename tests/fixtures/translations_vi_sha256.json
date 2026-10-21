@@ -1,0 +1,32 @@
+{
+  "summary_only_originals": {
+    "experiments/EXP-001-baseline/NOTES.md": "cf2a0c26286908f8d82cea4aa2ff932a73660f379854f240e9a30ad6de0c33b4",
+    "experiments/EXP-002-perception-clean/NOTES.md": "091a0d10bc3658a5e90917f0b0330cb18469cbb67ad341ccc96b0fa7dbd263c6",
+    "experiments/EXP-003-evidence/NOTES.md": "cab29e64f1cf7007746bad748425f2049114653e256736c9a86d33540d37bb44",
+    "experiments/EXP-004-plate-attempts/NOTES.md": "697c33b4e3d58384e191e0235edb6381700bf150d7c26525ab562a04447ac501",
+    "experiments/EXP-005-windowed-rules/NOTES.md": "9fa4691f8715fa5bced760b196f49ae92effbfda8c2c3f8c75797b2f6b151f7f",
+    "experiments/EXP-006-p4-software/NOTES.md": "a1a135b09b1b8b46097861dc477a574424c11a8285b60ba4f9551315c112c78a",
+    "experiments/EXP-007-onnx/NOTES.md": "d09f576fba15e18655205284a8b7fcc909d3f52608d4a7cd1c03b6ceca683054",
+    "experiments/EXP-012-onnx-gpu/NOTES.md": "28b183ea09aed9933c0b668a78405708fa75565094e0e6e425344b3f1b8affd7",
+    "experiments/EXP-014-plate-groups/NOTES.md": "c064b8c60a8c7e43de288a5f3ffcc6f13529889ac030a3286e5eaba7c69d0208",
+    "experiments/EXP-016-helmet-grouped-4cls/README.md": "1ab140be0370c974d791d54b3ad0908bd6a9af16b3004dddd16f5ff8b4216bed",
+    "experiments/EXP-017-field-inventory/NOTES.md": "78a82a1b0ae80890a8d35e2a918c3eb798a873b428c629042d99a6f823225ea6",
+    "experiments/EXP-018-ood-eval/README.md": "3c3f854d13f2a6aaf1360c3ed6ff209b9a18030b383a81252c0432dbaae3ca3e",
+    "experiments/EXP-024-hat-shirt-colour/README.md": "8b74898ca1748ebc1ff22c0fff52bc9d2cccd05fe26fbd81ee6b4e0856eb4edf"
+  },
+  "translated_originals": {
+    "experiments/EXP-000-kaggle-original/NOTES.vi.md": "833b894e698cec330483d8f919b5c6c9cee25970e968e94977358cc31777ebd8",
+    "experiments/EXP-008-ocr/NOTES.vi.md": "990b03c79c8328da0f111e07f9da1069327c63a6d9153d4c456640c9736072c2",
+    "experiments/EXP-009-session-variance/NOTES.vi.md": "181ee0866371fff87147d0cf84ff83646de6f06a0d7ea6229341bd1694e89f1f",
+    "experiments/EXP-010-ratios-vs-v0/NOTES.vi.md": "7b5618f3f14dc1235429b72adb3dbb230fd64b95106ec9429481eaf5f7448581",
+    "experiments/EXP-011-data-leakage/NOTES.vi.md": "b9e9898ef9296f9e04d33697a92aaf0d626055d28db6ba4a8d16ac504216511a",
+    "experiments/EXP-013-splits/NOTES.vi.md": "0794a4243e6a2b8c9d1c606e1d2de0a8017b1223703286d51034315773cfb526",
+    "experiments/EXP-015-helmet-grouped-3cls/README.vi.md": "5090da596863cbc751dbd50d25a90d38aeb3d49bb8e7fca35e2b8f337cd33ec1",
+    "experiments/EXP-019-timebase/NOTES.vi.md": "0b9683d2ffab7ca80631720a3f42af64300f79e5059ea8362c96ae5b8ee3365a",
+    "experiments/EXP-020-regression-diag/README.vi.md": "802acd5b0101681d9b090d97cec6cbf8f024a857d491c0dee4529161c31a098f",
+    "experiments/EXP-021-10fps/README.vi.md": "ba55956b305d032ae59399678c88b38b74799684ef3b932f7761c01acb57fc15",
+    "experiments/EXP-022-light-roi/README.vi.md": "431af9eda3f86945580b59a1edc21b1b85b7341bab952c84d6f3a17bd302981d",
+    "experiments/EXP-023-track-death/README.vi.md": "35aaa56577e60fe9a843d54b28f57214ba0c3055c11fda137889b9bb36c39b7c",
+    "experiments/EXP-025-default-model-exp015/README.vi.md": "8ff792f80f0ff2bc7aafb451e75e50ff7368b1e44cb109e7013417fc75e80a91"
+  }
+}

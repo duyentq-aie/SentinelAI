@@ -1,5 +1,11 @@
 # EXP-005 – No-helmet và chở quá người theo vote cửa sổ (P2 3.2)
 
+## Summary (English)
+- Purpose: replace the per-frame counters of the no-helmet / overload rules with a windowed vote (W = 15 observations, K = 5 votes, r = 0.5), later with hysteresis (exit_ratio 0.3).
+- Result: 14 events on 14 tracks (13 no_helmet, 1 overload), one event per track, all with a plate; versus baseline v2 one event is lost (M_1), two are added (M_176, M_702) and one overload label disappears (M_677); hysteresis changes no start frame but merges or lengthens intervals (7 of 13 tracks), e.g. M_176 becomes frames 112-117.
+- Conclusion: the rules behave as designed in unit tests; M_176 was a 1-frame event at the exact boundary (5/10 = 0.50), caused by the single threshold without hysteresis, not by a code bug.
+- Limits: not validated against ground truth; W, K, r and exit_ratio 0.3 are reasonable defaults, not tuned on labelled data; a longer flag may spill into frames where the person already wears a helmet (unknown).
+
 **Chưa kiểm định bằng ground truth.** Mọi so sánh dưới đây là với snapshot của chính pipeline (baseline v2), không phải với sự thật.
 Tham số mặc định chưa được tinh chỉnh trên dữ liệu có nhãn: W = 15 quan sát, K = 5 phiếu, r = 0.5 (`configs/pipeline/default.yaml`, `rules.helmet.*` / `rules.overload.*`).
 

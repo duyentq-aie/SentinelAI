@@ -1,5 +1,11 @@
 # EXP-004 – `max_attempts` 30 so với 90, tắt wrong_way, baseline v2 (đêm 2026-10-18, mục 1)
 
+## Summary (English)
+- Purpose: compare evidence.plate.max_attempts 30 versus 90 (interleaved GPU runs, 3 rounds) and switch wrong_way off by default.
+- Result: 90 attempts finds the plate of the 21st violating track (21/21 versus 20/21) for 0.151 versus 0.128 plate calls per frame; headless FPS 10.26 versus 10.58 (ranges overlap, no conclusion about speed). Switching wrong_way off removes 16 events (the 8 WRONG-WAY tracks); no-helmet / overload events keep their frames.
+- Conclusion: default set to max_attempts 90 (a self-chosen, one-line, reversible decision); baseline_events_v2 has 28 events (15 labels + 13 plate captures).
+- Limits: no ground truth; the FPS of this session must not be compared with EXP-003.
+
 ## Thí nghiệm A/B: `evidence.plate.max_attempts` = 30 so với 90
 Cấu hình `configs/pipeline/exp/attempts{30,90}_wrongway_on.yaml` (giống nhau trừ `max_attempts`; wrong_way còn bật để cô lập tác động).
 `tools/benchmark_pipeline.py --configs a b`, **xen kẽ** (vòng 1: a rồi b; vòng 2: ...), 3 vòng, GPU, FP32, 720p, High performance.

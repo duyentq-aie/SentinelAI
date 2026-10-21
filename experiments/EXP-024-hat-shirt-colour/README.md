@@ -1,5 +1,11 @@
 # EXP-024 – "mũ cùng màu áo": đo, không sửa
 
+## Summary (English)
+- Purpose: test the hypothesis (from EXP-020) that helmeted people are falsely flagged no-helmet because the helmet has low contrast with the clothing; measured only, nothing changed.
+- Result: colour distance (Lab, DeltaE76) between the helmet region and the body region has median 15.99 for the 21 falsely flagged heads (group A) versus 16.34 for 60 control heads (group B); Mann-Whitney one-sided p = 0.6083 (two-sided 0.7918).
+- Conclusion: the hypothesis is NOT supported by this coarse measurement; clothing colour does not explain most of the false alarms on this clip.
+- Limits: this does not prove colour is irrelevant: n = 21 is small, samples are not independent (the last three heads look like the same person), and the regions are estimated from boxes without segmentation (hair, face, passengers fall inside).
+
 Giả thuyết (từ EXP-020): người đội mũ bị báo no-helmet vì mũ ít tương phản với áo/thân. Cách đo (`measure.py`, kết quả `results.json`, `heads.csv`; ảnh ghép `group_A.jpg`, `group_B.jpg` xếp theo ΔE tăng dần, không commit vì có người):
 - **Nhóm A (báo oan):** đầu của các sự kiện no_helmet báo oan ở EXP-020. Với mỗi hàng no_helmet lấy một phiên bản có báo (thứ tự: hiện tại + model cũ, v0, EXP-015, EXP-016, @10 FPS), chạy model helmet của phiên bản đó trên frame của sự kiện (conf 0.55 như pipeline, cho phép lệch ±2 frame) và lấy detection `no-helmet` nằm trong hộp xe (conf cao nhất). **21 đầu** (2 hàng overload không có đầu no-helmet nên không vào nhóm A; hàng nào không tìm lại được đầu thì ghi trong `results.json`: 0 hàng).
 - **Nhóm B (đối chứng):** 60 đầu ngẫu nhiên (seed 0, tối đa 2 mỗi frame, mỗi 5 frame, không trùng nhóm A) mà model cũ `helmet_best.pt` nhận đúng là `helmet` với conf >= 0.6 (240 ứng viên).

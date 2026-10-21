@@ -1,5 +1,11 @@
 # EXP-014 – nhóm ảnh gần trùng của dataset biển số bằng perceptual hash (2026-10-18)
 
+## Summary (English)
+- Purpose: find near-duplicate image groups in the plate dataset with a 64-bit dHash (Hamming distance <= T), since file names carry no frame numbers.
+- Result: at T = 4 there are 6131 groups (largest 240), 462 span several splits, and 31.4% / 29.0% of valid / test images have a train image in the same group (13.8% / 13.3% at T = 2); at T >= 6 components blow up (T = 8: one group of 3410).
+- Conclusion: real leakage exists (at least about 13% of valid/test images have a near-identical train image; the figure is a lower bound by hash), so the plate_best.pt test result (mAP50 0.995, EXP-000) is not evidence of generalisation.
+- Limits: the whole set is one fixed gate camera, so even a grouped split would only measure 'same camera, other vehicle'; the fix (regrouping at T = 4 or a self-recorded 1080p test) was not done.
+
 Lệnh: `python tools/near_dup_groups.py --data data/raw/plate --out experiments/EXP-014-plate-groups --thresholds 0 2 4 6 8 --csv-for 4`
 (dHash 64 bit; nối hai ảnh khi khoảng cách Hamming ≤ T; nhóm = thành phần liên thông). `groups_T4.csv` = ảnh → nhóm (T = 4). Tên file không có số frame nên đây là cách duy nhất để tạo nhóm.
 

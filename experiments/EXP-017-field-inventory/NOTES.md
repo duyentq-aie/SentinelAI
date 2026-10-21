@@ -1,5 +1,11 @@
 # EXP-017 – kiểm kê video tự quay (`data/raw/field/`), 2026-10-19
 
+## Summary (English)
+- Purpose: inventory of the self-recorded videos in data/raw/field/ and a check of the clip against the helmet image set (dHash).
+- Result: the folder holds one video, a byte-identical copy of test_video.mp4 (1280x720, 30 FPS, 787 frames, 26.2 s), so it is not new field data; its dHash distance to the nearest helmet image is min 12, median 19, max 21 (27 frames), while helmet images of other videos in the same set are at median 8.
+- Conclusion: the clip is a different camera and scene (oblique surveillance view of an intersection), no frame is duplicated, so it is out-of-domain for the helmet data; red_light is geometrically feasible, plate OCR is not (plates too small at 720p).
+- Limits: the assessment rests on 3 frames viewed by eye and one 26 s clip already used in earlier experiments; dHash only detects structural duplicates; no labels, no pipeline run in this step.
+
 **Kết quả chính: thư mục chỉ có 1 video, và nó là file `test_video.mp4` đã dùng từ đầu dự án** (cùng sha256 `51fdf565…a16a1d` với `test_video.mp4` ở gốc repo; **bản sao trùng byte**, là một file riêng chứ không phải hard link – kiểm bằng `fsutil hardlink list`: file gốc ở repo là hard link với `outputs/bench_work/v0/test_video.mp4`, còn file trong `field/` đứng riêng). **Đây không phải field data.**. Chưa có video mới nào. Nếu bạn định thêm video quay thêm, chúng chưa nằm trong thư mục này.
 
 Công cụ: **ffprobe không được cài** (không cài thêm); thông số lấy bằng OpenCV (độ phân giải, fps, số frame, FOURCC) và Python (dung lượng, sha256). Bảng đầy đủ: `data/field_manifest.csv` (nằm trong `data/` nên bị `.gitignore` chặn). Contact sheet (1 frame / 10 s: t = 0, 10, 20 s): `contact_test_video.jpg`, **không commit** (có biển số và mặt người).

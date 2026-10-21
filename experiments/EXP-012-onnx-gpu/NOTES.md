@@ -1,5 +1,11 @@
 # EXP-012 – ONNX Runtime GPU (FP32/FP16) vs PyTorch GPU (2026-10-18, venv-edge)
 
+## Summary (English)
+- Purpose: compare ONNX Runtime GPU (FP32 / FP16) with PyTorch GPU in a separate venv-edge (torch 2.7.1+cu126, onnxruntime-gpu 1.22.0).
+- Result: ratio to v0 in the same round: PyTorch 3.07x, ONNX FP32 3.07x, ONNX FP16 3.35x (stream 22.81 FPS versus 20.93); the main venv (cu118) gave 2.44x; every configuration produced 14 events on 14 tracks with plates.
+- Conclusion: FP16 is only about 9% above PyTorch FP32, near the noise level, because the pipeline is CPU-bound; torch cu126 ran about 25% faster than cu118 in the same session (cause not investigated).
+- Limits: events were counted, not diffed one by one, so FP16 equivalence is not claimed; TensorRT / INT8 not tried; no real edge device, all numbers are an RTX 3050 Laptop proxy.
+
 **Môi trường:** `venv-edge/` riêng (gitignored; venv chính không bị đụng): torch 2.7.1+cu126, onnxruntime-gpu **1.22.0** (CUDA 12 + cuDNN 9 lấy từ wheel torch cu126), ultralytics 8.4.26. Lưu ý: `onnxruntime-gpu 1.31.0` là bản build cho CUDA 13 (đòi `cublas64_13.dll`) nên không chạy được với torch cu126 → dùng 1.22.0. Không cài CUDA toolkit hệ thống. Thời gian dùng: ~35 phút / 120 phút.
 **Phần cứng (proxy, không phải thiết bị Edge thật):** RTX 3050 Laptop 4 GB, laptop Windows 11. Lệnh: `benchmark_pipeline.py --repeats 3 --configs pt_gpu pt_gpu_edge@venv-edge onnx_gpu_fp32@venv-edge onnx_gpu_fp16@venv-edge`; v0 chạy xen kẽ mỗi vòng. ONNX FP16 xuất bằng `tools/export_onnx.py --half --out models/onnx_edge` (từ venv-edge; GPU).
 

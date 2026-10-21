@@ -79,7 +79,7 @@ flowchart LR
 
 Details, method and caveats: [docs/REPORT.md](docs/REPORT.md).
 
-*Experiment logs (`experiments/*/README.md`) are written in Vietnamese; `REPORT.md` is in English.*
+*Experiment logs linked from this README are in English (Vietnamese originals kept as README.vi.md); other logs have an English summary at the top.*
 
 ## Run it
 ```powershell

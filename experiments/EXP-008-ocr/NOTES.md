@@ -1,39 +1,41 @@
-# EXP-008 – Plate OCR, basic version (đêm 2026-10-18, mục 6)
+English translation of NOTES.vi.md (original, Vietnamese).
 
-**Không có claim độ chính xác** (không có ground truth biển số). Kết luận thực tế của thí nghiệm: *chuỗi OCR hoạt động về mặt cơ học, nhưng trên video 720p của dự án biển số quá nhỏ để đọc*.
+# EXP-008 – Plate OCR, basic version (night of 2026-10-18, section 6)
 
-## Chuỗi xử lý (`sentinel/ocr/`)
-1. **Chọn crop tốt nhất của track** (`quality.py`): điểm = 0.5·kích thước + 0.5·độ nét (phương sai Laplacian), mỗi thành phần bị chặn (4× / 3× giá trị tham chiếu). Detector biển tiếp tục chạy cho tới khi gom đủ `ocr.candidates` (5) crop cách nhau ≥ `min_gap` (3) frame, hoặc hết `max_attempts`, hoặc vi phạm kết thúc. `plate.jpg` được ghi đè bằng crop tốt nhất.
-2. **Tiền xử lý OpenCV** (`preprocess.py`): crop sát hộp biển (`ocr.margin` = 2 px, thay vì 10 px nền), phóng to bicubic tới cao 128 px (tối đa ×6), CLAHE trên kênh L, **tách biển hai dòng** (xe máy) tại hàng có ít "mực" nhất quanh giữa.
-3. **Nhận dạng** (`engine.py`): PaddleOCR 3.4 `TextRecognition(PP-OCRv5_mobile_rec)` (chỉ phần recognition, không detection), từng dòng, ghép lại. Model tải về từ Hugging Face ở lần đầu (cache ngoài repo: `~/.paddlex/`).
-4. **Chuẩn hóa + định dạng biển VN** (`normalize.py`): bỏ ký tự phân cách, sửa ký tự dễ nhầm theo vị trí (O→0, B↔8, S↔5, …) với mẫu 8–10 ký tự; chữ cái seri chỉ lấy trong `ABCDEFGHKLMNPSTUVXYZ` (biển VN không dùng I, J, O, Q, R, W); regex `^\d{2}[letters]{1,2}\d?\d{4,5}$`. Chỉ kiểm hình dạng chuỗi, không kiểm biển có tồn tại hay đọc đúng.
-5. **Vote** (`vote.py`): đọc `reads` (3) crop tốt nhất; độ dài được ủng hộ nhiều nhất thắng, rồi bỏ phiếu từng ký tự có trọng số theo độ tin cậy.
-6. Kết quả ghi vào `events.jsonl` ở `plate_pred` (`docs/EVIDENCE.md`); lỗi PaddleOCR được chặn lại (sự kiện vẫn đầy đủ).
-Bật bằng `configs/pipeline/ocr.yaml` (mặc định tắt).
+**No accuracy claim** (there is no plate ground truth). The practical conclusion of the experiment: *the OCR chain works mechanically, but on the project's 720p video the plates are too small to read*.
 
-Kiểm thử: test đơn vị cho từng khối (`tests/test_ocr_pure.py`: chất lượng crop, tiền xử lý, chuẩn hóa/sửa ký tự, vote, PlateOCR) và 9 test cho tích hợp trong recorder (`tests/test_evidence_ocr.py`) với recognizer giả (số crop được gom, crop tốt nhất thay `plate.jpg`, OCR chạy một lần/track, lỗi không làm sập pipeline, reset). Các test này **không** dùng PaddleOCR thật.
+## Processing chain (`sentinel/ocr/`)
+1. **Pick the best crop of a track** (`quality.py`): score = 0.5·size + 0.5·sharpness (Laplacian variance), each component is capped (4× / 3× the reference value). The plate detector keeps running until `ocr.candidates` (5) crops at least `min_gap` (3) frames apart are collected, or `max_attempts` is reached, or the violation ends. `plate.jpg` is overwritten with the best crop.
+2. **OpenCV preprocessing** (`preprocess.py`): crop tight to the plate box (`ocr.margin` = 2 px, instead of 10 px of background), enlarge bicubic to 128 px high (at most ×6), CLAHE on the L channel, **split a two-line plate** (motorcycle) at the row with the least "ink" around the middle.
+3. **Recognition** (`engine.py`): PaddleOCR 3.4 `TextRecognition(PP-OCRv5_mobile_rec)` (recognition only, no detection), line by line, then joined. The model is downloaded from Hugging Face on first use (cache outside the repo: `~/.paddlex/`).
+4. **Normalisation + Vietnamese plate format** (`normalize.py`): remove separator characters, fix characters that are easy to confuse by position (O→0, B↔8, S↔5, …) with a pattern of 8–10 characters; the series letter is only taken from `ABCDEFGHKLMNPSTUVXYZ` (Vietnamese plates do not use I, J, O, Q, R, W); regex `^\d{2}[letters]{1,2}\d?\d{4,5}$`. It only checks the shape of the string, not whether the plate exists or was read correctly.
+5. **Vote** (`vote.py`): read the `reads` (3) best crops; the most supported length wins, then a per-character vote weighted by confidence.
+6. The result is written to `events.jsonl` in `plate_pred` (`docs/EVIDENCE.md`); PaddleOCR errors are contained (the event stays complete).
+Enable with `configs/pipeline/ocr.yaml` (off by default).
 
-## Kết quả trên video test (CPU, `record_tracks --config configs/pipeline/ocr.yaml`)
-- Sự kiện giống hệt baseline v3 (diff rỗng): bật OCR không đổi luật hay sự kiện.
-- **14 sự kiện, 14 có `plate_pred`; 0 có chuỗi đúng định dạng biển số.** Kích thước crop biển lưu: 38–51 × 36–49 px (trung bình 46×44, **gồm viền 10 px nền**; hộp biển do detector trả về đo được ≈ 26×22 px (EXP-010 `mean_plate_box_wh`); 46×44 là kích thước crop lưu, không phải biển).
-- Đầu ra thô của recogniser là mảnh vụn hoặc rỗng (`''`, `'0'`, `'M'`, `'BD'`, một số chữ Hán). Khi crop là 64 px cao và có viền 10 px, model PP-OCRv5 gần như chỉ "bịa" ký tự Hán (lần chạy đầu: 0/14 hợp lệ); sau khi cắt sát biển và phóng to tới 128 px, một phần đầu ra chuyển sang chữ/số Latin (vẫn còn vài ký tự Hán) nhưng không thành biển số hợp lệ (0/14).
-  (Đã thử vài biến thể tiền xử lý trên 14 crop đã lưu bằng script tạm, không commit; **không** chọn tham số để "tăng số chuỗi hợp lệ" vì không có ground truth, sẽ là tune trên nhiễu. Hai thay đổi được giữ — crop sát biển và phóng to lớn hơn — vì có lý do nguyên tắc: ít điểm ảnh nền hơn và chữ đủ lớn cho recogniser.)
-- **Độ trễ OCR / sự kiện** (3 lần đọc, CPU, PaddleOCR mobile): trung bình **209 ms**, trung vị 220 ms, min 68, max 377 ms. Chạy trong luồng suy luận (chặn pipeline ~0.2 s mỗi sự kiện). Nạp model: ~11 s ở lần đầu (tải) / vài giây khi đã cache.
-- Ví dụ "không đọc được": toàn bộ 14 sự kiện của clip này. Ảnh ghép các crop: `outputs/ocr_examples/plate_crops_montage.jpg` (thư mục `outputs/` bị gitignore vì chứa biển số thật).
+Tests: unit tests for each block (`tests/test_ocr_pure.py`: crop quality, preprocessing, normalisation/character fixing, vote, PlateOCR) and 9 tests for the integration in the recorder (`tests/test_evidence_ocr.py`) with a fake recogniser (number of crops collected, best crop replaces `plate.jpg`, OCR runs once per track, an error does not crash the pipeline, reset). These tests do **not** use the real PaddleOCR.
 
-## Probe với biển tổng hợp (`tools/ocr_resolution_probe.py`, `resolution_probe.json`)
-Biển hai dòng "29B1 / 12345" vẽ bằng OpenCV, thu nhỏ và làm suy giảm (blur Gaussian, JPEG q25), chạy cả chuỗi OCR. **Đây không phải độ chính xác trên ảnh thật** (một font, nét đậm, sạch):
+## Result on the test video (CPU, `record_tracks --config configs/pipeline/ocr.yaml`)
+- Events identical to baseline v3 (empty diff): turning OCR on changes neither the rules nor the events.
+- **14 events, 14 have `plate_pred`; 0 have a string in the plate format.** Size of the stored plate crop: 38–51 × 36–49 px (mean 46×44, **including a 10 px border of background**; the plate box returned by the detector measures ≈ 26×22 px (EXP-010 `mean_plate_box_wh`); 46×44 is the size of the stored crop, not of the plate).
+- The raw recogniser output is fragments or empty (`''`, `'0'`, `'M'`, `'BD'`, some Chinese characters). When the crop is 64 px high with a 10 px border, the PP-OCRv5 model mostly just "invents" Chinese characters (first run: 0/14 valid); after cropping tight to the plate and enlarging to 128 px, part of the output turns into Latin letters/digits (a few Chinese characters remain) but does not form a valid plate (0/14).
+  (A few preprocessing variants were tried on the 14 saved crops with a temporary script, not committed; parameters were **not** chosen to "increase the number of valid strings" because there is no ground truth, that would be tuning on noise. Two changes were kept — a tight crop and a larger enlargement — for reasons of principle: fewer background pixels and characters large enough for the recogniser.)
+- **OCR latency / event** (3 reads, CPU, PaddleOCR mobile): mean **209 ms**, median 220 ms, min 68, max 377 ms. It runs in the inference thread (blocking the pipeline ~0.2 s per event). Model loading: ~11 s the first time (download) / a few seconds when cached.
+- Examples of "could not read": all 14 events of this clip. Montage of the crops: `outputs/ocr_examples/plate_crops_montage.jpg` (the `outputs/` folder is gitignored because it holds real plates).
 
-| cao (px) | clean | blur 0.8 | blur 1.2 | JPEG 25 | blur 0.8 + JPEG 25 |
+## Probe with synthetic plates (`tools/ocr_resolution_probe.py`, `resolution_probe.json`)
+A two-line plate "29B1 / 12345" drawn with OpenCV, shrunk and degraded (Gaussian blur, JPEG q25), run through the whole OCR chain. **This is not accuracy on real images** (one font, bold strokes, clean):
+
+| height (px) | clean | blur 0.8 | blur 1.2 | JPEG 25 | blur 0.8 + JPEG 25 |
 |---|---|---|---|---|---|
-| 100 | đúng | đúng | đúng | đúng | đúng |
-| 50 | đúng | đúng | đúng (sau sửa 8→B) | đúng | đúng (sau sửa 8→B) |
-| 38 | đúng | đúng | đúng (sau sửa) | đúng (sau sửa) | **sai** (20B112345) |
-| 25 | đúng | **sai** | **không hợp lệ** | **sai** | **sai** |
+| 100 | correct | correct | correct | correct | correct |
+| 50 | correct | correct | correct (after fixing 8→B) | correct | correct (after fixing 8→B) |
+| 38 | correct | correct | correct (after fixing) | correct (after fixing) | **wrong** (20B112345) |
+| 25 | correct | **wrong** | **invalid** | **wrong** | **wrong** |
 
-Với biển sạch, chuỗi (tiền xử lý + PaddleOCR + sửa ký tự + vote) đọc đúng; ở ~25 px cao chỉ cần blur 0.8 hoặc JPEG đã làm hỏng. Biển thật ở clip này nhỏ, nhòe, nén JPEG, nghiêng, nên không đọc được là hợp lý.
+With a clean plate the chain (preprocessing + PaddleOCR + character fixing + vote) reads correctly; at ~25 px high, blur 0.8 or JPEG alone is enough to break it. The real plates in this clip are small, blurred, JPEG-compressed and tilted, so failing to read them is reasonable.
 
-## Kết luận và việc cần làm
-1. **Với camera 720p ở cự ly này OCR không khả thi.** Cần video 1080p+ hoặc camera gần hơn (biển ≥ ~40–50 px cao) — đã ghi vào `docs/RECORDING_GUIDE.md`. Không nên đổi mô hình OCR/hậu xử lý trước khi có dữ liệu đủ độ phân giải và nhãn biển số (`label_events.py` đã có trường `plate_text`).
-2. Khi có nhãn: đo exact-match và CER trên crop GT và end-to-end (PLAN mục 3.4), tách ngày/đêm, 1/2 dòng.
-3. Độ trễ ~0.2 s/sự kiện nên chuyển OCR sang luồng riêng nếu bật khi demo.
+## Conclusion and what to do
+1. **With a 720p camera at this distance OCR is not feasible.** 1080p+ video or a closer camera is needed (plate ≥ ~40–50 px high) — recorded in `docs/RECORDING_GUIDE.md`. The OCR model/post-processing should not be changed before there is data of sufficient resolution and plate labels (`label_events.py` already has the `plate_text` field).
+2. When labels exist: measure exact-match and CER on GT crops and end-to-end (PLAN section 3.4), separating day/night, 1/2 lines.
+3. The latency of ~0.2 s/event suggests moving OCR to its own thread if it is turned on for a demo.

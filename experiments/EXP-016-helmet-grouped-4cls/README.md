@@ -1,5 +1,11 @@
 # EXP-016 – huấn luyện lại detector helmet 4 lớp (helmet, motorcycle, no-helmet, plate) trên split A
 
+## Summary (English)
+- Purpose: retrain the helmet detector with 4 classes (helmet, motorcycle, no-helmet, plate) on the video-grouped split A (Kaggle T4, stopped by patience 25 at epoch 80, best epoch 55, 3 537 s); not used in the app.
+- Result (test, mAP50): helmet 0.929, motorcycle 0.994, no-helmet 0.679, plate 0.991; EXP-015 (3 classes) had 0.962 / 0.995 / 0.844 on the same test; on val no-helmet is 0.911 versus 0.913. The plate class finds plates on full frames (AP50 0.988, 271 boxes) while plate_best.pt finds almost none in this domain.
+- Conclusion: the no-helmet gap on test cannot be attributed to a single factor, because four settings differ from EXP-015 (plate class, fliplr 0.0, time 2.5 giving about 178 epochs, workers 2); one run per configuration, run-to-run variance not measured; EXP-016b is planned.
+- Limits: 5 test videos, one camera type; extra_1080p has n = 6 (no conclusion); no claim about accuracy on real video; the first 4-class run hung (see NOTES.md); plate_best.pt provenance unknown.
+
 Người chạy: chủ dự án, trên Kaggle (`results_4cls.zip`, sha256 `f1709e8f4a80c17f55d3f42165fcbcf6b05daea10a733ba701a1767914efd15a`; bản trùng byte ở `<REPO>\results_4cls.zip` và `Downloads\results_4cls.zip`, dùng bản trong repo). Giải nén ở đây; `last.pt` bỏ qua. Phân tích do trợ lý chạy cục bộ (chỉ suy luận; không train, không sửa `data/raw`).
 
 | | |

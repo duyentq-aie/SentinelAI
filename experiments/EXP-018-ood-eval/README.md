@@ -1,5 +1,11 @@
 # EXP-018 – bộ đánh giá detector ngoài miền từ `test_video.mp4` (2026-10-19)
 
+## Summary (English)
+- Purpose: build an out-of-domain evaluation set for the helmet detectors from 15 evenly spaced frames of test_video.mp4 (ROI [0, 240, 1280, 720]), without using training data.
+- Result: no accuracy result yet; the hand-corrected labels do not exist. Pre-labels (3-class: 407 boxes; 4-class: helmet 204, motorcycle 126, no-helmet 118, plate 111) were produced by merging several models at conf 0.15, and tools/eval_ood.py was added (COCO-style AP, P/R at conf 0.25 and IoU 0.5).
+- Conclusion: the set and the tool are ready; a score from the pre-labels would be circular and was deliberately not recorded.
+- Limits: one scene, 15 non-independent frames, so n_gt per class will be small and no confidence interval is given; plate pre-labels come from one model (EXP-016) and are biased towards it; AP here is not comparable with the Ultralytics mAP of EXP-000 / EXP-015.
+
 Mục đích: đo các detector helmet trên cảnh **khác miền huấn luyện** (camera giám sát nhìn chéo ở nút giao, EXP-017) mà không dùng dữ liệu huấn luyện. Chưa có kết quả: bộ nhãn chưa được sửa tay. Không train, không chạy pipeline.
 
 ## Bộ ảnh

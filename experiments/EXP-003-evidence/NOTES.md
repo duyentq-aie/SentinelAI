@@ -1,5 +1,11 @@
 # EXP-003 – Bằng chứng đầy đủ + plate chạy theo sự kiện (P2 3.1)
 
+## Summary (English)
+- Purpose: store full evidence per event and run the plate detector only for violating tracks (event-driven) instead of on every frame.
+- Result: the 23 violation labels and all 44 events are unchanged (0 missing / 0 added / 0 changed); plate calls per frame 1.729 -> 0.128 (-93%); headless FPS 7.29 -> 8.88 and stream FPS 6.56 -> 7.74 (old-policy spread 17%, new 5%).
+- Conclusion: the event-driven policy removes most plate work without changing events, at the price of 1 plate lost on GPU (20/21 tracks, the missing one needs about 80 attempts versus max_attempts 30; that number is inferred, not recorded).
+- Limits: no ground truth; FPS is not comparable with other sessions; both configurations stay below 15 FPS; the stored plate crop is about 54 x 43 px (the plate box itself about 26 x 22 px), small for OCR.
+
 Thay đổi: `sentinel/evidence.py` (xem `docs/EVIDENCE.md`). Mỗi sự kiện (một loại vi phạm trên một track) lưu frame gốc, crop xe, crop biển và một dòng
 JSONL theo schema nhãn ground truth của PLAN 3.1; sự kiện được ghi **kể cả khi không thấy biển**. Plate detector chỉ chạy cho track đang vi phạm,
 tối đa `max_attempts` lần/track, dừng khi đã có biển. Thư mục bằng chứng bị giới hạn dung lượng (`max_dir_mb`, xóa thư mục sự kiện cũ nhất trước).

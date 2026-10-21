@@ -1,16 +1,18 @@
-# EXP-025 – model helmet mặc định: `helmet_best.pt` -> EXP-015 `best.pt` (2026-10-20)
+English translation of README.vi.md (original, Vietnamese).
 
-**Quyết định (chủ dự án, 2026-10-20):** `configs/pipeline/default.yaml` dùng `experiments/EXP-015-helmet-grouped-3cls/weights/best.pt` (sha256 `20ce0694eb1d8d81d6f579ede9b4d81c1aa1fbdf1d46e9391a63d04960fd7817`). Model cũ `helmet_best.pt` (sha256 `229700319e269ed19057bcedadb08f69881f6672024fdad85b8bde1ef9845f64`) vẫn chọn được bằng `models.helmet.weights: helmet_best.pt`; các config thử nghiệm (`configs/pipeline/exp/*`, `pt_*.yaml`, `ocr.yaml`...) không đổi và vẫn trỏ tới model cũ. Ngưỡng `conf` của helmet (0.55) **không đổi**.
+# EXP-025 – default helmet model: `helmet_best.pt` -> EXP-015 `best.pt` (2026-10-20)
 
-**Lý do:** (1) chỉ số trong miền của EXP-015 đo trên split sạch theo video (không rò rỉ), còn chỉ số của model cũ bị rò rỉ (EXP-011); (2) trên camera ngoài miền (test_video) báo oan giảm khoảng một nửa (EXP-020: 14 -> 7 sự kiện, đều được xác nhận bằng mắt là báo oan). **Chưa chọn EXP-016** (4 lớp) vì lớp no-helmet trong miền của nó đáng ngờ, chờ EXP-016b. Đây KHÔNG phải bằng chứng model mới đúng hơn: cả hai đều báo oan 100% trên clip này; mới chỉ báo oan ít hơn.
+**Decision (project owner, 2026-10-20):** `configs/pipeline/default.yaml` uses `experiments/EXP-015-helmet-grouped-3cls/weights/best.pt` (sha256 `20ce0694eb1d8d81d6f579ede9b4d81c1aa1fbdf1d46e9391a63d04960fd7817`). The old model `helmet_best.pt` (sha256 `229700319e269ed19057bcedadb08f69881f6672024fdad85b8bde1ef9845f64`) can still be selected with `models.helmet.weights: helmet_best.pt`; the experiment configs (`configs/pipeline/exp/*`, `pt_*.yaml`, `ocr.yaml`...) are unchanged and still point to the old model. The helmet `conf` threshold (0.55) is **unchanged**.
 
-## So sánh trên test_video (cùng mã, cùng config, chỉ khác model; `compare.py`, `events_old_vs_exp015.json`, `diff_events.txt`)
-- Sự kiện: model cũ **14**, EXP-015 **7**; chung (6), chỉ model cũ (8), chỉ EXP-015 (1). Theo loại: no_helmet 13 -> 7, overload 1 -> 0.
-- Khoảng thời gian của các sự kiện chung lệch nhau (thời điểm bắt đầu/kết thúc và độ dài); bảng từng sự kiện kèm giây bắt đầu/kết thúc và thời gian chồng nhau nằm trong `events_old_vs_exp015.json`.
-- `diff_events.txt`: `tools/diff_events.py` trên các sự kiện nhãn/biển số của hai lần chạy (các track id khác nhau giữa hai model, nên "missing/added" phản ánh cả đổi ID).
-- Mọi sự kiện no_helmet/overload của cả hai model là báo oan (EXP-020), nên bảng này nói về việc báo oan nào biến mất/xuất hiện, không nói về độ chính xác.
+**Reason:** (1) the in-domain metrics of EXP-015 were measured on a clean video-grouped split (no leakage), while the metrics of the old model are leaky (EXP-011); (2) on the out-of-domain camera (test_video) false alarms drop by about half (EXP-020: 14 -> 7 events, all confirmed by eye to be false alarms). **EXP-016 is not chosen yet** (4 classes) because its in-domain no-helmet class is doubtful, waiting for EXP-016b. This is NOT evidence that the new model is more correct: both give 100% false alarms on this clip; it only gives fewer false alarms.
 
-## Test, baseline
-- Các test đặc trưng dùng fixture track của model cũ (`tests/fixtures/tracks_test_video.jsonl`) **không bị ảnh hưởng** (không tải model). Test chậm `test_perception_unchanged_on_cpu` được ghim vào `helmet_best.pt` (vì fixture ghi bằng model cũ).
-- **Baseline v6** mới cho model mặc định mới: `tests/fixtures/tracks_test_video_exp015.jsonl` + `baseline_events_v6_exp015.json` (CPU, mã hiện tại: 15 sự kiện = 8 nhãn + 7 chụp biển số). **v5 giữ nguyên.** Test: `test_default_helmet_model_is_exp015_and_its_fixture_replay_reproduces_the_v6_label_events_exactly`.
-- Web app: `/api/status` có `backend.helmet_model` = `{file, sha256}` của model helmet đang chạy (`apps/web/routes.py::backend_info`).
+## Comparison on test_video (same code, same config, only the model differs; `compare.py`, `events_old_vs_exp015.json`, `diff_events.txt`)
+- Events: old model **14**, EXP-015 **7**; common (6), old model only (8), EXP-015 only (1). By type: no_helmet 13 -> 7, overload 1 -> 0.
+- The time spans of the common events differ (start/end time and length); the table of every event with start/end seconds and the overlap time is in `events_old_vs_exp015.json`.
+- `diff_events.txt`: `tools/diff_events.py` on the label/plate events of the two runs (the track ids differ between the two models, so "missing/added" also reflects the change of IDs).
+- Every no_helmet/overload event of both models is a false alarm (EXP-020), so this table is about which false alarms disappear/appear, not about accuracy.
+
+## Tests, baseline
+- The characterization tests that use the track fixture of the old model (`tests/fixtures/tracks_test_video.jsonl`) are **not affected** (they load no model). The slow test `test_perception_unchanged_on_cpu` is pinned to `helmet_best.pt` (because the fixture was recorded with the old model).
+- A new **baseline v6** for the new default model: `tests/fixtures/tracks_test_video_exp015.jsonl` + `baseline_events_v6_exp015.json` (CPU, current code: 15 events = 8 labels + 7 plate captures). **v5 is kept unchanged.** Test: `test_default_helmet_model_is_exp015_and_its_fixture_replay_reproduces_the_v6_label_events_exactly`.
+- Web app: `/api/status` has `backend.helmet_model` = `{file, sha256}` of the helmet model that is running (`apps/web/routes.py::backend_info`).

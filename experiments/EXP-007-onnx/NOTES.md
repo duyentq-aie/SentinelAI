@@ -1,5 +1,11 @@
 # EXP-007 – ONNX (đêm 2026-10-18, mục 5)
 
+## Summary (English)
+- Purpose: compare ONNX Runtime with PyTorch (CPU proxy for the edge device); the ONNX GPU provider could not be used (needs CUDA 12, machine has 11.8), so only onnxruntime CPU was measured.
+- Result: with the right input shape (static 384x640, dynamic for plate) ONNX gives 100% matching detections (IoU 1.000) and 29 identical events; per-image latency -18% (COCO, helmet) and -34% (plate); full pipeline on CPU 4.97 versus 4.65 FPS headless (+6.9%).
+- Conclusion: ONNX CPU is equivalent to PyTorch in results and slightly faster; the square 640x640 export differs from PyTorch (98% match) because of the added padding.
+- Limits: FP16/INT8, TensorRT and ONNX GPU were not measured; backend agreement is not accuracy (no ground truth, no mAP on the original val set); the CPU run is about 5 FPS, below the 15 FPS goal.
+
 ## Môi trường và giới hạn của máy này
 - Xuất: `tools/export_onnx.py` (Ultralytics 8.4.26, opset 17, `simplify=True`, ONNX 1.23.2, onnxslim 0.1.98). Hash, kích thước, input trong `models/onnx/export.json`; file `.onnx` bị `.gitignore`.
 - **GPU provider không dùng được.** `onnxruntime-gpu 1.31.0` (bản duy nhất cài được theo quy tắc) cần CUDA 12; máy có CUDA 11.8 (bản của torch `+cu118`). `CUDAExecutionProvider` được liệt kê nhưng không nạp được thư viện → Ultralytics lỗi khi gắn tensor GPU (`no data transfer registered ...`). Theo quy tắc ("lỗi thì onnxruntime CPU") đã gỡ `onnxruntime-gpu` và dùng **`onnxruntime` 1.31.0 (CPU)**. Không cài TensorRT, không cài CUDA 12.

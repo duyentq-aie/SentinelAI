@@ -1,12 +1,14 @@
-# EXP-020 – chẩn đoán "báo sai nhiều hơn, ảnh biển mờ hơn" sau refactor (2026-10-19)
+English translation of README.vi.md (original, Vietnamese).
 
-Không kèm ảnh (có người và biển số). Ảnh nằm ở `outputs/regression_diag/` (gitignored): `contact4_1..6.jpg` (contact sheet 4 phiên bản, 28 hàng), `contact_sheet_1..5.jpg` (v0 so với hiện tại), `plates_v0_vs_current_1..3.jpg`. Báo cáo gốc: `outputs/regression_diag/REPORT.md`.
+# EXP-020 – diagnosis of "more false alarms, blurrier plate images" after the refactor (2026-10-19)
 
-## Phát hiện chính
-1. **v0 cho model helmet và model biển số nhìn frame đã bị vẽ đè**: `app.py` gốc vẽ trên đúng frame đang đưa vào model (khung đèn giao thông, nhãn, khung xe), nên model helmet thấy khung đèn và model biển số thấy các khung vi phạm. **Bản hiện tại đã sửa** (perception chạy trên frame gốc `raw`, vẽ lên bản sao `display`, từ bước 3.0b). Trên clip này điều đó **không làm đổi số track no-helmet** (bảng 2×2 dưới đây: perception không giải thích khác biệt nào), nhưng nó làm khác ảnh crop biển lưu: crop v0 chứa khung xanh `PLATE` và nhãn vẽ sẵn, crop hiện tại sạch.
-2. **Khác biệt về số cờ no-helmet đến từ luật, không từ perception**: bảng 2×2 (phát lại offline các tracks đã ghi; wrong-way tắt):
+No images are included (people and plates are visible). The images are in `outputs/regression_diag/` (gitignored): `contact4_1..6.jpg` (contact sheet of 4 versions, 28 rows), `contact_sheet_1..5.jpg` (v0 versus current), `plates_v0_vs_current_1..3.jpg`. Original report: `outputs/regression_diag/REPORT.md`.
 
-| perception | luật | track no-helmet | track overload | track-frame bị gắn cờ |
+## Main findings
+1. **v0 fed the helmet model and the plate model frames that had already been drawn on**: the original `app.py` draws on the very frame that goes into the model (traffic-light box, labels, vehicle boxes), so the helmet model sees the traffic-light box and the plate model sees the violation boxes. **The current version fixes this** (perception runs on the original frame `raw`, drawing goes on a copy `display`, since step 3.0b). On this clip that **does not change the number of no-helmet tracks** (2×2 table below: perception explains none of the differences), but it does change the stored plate crop images: the v0 crop contains the green `PLATE` box and a label drawn on it, the current crop is clean.
+2. **The difference in the number of no-helmet flags comes from the rules, not from perception**: the 2×2 table (offline replay of the recorded tracks; wrong-way off):
+
+| perception | rules | no-helmet tracks | overload tracks | flagged track-frames |
 |---|---|---|---|---|
 | v0 perception (overlay-contaminated, default tra | legacy | 12 | 2 | 314 |
 | v0 perception (overlay-contaminated, default tra | windowed (no hysteresis) | 13 | 1 | 350 |
@@ -18,61 +20,61 @@ Không kèm ảnh (có người và biển số). Ảnh nằm ở `outputs/regre
 | current default (clean + GMC off) | windowed (no hysteresis) | 13 | 1 | 350 |
 | current default (clean + GMC off) | windowed + hysteresis 0.3 (current default) | 13 | 1 | 389 |
 
-   Cột "luật": `legacy` = v0; `windowed (no hysteresis)`; `windowed + hysteresis 0.3` = mặc định hiện tại. Windowed thêm 1 track và +36 track-frame (+11%); hysteresis thêm +39 (+11%): tổng hộp đỏ giữ lâu hơn ≈ 24%.
-3. **Mức nền báo sai giống nhau ở mọi bản**: 11 trong 13 sự kiện no-helmet hiện tại cũng có ở v0; nhiều cờ là người đội mũ.
-4. **Lặp video**: cả v0 (3 vòng không reset: 12 track và 20 file biển mỗi vòng, id mới mỗi vòng) và bản hiện tại lặp lại cùng các xe mỗi vòng; bản hiện tại nhìn rõ hơn vì có panel sự kiện (đã sửa ở dưới).
-5. **Ảnh biển**: cùng kích thước crop (diện tích trung vị 1928 so với 1941 px), cùng JPEG q95, cùng cắt từ frame 1280×720; độ nét trong khung biển: v0 2264, hiện tại 2962 (trung vị Laplacian); không có bằng chứng ảnh lưu mờ hơn. Cái có thể làm biển trông mờ hơn khi xem web là **stream MJPEG chất lượng thấp** (xem dưới) và **CSS phóng to thumbnail**.
+   Column "rules": `legacy` = v0; `windowed (no hysteresis)`; `windowed + hysteresis 0.3` = the current default. Windowed adds 1 track and +36 track-frames (+11%); hysteresis adds +39 (+11%): in total the red boxes are held longer by ≈ 24%.
+3. **The baseline level of false alarms is the same in every version**: 11 of the 13 current no-helmet events also exist in v0; many flags are people wearing a helmet.
+4. **Video looping**: both v0 (3 rounds without reset: 12 tracks and 20 plate files per round, new ids every round) and the current version repeat the same vehicles in each round; the current version shows it more clearly because it has an event panel (fixed below).
+5. **Plate images**: the same crop size (median area 1928 versus 1941 px), the same JPEG q95, cut from the same 1280×720 frame; sharpness inside the plate box: v0 2264, current 2962 (median Laplacian); there is no evidence that the stored image is blurrier. What can make the plate look blurrier when viewed in the web UI is the **low-quality MJPEG stream** (see below) and the **CSS that enlarges thumbnails**.
 
-## Sự kiện của 4 phiên bản trên cùng video (một lượt, GPU, cùng cấu hình mặc định hiện tại)
-| phiên bản | no_helmet | overload | wrong_way | tổng sự kiện (hàng) |
+## Events of the 4 versions on the same video (one run, GPU, the same current default configuration)
+| version | no_helmet | overload | wrong_way | total events (rows) |
 |---|---|---|---|---|
 | v0 | 12 | 2 | 8 | 22 |
 | current+old model | 13 | 1 | 0 | 14 |
 | EXP-015 3cls | 7 | 0 | 0 | 7 |
 | EXP-016 4cls | 5 | 0 | 0 | 5 |
 
-"hiện tại + model cũ" = `helmet_best.pt`; "EXP-015 3cls" và "EXP-016 4cls" = pipeline hiện tại với model helmet tương ứng (EXP-016 chỉ dùng cho vai trò helmet; biển số vẫn là `plate_best.pt`). Ghép theo thời gian ±1 s và box chồng nhau; 28 hàng, số hàng cũ giữ nguyên (1–24), hàng mới 25–28. **Chưa có nhãn đúng/sai**: `grading_template.csv` để bạn chấm (đúng / sai / không rõ) cho từng phiên bản; số lượng sự kiện ít hơn không có nghĩa là ít báo sai hơn.
+"current + old model" = `helmet_best.pt`; "EXP-015 3cls" and "EXP-016 4cls" = the current pipeline with the corresponding helmet model (EXP-016 is only used in the helmet role; the plate is still `plate_best.pt`). Matched by time ±1 s and overlapping boxes; 28 rows, the old row numbers are kept (1–24), new rows 25–28. **There are no right/wrong labels yet**: `grading_template.csv` is for you to grade (right / wrong / unclear) for each version; fewer events does not mean fewer false alarms.
 
-## Sửa đổi trong ứng dụng web (cùng đợt)
-- `web.jpeg_quality` mặc định **90** (trước 80). Đo trên 12 frame có biển (1280×720, PSNR so với frame gốc), trung vị:
+## Changes in the web application (same batch)
+- `web.jpeg_quality` default **90** (was 80). Measured on 12 frames with plates (1280×720, PSNR against the original frame), median:
 
-| chất lượng | kích thước frame | PSNR vùng biển | PSNR cả frame |
+| quality | frame size | PSNR plate region | PSNR whole frame |
 |---|---|---|---|
 | 80 | 192.7 KB | 35.2 dB | 36.5 dB |
 | 90 | 270.3 KB | 38.9 dB | 39.4 dB |
 | 95 | 374.0 KB | 42.4 dB | 41.8 dB |
 
-  Mức 90 đổi +40% băng thông so với 80 để được +3.7 dB ở vùng biển; mức 95 gần gấp đôi dung lượng của 80. Chỉ ảnh hưởng tới luồng stream; ảnh bằng chứng luôn ≥ 95.
-- **Panel và gallery chỉ hiển thị ảnh bằng chứng đã lưu** (`frame.jpg`, `vehicle.jpg`, `plate.jpg`, q ≥ 95, từ `static/violations`), không lấy từ frame của stream (kiểm bằng code: `/api/violations` và `/api/events` trả URL file; stream chỉ cấp phần tử video). **CSS thumbnail**: trước đây thumbnail biển trong panel dùng `object-fit: cover` (cắt mất một phần crop 46×40 px khi phóng ~2.5×) và gallery phóng ~3× bằng làm mượt của trình duyệt (mờ). Nay biển dùng `object-fit: contain` và `image-rendering: pixelated`. (Đây là thay đổi theo đọc mã và CSS, chưa so ảnh chụp màn hình.)
-- **Panel sự kiện**: mỗi thẻ ghi `run N`; mặc định chỉ hiện sự kiện của run hiện tại (một lượt qua video), có nút "show all runs"; API `/api/events?scope=current|all`, `/api/status` có `run`. Có test.
+  Level 90 trades +40% bandwidth over 80 for +3.7 dB in the plate region; level 95 almost doubles the size of 80. It only affects the stream; the evidence images are always ≥ 95.
+- **The panel and the gallery only show the stored evidence images** (`frame.jpg`, `vehicle.jpg`, `plate.jpg`, q ≥ 95, from `static/violations`), never taken from the stream frames (checked in code: `/api/violations` and `/api/events` return file URLs; the stream only supplies the video element). **Thumbnail CSS**: before, the plate thumbnail in the panel used `object-fit: cover` (cutting off part of the 46×40 px crop when enlarged ~2.5×) and the gallery enlarged ~3× with the browser's smoothing (blurry). Now plates use `object-fit: contain` and `image-rendering: pixelated`. (This is a change based on reading the code and CSS, not yet compared with screenshots.)
+- **Event panel**: every card says `run N`; by default only the events of the current run (one pass over the video) are shown, with a "show all runs" button; API `/api/events?scope=current|all`, `/api/status` has `run`. Tested.
 
-## Cập nhật: phiên bản thứ 5 "hiện tại + model cũ @10 FPS" (2026-10-19)
-`contact5_1..7.jpg` (trong `outputs/regression_diag/`, gitignored) và `event_rows_5_versions.json`: cùng 28 hàng cũ (số hàng giữ nguyên) cộng cột thứ 5 là pipeline hiện tại + `helmet_best.pt` xử lý ở 10 FPS (mỗi frame thứ 3, EXP-021); ghép theo thời gian ±1 s + IoU; **3 hàng mới 29–31** (sự kiện của bản 10 FPS không khớp hàng cũ nào: M_372 @14.2 s, M_620 @15.8 s, M_725 @16.6 s). `grading_template.csv` có thêm cột cho phiên bản thứ 5 (cột "verdict" để trống cho bạn chấm). Số sự kiện: v0 22, hiện tại + model cũ 14, EXP-015 7, EXP-016 5, 10 FPS 10.
+## Update: the 5th version "current + old model @10 FPS" (2026-10-19)
+`contact5_1..7.jpg` (in `outputs/regression_diag/`, gitignored) and `event_rows_5_versions.json`: the same 28 old rows (row numbers kept) plus a 5th column for the current pipeline + `helmet_best.pt` processed at 10 FPS (every 3rd frame, EXP-021); matched by time ±1 s + IoU; **3 new rows 29–31** (events of the 10 FPS version that match no old row: M_372 @14.2 s, M_620 @15.8 s, M_725 @16.6 s). `grading_template.csv` has an extra column for the 5th version (the "verdict" column is left empty for you to grade). Number of events: v0 22, current + old model 14, EXP-015 7, EXP-016 5, 10 FPS 10.
 
-## Kết luận (xác nhận bằng mắt, 2026-10-20)
-**Mọi sự kiện no_helmet và overload mà 5 phiên bản báo trên test_video đều là báo oan.** Chủ dự án xác nhận cả 23 người trong các hàng đã chấm đều đội mũ bảo hiểm (`grading_rows.csv`: 23/23 hàng "sai"). Clip (26 s, giờ đi làm buổi sáng) **không có vi phạm nào trong số các sự kiện được báo**.
+## Conclusion (confirmed by eye, 2026-10-20)
+**Every no_helmet and overload event that the 5 versions report on test_video is a false alarm.** The project owner confirmed that all 23 people in the graded rows wear a helmet (`grading_rows.csv`: 23/23 rows "wrong"). The clip (26 s, morning rush hour) **has no violation among the events that were reported**.
 
-**Precision không còn là thước đo phù hợp cho clip này** (mọi phiên bản đều 0/n, nên không so sánh được). Số đo dùng: **báo oan mỗi phút** = số sự kiện / thời lượng clip (787 frame / 30 FPS = 26.233 s = 0.4372 phút):
-| phiên bản | báo oan (sự kiện) | báo oan / phút |
+**Precision is no longer a suitable measure for this clip** (every version is 0/n, so they cannot be compared). The measure used: **false alarms per minute** = number of events / clip duration (787 frames / 30 FPS = 26.233 s = 0.4372 min):
+| version | false alarms (events) | false alarms / minute |
 |---|---|---|
-| v0 (mã gốc) | 14 | 32.0 |
-| hiện tại + model cũ | 14 | 32.0 |
-| hiện tại + model cũ @10 FPS | 10 | 22.9 |
-| EXP-015 (3 lớp) | 7 | 16.0 |
-| EXP-016 (4 lớp) | 5 | 11.4 |
-(Chỉ no_helmet và overload; wrong_way đã tắt. Một sự kiện là một cặp (track, loại): một người có thể sinh nhiều sự kiện nếu track bị vỡ.)
+| v0 (original code) | 14 | 32.0 |
+| current + old model | 14 | 32.0 |
+| current + old model @10 FPS | 10 | 22.9 |
+| EXP-015 (3 classes) | 7 | 16.0 |
+| EXP-016 (4 classes) | 5 | 11.4 |
+(Only no_helmet and overload; wrong_way is off. An event is a (track, type) pair: one person can produce several events if the track breaks.)
 
-**Không đo được recall.** Clip không có vi phạm thật nào được ghi nhận, nên không biết 5 phiên bản bỏ sót bao nhiêu; **có thể còn người không đội mũ mà cả 5 phiên bản đều không báo**, việc đó chưa được kiểm tra (cần xem toàn clip hoặc video có vi phạm thật).
+**Recall cannot be measured.** The clip has no recorded real violation, so it is not known how many the 5 versions miss; **there may still be people without a helmet that all 5 versions do not report**, which has not been checked (it needs a look at the whole clip or a video with real violations).
 
-**Tỉ lệ nền (base rate):** khi vi phạm hiếm, dù xác suất nhầm trên mỗi người đã đội mũ nhỏ thì báo oan vẫn áp đảo vi phạm thật. Minh họa (giả định, KHÔNG phải số đo): độ nhạy 80%, tỉ lệ nhầm một người đội mũ thành no-helmet là 1% / 2% / 5%; độ chính xác của cảnh báo (tỉ lệ cảnh báo là vi phạm thật) theo tỉ lệ người không mũ trong số xe qua:
-| tỉ lệ no-helmet thật | nhầm 1% | nhầm 2% | nhầm 5% |
+**Base rate:** when violations are rare, even a small probability of error on each person who wears a helmet means that false alarms still dominate real violations. Illustration (assumed, NOT measured): sensitivity 80%, the rate of mistaking a helmeted person for no-helmet is 1% / 2% / 5%; the precision of an alarm (the share of alarms that are real violations) by the share of people without a helmet among the vehicles passing:
+| real no-helmet share | mistaken 1% | mistaken 2% | mistaken 5% |
 |---|---|---|---|
-| 23.6% (tỉ lệ no-helmet trong nhãn đầu của tập test: 111 / (359 + 111)) | 96% | 93% | 83% |
+| 23.6% (share of no-helmet among the head labels of the test set: 111 / (359 + 111)) | 96% | 93% | 83% |
 | 5% | 81% | 68% | 46% |
 | 1% | 45% | 29% | 14% |
-**mAP trên tập test không phản ánh điều này**: tập test của dataset có no-helmet chiếm 23.6% số nhãn đầu (DATA_CARD), cao hơn nhiều so với đường phố thật, nên các chỉ số trong miền (EXP-015: mAP50 0.934, no-helmet 0.844) cho độ chính xác cảnh báo cao hơn thực tế ngoài đường. Trên camera ngoài miền này, tỉ lệ nhầm đo được rất lớn so với tỉ lệ vi phạm thật (bằng 0 trong những gì quan sát).
+**The mAP on the test set does not reflect this**: the test set of the dataset has no-helmet as 23.6% of the head labels (DATA_CARD), much higher than a real street, so the in-domain metrics (EXP-015: mAP50 0.934, no-helmet 0.844) give a higher alarm precision than in reality on the street. On this out-of-domain camera, the measured error rate is very large compared with the real violation rate (zero in what was observed).
 
-Giới hạn: một clip 26 s, luật (cửa sổ, bỏ phiếu, hysteresis) từng được chỉnh trên chính clip này, một góc camera, giờ đi làm; không tham số nào được chỉnh theo kết quả này. Bảng "Precision by eye" bên dưới do `tools/grade_rows.py` sinh tự động: mọi ô là 0 vì mọi hàng sai, hãy đọc kết luận ở trên.
+Limits: one 26 s clip, the rules (window, voting, hysteresis) were once tuned on this very clip, one camera angle, rush hour; no parameter was tuned from this result. The table "Precision by eye" below is generated automatically by `tools/grade_rows.py`: every cell is 0 because every row is wrong, read the conclusion above.
 
 <!-- grade_rows:start -->
 ## Precision by eye (`tools/grade_rows.py`)
